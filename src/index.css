@@ -1,0 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Custom glow effects for Vibrant Palette theme */
+.glow-emerald {
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+}
+
+.glow-emerald-lg {
+  box-shadow: 0 0 40px rgba(16, 185, 129, 0.5);
+}
+
+.glow-rose {
+  box-shadow: 0 0 40px rgba(244, 63, 94, 0.5);
+}
