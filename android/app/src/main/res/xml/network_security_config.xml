@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Release: solo HTTPS. El trafico en claro para Supabase local/LAN se
+     habilita unicamente en builds de debug (ver src/debug/AndroidManifest.xml). -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+</network-security-config>

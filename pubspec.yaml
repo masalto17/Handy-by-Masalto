@@ -1,0 +1,38 @@
+name: event_radio_app
+description: Handy by Masalto - radio operativa para eventos.
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  audioplayers: ^6.8.1
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_dotenv: ^5.2.1
+  flutter_riverpod: ^2.6.1
+  go_router: ^14.6.2
+  # 'any' deja que flutter_localizations fije la version de intl compatible
+  # con el SDK y evita conflictos de resolucion.
+  intl: any
+  livekit_client: ^2.8.1
+  mobile_scanner: ^6.0.2
+  permission_handler: ^11.3.1
+  qr_flutter: ^4.1.0
+  record: ^7.1.1
+  supabase_flutter: ^2.8.0
+  web: ^1.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  generate: true
+  assets:
+    - .env
