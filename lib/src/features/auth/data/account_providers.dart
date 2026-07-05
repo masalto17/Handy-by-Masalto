@@ -25,7 +25,11 @@ abstract class AccountController
 
   Future<void> continueAsLocalAdminDemo();
 
-  Future<void> clear();
+  /// [signOut] controla si se cierra la sesion de autenticacion por completo.
+  /// Para participantes/invitados anonimos debe quedar en `false`: esa sesion
+  /// anonima ES la identidad vinculada a su codigo de invitacion, y cerrarla
+  /// invalidaria el codigo para siempre en este dispositivo.
+  Future<void> clear({bool signOut = true});
 }
 
 class MockAccountController extends AccountController {
@@ -88,7 +92,7 @@ class MockAccountController extends AccountController {
   }
 
   @override
-  Future<void> clear() async {
+  Future<void> clear({bool signOut = true}) async {
     state = const AsyncValue.data(null);
   }
 }
@@ -191,7 +195,13 @@ class SupabaseAccountController extends AccountController {
   }
 
   @override
-  Future<void> clear() async {
+  Future<void> clear({bool signOut = true}) async {
+    if (!signOut) {
+      // Mantiene viva la sesion anonima para poder reingresar con el mismo
+      // codigo de invitacion; solo se limpia el estado de cuenta en la UI.
+      state = const AsyncValue.data(null);
+      return;
+    }
     state = const AsyncValue.loading();
     try {
       await _client.auth.signOut();

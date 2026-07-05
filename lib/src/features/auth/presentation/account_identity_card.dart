@@ -24,7 +24,9 @@ class AccountIdentityCard extends ConsumerWidget {
               email: account.email,
               provider: account.provider,
               isGuest: account.isGuest,
-              onClear: () => ref.read(accountProvider.notifier).clear(),
+              onClear: () => ref
+                  .read(accountProvider.notifier)
+                  .clear(signOut: !account.isGuest),
             );
           },
           loading: () => const _LoadingContent(),
