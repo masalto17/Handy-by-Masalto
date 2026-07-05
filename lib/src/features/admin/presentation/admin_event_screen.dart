@@ -24,7 +24,7 @@ class AdminEventScreen extends ConsumerWidget {
       actions: [
         IconButton(
           tooltip: 'Invitacion QR',
-          onPressed: () => context.go('/admin/invite'),
+          onPressed: () => context.push('/admin/invite'),
           icon: const Icon(Icons.qr_code_2),
         ),
         const LeaveEventAction(),
@@ -109,7 +109,7 @@ class _PilotReadinessCard extends ConsumerWidget {
                   label: Text(canOperate ? 'Extender 8h' : 'Activar 8h'),
                 ),
                 OutlinedButton.icon(
-                  onPressed: () => context.go('/admin/invite'),
+                  onPressed: () => context.push('/admin/invite'),
                   icon: const Icon(Icons.qr_code_2),
                   label: const Text('Ver invitaciones'),
                 ),

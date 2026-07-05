@@ -43,7 +43,7 @@ class EventHomeScreen extends ConsumerWidget {
       actions: [
         IconButton(
           tooltip: 'Bitacora',
-          onPressed: () => context.go('/admin'),
+          onPressed: () => context.push('/admin'),
           icon: const Icon(Icons.assignment_outlined),
         ),
         const LeaveEventAction(),
@@ -213,7 +213,7 @@ class _ChannelTile extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       child: ListTile(
-        onTap: () => context.go('/channel/${channel.id}'),
+        onTap: () => context.push('/channel/${channel.id}'),
         leading: CircleAvatar(
           backgroundColor:
               channel.isEmergency ? AppTheme.accent : AppTheme.surfaceRaised,

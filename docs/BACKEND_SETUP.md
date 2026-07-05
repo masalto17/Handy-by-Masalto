@@ -33,12 +33,24 @@ Dashboard → **Authentication → Sign In / Providers → Anonymous** → activ
 
 Sin esto, ingresar por código/QR falla.
 
-### 2. Redirect URL para login de organizadores (opcional)
+### 2. "Continuar con Gmail" — opcional, hoy no funciona sin este paso
 
-Solo si vas a usar "Continuar con Google" / magic-link:
+El botón "Continuar con Gmail" necesita el proveedor Google **configurado en
+Supabase** (Client ID/Secret de un proyecto de Google Cloud Console), que no
+está hecho. Sin eso, el botón siempre falla — no es un bug del código, es un
+paso manual pendiente:
 
-Dashboard → **Authentication → URL Configuration → Redirect URLs** → agregar
-`eventradio://login-callback`.
+1. Crear credenciales OAuth en Google Cloud Console.
+2. Dashboard Supabase → **Authentication → Providers → Google** → cargar
+   Client ID/Secret y activar.
+3. Dashboard → **Authentication → URL Configuration → Redirect URLs** →
+   agregar `eventradio://login-callback`.
+
+**No es necesario para crear eventos.** Cualquier persona ya puede tocar
+"¿Sos organizador? Crea tu evento" en la pantalla de ingreso y armar su
+propio evento sin código ni cuenta de Google — usa la misma sesión anónima
+que el ingreso por código. Gmail queda como mejora opcional para recuperar
+acceso desde otro dispositivo.
 
 ### 3. LiveKit (audio real) — cuenta gratis + secrets
 
@@ -60,6 +72,27 @@ tarjeta.
 Sin LiveKit configurado, la app funciona igual pero el PTT queda simulado
 (mock); todo lo demás (ingreso, canales, permisos, SOS, historial) opera
 real contra Supabase.
+
+### 4. Transcripción de audio — requiere una clave paga o Whisper propio
+
+La Edge Function `transcribe-audio` ya está desplegada (ACTIVE), pero **sin
+configurar todavía**: sin uno de estos dos secrets, cada intento de
+transcribir falla con "Falta configurar LOCAL_WHISPER_URL u
+OPENAI_API_KEY".
+
+- **Opción paga (más simple):** cuenta OpenAI + `supabase secrets set
+  OPENAI_API_KEY=...`. Cuesta centavos de dólar por minuto de audio
+  (`gpt-4o-mini-transcribe`).
+- **Opción gratis (requiere un servidor propio):** correr `whisper.cpp`
+  (ver `scripts/start_local_whisper.sh`) y cargar `LOCAL_WHISPER_URL`
+  apuntando a ese servidor. Solo sirve mientras ese servidor esté prendido
+  y accesible desde internet — no es "gratis y automático", alguien tiene
+  que mantenerlo corriendo.
+- **Ya funciona gratis, pero solo en Handy Web:** el navegador transcribe
+  con su propio reconocimiento de voz (Web Speech API) sin pasar por esta
+  función. En el **APK** (Android/iPhone) no hay equivalente nativo hoy, así
+  que ahí la transcripción depende sí o sí de una de las dos opciones de
+  arriba.
 
 ## APK que apunta al backend real
 

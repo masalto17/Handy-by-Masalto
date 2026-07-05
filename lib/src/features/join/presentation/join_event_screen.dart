@@ -3,6 +3,7 @@ import 'package:event_radio_app/src/core/config/env_config.dart';
 import 'package:event_radio_app/src/core/theme/app_theme.dart';
 import 'package:event_radio_app/src/features/auth/data/account_providers.dart';
 import 'package:event_radio_app/src/features/auth/presentation/account_identity_card.dart';
+import 'package:event_radio_app/src/features/join/presentation/create_event_dialog.dart';
 import 'package:event_radio_app/src/features/join/presentation/how_it_works_sheet.dart';
 import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
 import 'package:event_radio_app/src/shared/domain/event_radio_repository.dart';
@@ -32,6 +33,13 @@ class _JoinEventScreenState extends ConsumerState<JoinEventScreen> {
 
   Future<void> _join() async {
     await _joinWithCode(_codeController.text);
+  }
+
+  Future<void> _createEvent() async {
+    final created = await showCreateEventDialog(context);
+    if (created == true && mounted) {
+      context.go('/event');
+    }
   }
 
   Future<void> _joinAsLocalAdminDemo() async {
@@ -117,7 +125,7 @@ class _JoinEventScreenState extends ConsumerState<JoinEventScreen> {
             ),
             const SizedBox(height: 12),
             OutlinedButton.icon(
-              onPressed: () => context.go('/scan'),
+              onPressed: () => context.push('/scan'),
               icon: const Icon(Icons.qr_code_scanner),
               label: const Text('Escanear QR'),
             ),
@@ -126,6 +134,23 @@ class _JoinEventScreenState extends ConsumerState<JoinEventScreen> {
               onPressed: () => showHowItWorksSheet(context),
               icon: const Icon(Icons.help_outline, size: 18),
               label: Text(AppLocalizations.of(context).howItWorks),
+            ),
+            const SizedBox(height: 20),
+            const Row(
+              children: [
+                Expanded(child: Divider(color: Colors.white24)),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Text('O', style: TextStyle(color: Colors.white54)),
+                ),
+                Expanded(child: Divider(color: Colors.white24)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: isLoading ? null : _createEvent,
+              icon: const Icon(Icons.add_circle_outline),
+              label: const Text('Sos organizador? Crea tu evento'),
             ),
             if (EnvConfig.allowDemoShortcuts) ...[
               const SizedBox(height: 24),

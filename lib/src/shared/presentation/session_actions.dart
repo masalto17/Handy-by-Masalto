@@ -8,8 +8,15 @@ Future<void> leaveEventAndAccount(
   BuildContext context,
   WidgetRef ref,
 ) async {
+  final account = ref.read(accountProvider).valueOrNull;
+  // Los invitados/participantes usan una sesion anonima que ES la identidad
+  // vinculada a su codigo de invitacion: cerrarla del todo invalidaria el
+  // codigo para siempre en este dispositivo. Solo se cierra sesion por
+  // completo para cuentas reales (Google/email), donde "salir" debe
+  // permitir entrar despues con otra cuenta.
+  final shouldSignOut = account != null && !account.isGuest;
   ref.read(currentSessionProvider.notifier).clear();
-  await ref.read(accountProvider.notifier).clear();
+  await ref.read(accountProvider.notifier).clear(signOut: shouldSignOut);
   if (!context.mounted) return;
   context.go('/');
 }

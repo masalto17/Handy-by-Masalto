@@ -215,7 +215,7 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: () => context.go('/history/${channel.id}'),
+                      onPressed: () => context.push('/history/${channel.id}'),
                       icon: const Icon(Icons.history),
                       label: const Text('Historial'),
                     ),
