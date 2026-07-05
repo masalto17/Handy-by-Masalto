@@ -1,3 +1,4 @@
+import 'package:event_radio_app/src/core/config/env_config.dart';
 import 'package:event_radio_app/src/core/theme/app_theme.dart';
 import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
 import 'package:event_radio_app/src/shared/domain/event_radio_repository.dart';
@@ -17,7 +18,9 @@ class QrJoinScreen extends ConsumerStatefulWidget {
 
 class _QrJoinScreenState extends ConsumerState<QrJoinScreen> {
   late final MobileScannerController _scannerController;
-  final _manualController = TextEditingController(text: 'SATI26');
+  final _manualController = TextEditingController(
+    text: EnvConfig.allowDemoShortcuts ? 'SATI26' : '',
+  );
   String? _error;
   bool _cameraRequested = false;
   bool _isSubmitting = false;
@@ -26,6 +29,10 @@ class _QrJoinScreenState extends ConsumerState<QrJoinScreen> {
   void initState() {
     super.initState();
     _scannerController = MobileScannerController(autoStart: false);
+    // Intenta abrir la camara apenas se entra a la pantalla, para que
+    // escanear sea un solo paso. Si falla (permiso o navegador sin camara),
+    // queda el ingreso manual como respaldo.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startCamera());
   }
 
   @override
@@ -96,17 +103,20 @@ class _QrJoinScreenState extends ConsumerState<QrJoinScreen> {
           ),
           const SizedBox(height: 8),
           const Text(
-            'La preview web no abre camara automaticamente. En movil real, toca activar camara para escanear.',
+            'Apunta la camara al QR de tu invitacion. Si no se abre la camara '
+            '(por permisos o navegador), escribi el codigo mas abajo.',
             style: TextStyle(color: Colors.white70),
           ),
-          const SizedBox(height: 16),
-          OutlinedButton.icon(
-            onPressed: _isSubmitting
-                ? null
-                : () => _submit('event-radio://join?code=SATI26'),
-            icon: const Icon(Icons.bolt),
-            label: const Text('Probar QR demo SATI26'),
-          ),
+          if (EnvConfig.allowDemoShortcuts) ...[
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: _isSubmitting
+                  ? null
+                  : () => _submit('event-radio://join?code=SATI26'),
+              icon: const Icon(Icons.bolt),
+              label: const Text('Probar QR demo SATI26'),
+            ),
+          ],
           const SizedBox(height: 20),
           AspectRatio(
             aspectRatio: 1,

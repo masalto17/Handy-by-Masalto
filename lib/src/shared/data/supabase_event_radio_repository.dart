@@ -551,10 +551,8 @@ class SupabaseEventRadioRepository implements EventRadioRepository {
           'role': role.value,
           'invite_code': _normalizeInviteCode(inviteCode),
           'invite_status': 'pending',
-          'invite_expires_at': DateTime.now()
-              .toUtc()
-              .add(const Duration(days: 7))
-              .toIso8601String(),
+          // El codigo vale hasta que termina el evento (no vence por tiempo).
+          'invite_expires_at': session.event.endsAt.toUtc().toIso8601String(),
         })
         .select()
         .single();
@@ -605,10 +603,7 @@ class SupabaseEventRadioRepository implements EventRadioRepository {
           if (inviteChanged) 'accepted_at': null,
           if (inviteChanged) 'invite_revoked_at': null,
           if (inviteChanged)
-            'invite_expires_at': DateTime.now()
-                .toUtc()
-                .add(const Duration(days: 7))
-                .toIso8601String(),
+            'invite_expires_at': session.event.endsAt.toUtc().toIso8601String(),
           'updated_at': DateTime.now().toUtc().toIso8601String(),
         })
         .eq('id', participant.id)
