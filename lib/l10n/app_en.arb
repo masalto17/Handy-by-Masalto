@@ -1,0 +1,22 @@
+{
+  "@@locale": "en",
+  "appName": "Handy",
+  "joinTitle": "Join an event",
+  "joinSubtitle": "Use the code or QR the coordinator shared with you.",
+  "joinButton": "Join",
+  "scanQr": "Scan QR",
+  "howItWorks": "How Handy works",
+  "howItWorksTitle": "How Handy works",
+  "howStep1Title": "1. Join with your QR",
+  "howStep1Detail": "Scan the code your organization shared. No account or setup needed.",
+  "howStep2Title": "2. Hold to talk",
+  "howStep2Detail": "Tap your channel and hold the big button while you speak. Everyone hears you when you release.",
+  "howStep3Title": "3. SOS if you need help",
+  "howStep3Detail": "The SOS button instantly alerts coordinators with your name and channel.",
+  "understood": "Got it",
+  "pttHold": "HOLD TO TALK",
+  "pttTransmitting": "ON AIR",
+  "pttBlocked": "TRANSMISSION BLOCKED",
+  "sosLabel": "SOS",
+  "history": "History"
+}

@@ -1,0 +1,86 @@
+name: Build APK
+
+# Genera un APK de Android descargable desde la pestaña "Actions".
+# - Se dispara a mano (workflow_dispatch) o al publicar un tag v*.
+# - Sin secrets de firma, usa la firma de debug: instalable para probar,
+#   NO apto para Play Store (para eso, ver docs/RELEASE.md).
+#
+# Dos modos:
+# - demo (default en el boton): compila en MODO MOCK, sin backend. Sirve para
+#   ver la interfaz con el codigo SATI26 y datos de prueba.
+# - real: compila apuntando al backend cloud usando los secrets del repo
+#   (SUPABASE_URL, SUPABASE_ANON_KEY y, si hay audio, LIVEKIT_URL).
+on:
+  workflow_dispatch:
+    inputs:
+      demo_mode:
+        description: "APK demo en modo mock (sin backend). Desmarcar para build real cloud."
+        type: boolean
+        default: true
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-apk:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Prepare .env (demo = mock; real = backend cloud desde secrets)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          LIVEKIT_URL: ${{ secrets.LIVEKIT_URL }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.demo_mode }}" = "true" ]; then
+            echo "Build DEMO (mock): usando .env.example"
+            cp .env.example .env
+          else
+            echo "Build REAL: escribiendo .env desde secrets"
+            {
+              echo "SUPABASE_URL=${SUPABASE_URL}"
+              echo "SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}"
+              echo "AUTH_REDIRECT_URL=eventradio://login-callback"
+              if [ -n "${LIVEKIT_URL}" ]; then
+                echo "LIVEKIT_AUDIO_ENABLED=true"
+                echo "LIVEKIT_URL=${LIVEKIT_URL}"
+              else
+                echo "LIVEKIT_AUDIO_ENABLED=false"
+                echo "LIVEKIT_URL="
+              fi
+            } > .env
+          fi
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate localizations (ARB -> Dart)
+        run: flutter gen-l10n
+
+      - name: Build APK (demo)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.demo_mode }}
+        run: flutter build apk --release --dart-define=DEMO=true
+
+      - name: Build APK (real)
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.demo_mode }}
+        run: flutter build apk --release
+
+      - name: Rename APK
+        run: |
+          mkdir -p dist
+          cp build/app/outputs/flutter-apk/app-release.apk dist/handy.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: handy-apk
+          path: dist/handy.apk
+          if-no-files-found: error
+          retention-days: 30

@@ -1,0 +1,22 @@
+{
+  "@@locale": "es",
+  "appName": "Handy",
+  "joinTitle": "Ingresar a un evento",
+  "joinSubtitle": "Usa el codigo o QR que te compartio el coordinador.",
+  "joinButton": "Ingresar",
+  "scanQr": "Escanear QR",
+  "howItWorks": "Como funciona Handy",
+  "howItWorksTitle": "Como funciona Handy",
+  "howStep1Title": "1. Entra con tu QR",
+  "howStep1Detail": "Escanea el codigo que te compartio la organizacion. No necesitas crear cuenta ni configurar nada.",
+  "howStep2Title": "2. Manten apretado para hablar",
+  "howStep2Detail": "Toca tu canal y manten presionado el boton grande mientras hablas. Al soltar, todos lo escuchan.",
+  "howStep3Title": "3. SOS si necesitas ayuda",
+  "howStep3Detail": "El boton SOS avisa al instante a los coordinadores con tu nombre y tu canal.",
+  "understood": "Entendido",
+  "pttHold": "MANTENER PARA HABLAR",
+  "pttTransmitting": "AL AIRE",
+  "pttBlocked": "TRANSMISION BLOQUEADA",
+  "sosLabel": "SOS",
+  "history": "Historial"
+}
