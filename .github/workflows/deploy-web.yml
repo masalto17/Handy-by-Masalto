@@ -1,0 +1,67 @@
+name: Deploy Web
+
+# Publica la version web de Handy en Vercel (gratis) para poder abrirla
+# desde cualquier navegador sin instalar nada.
+#
+# Requiere un unico secret en el repo: VERCEL_TOKEN
+# (Vercel -> Account Settings -> Tokens -> Create). El resto (org/proyecto)
+# se resuelve solo: la CLI reutiliza el mismo proyecto "web" en cada corrida.
+#
+# El backend real (Supabase + LiveKit) se conecta igual que en el APK real,
+# usando los mismos secrets SUPABASE_URL / SUPABASE_ANON_KEY / LIVEKIT_URL.
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+
+jobs:
+  deploy-web:
+    name: Build and deploy web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Prepare .env (backend cloud desde secrets)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          LIVEKIT_URL: ${{ secrets.LIVEKIT_URL }}
+        run: |
+          {
+            echo "SUPABASE_URL=${SUPABASE_URL}"
+            echo "SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}"
+            echo "AUTH_REDIRECT_URL=eventradio://login-callback"
+            if [ -n "${LIVEKIT_URL}" ]; then
+              echo "LIVEKIT_AUDIO_ENABLED=true"
+              echo "LIVEKIT_URL=${LIVEKIT_URL}"
+            else
+              echo "LIVEKIT_AUDIO_ENABLED=false"
+              echo "LIVEKIT_URL="
+            fi
+          } > .env
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate localizations (ARB -> Dart)
+        run: flutter gen-l10n
+
+      - name: Build web
+        run: flutter build web --release
+
+      - name: Deploy to Vercel
+        working-directory: build/web
+        run: |
+          if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then
+            echo "::error::Falta el secret VERCEL_TOKEN. Crealo en https://vercel.com/account/tokens y cargalo en Settings > Secrets > Actions."
+            exit 1
+          fi
+          url=$(npx --yes vercel@latest deploy --prod --yes --token="${{ secrets.VERCEL_TOKEN }}")
+          echo "Deployed to: $url"
+          echo "### 🚀 Handy Web desplegada" >> "$GITHUB_STEP_SUMMARY"
+          echo "$url" >> "$GITHUB_STEP_SUMMARY"

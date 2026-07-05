@@ -71,6 +71,27 @@ hacia Supabase local/LAN funciona únicamente en builds de debug.
 ATS: HTTPS obligatorio; solo se permite HTTP dentro de la red local
 (`NSAllowsLocalNetworking`) para pruebas con Supabase local.
 
+## Version web (online, sin instalar nada)
+
+El workflow **Deploy Web** (`.github/workflows/deploy-web.yml`) compila
+`flutter build web` y publica el resultado en **Vercel** (gratis) en cada
+push a `main`, o a demanda desde la pestaña Actions.
+
+Requiere un unico secret nuevo en el repo:
+
+- `VERCEL_TOKEN`: crear en https://vercel.com/account/tokens y cargarlo en
+  Settings → Secrets and variables → Actions.
+
+Usa los mismos secrets del backend real (`SUPABASE_URL`, `SUPABASE_ANON_KEY`,
+`LIVEKIT_URL`) que el Build APK. La URL publica queda en el resumen de la
+corrida (Actions → la corrida → "Summary").
+
+Limitacion a tener en cuenta: el microfono en el navegador movil es mas
+restrictivo que en la app instalada (requiere HTTPS siempre y el sistema
+puede bloquearlo con la pantalla apagada). Para uso real en un evento, la
+app instalada (APK/TestFlight) es la opcion confiable; la web sirve para
+demos rapidas o para quien no puede instalar un APK.
+
 ## Checklist previo a subir a tiendas
 
 - [ ] `flutter analyze && flutter test` en verde (CI lo exige en cada PR).
