@@ -7,11 +7,12 @@ class AppTheme {
   static const Color surface = Color(0xFF11161B);
   static const Color surfaceRaised = Color(0xFF20262C);
   static const Color surfaceBorder = Color(0xFF2A333C);
-  static const Color accent = Color(0xFFEF3838);
+  static const Color accent = Color(0xFFCBA233);       // CAMBIO: rojo → dorado
   static const Color brandGold = Color(0xFFCBA233);
-  static const Color accentSoft = Color(0xFF6E2424);
+  static const Color accentSoft = Color(0xFF3D2A00);   // CAMBIO: rojo suave → dorado suave
   static const Color success = Color(0xFF40C463);
   static const Color warning = Color(0xFFFFB020);
+  static const Color danger = Color(0xFFEF3838);       // NUEVO: rojo queda solo para SOS/Emergencia
 
   static ThemeData dark() {
     final colorScheme = ColorScheme.fromSeed(
@@ -57,7 +58,7 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: accent,
-          foregroundColor: Colors.white,
+          foregroundColor: Colors.black,
           minimumSize: const Size.fromHeight(48),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           textStyle: const TextStyle(fontWeight: FontWeight.w700),

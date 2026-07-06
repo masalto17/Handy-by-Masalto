@@ -40,7 +40,7 @@ class AppScaffold extends StatelessWidget {
                     center: Alignment.topCenter,
                     radius: 1.15,
                     colors: [
-                      Color(0xFF180606),
+                      Color(0xFF0A0A0A),        // CAMBIO: era 0xFF180606 (tinte rojo) → negro puro
                       AppTheme.background,
                     ],
                     stops: [0, 0.62],

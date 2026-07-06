@@ -51,7 +51,7 @@ class PriorityBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return StatusPill(
       label: isEmergency ? 'CRITICO' : 'OPERATIVO',
-      color: isEmergency ? AppTheme.accent : AppTheme.success,
+      color: isEmergency ? AppTheme.danger : AppTheme.success,
       icon: isEmergency ? Icons.priority_high : Icons.radio_button_checked,
     );
   }
