@@ -216,7 +216,7 @@ class _ChannelTile extends StatelessWidget {
         onTap: () => context.push('/channel/${channel.id}'),
         leading: CircleAvatar(
           backgroundColor:
-              channel.isEmergency ? AppTheme.accent : AppTheme.surfaceRaised,
+              channel.isEmergency ? AppTheme.danger : AppTheme.surfaceRaised,
           child: Icon(
             channel.isEmergency ? Icons.priority_high : Icons.radio,
             color: Colors.white,
