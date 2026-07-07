@@ -54,6 +54,32 @@ jobs:
       - name: Build web
         run: flutter build web --release
 
+      - name: Configure Vercel static routing
+        run: |
+          cat > build/web/vercel.json <<'JSON'
+          {
+            "cleanUrls": true,
+            "trailingSlash": false,
+            "rewrites": [
+              {
+                "source": "/(.*)",
+                "destination": "/index.html"
+              }
+            ],
+            "headers": [
+              {
+                "source": "/flutter_service_worker.js",
+                "headers": [
+                  {
+                    "key": "Cache-Control",
+                    "value": "no-cache"
+                  }
+                ]
+              }
+            ]
+          }
+          JSON
+
       - name: Deploy to Vercel
         working-directory: build/web
         run: |
