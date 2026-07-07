@@ -60,10 +60,13 @@ jobs:
           {
             "cleanUrls": true,
             "trailingSlash": false,
-            "rewrites": [
+            "routes": [
               {
-                "source": "/:path*",
-                "destination": "/index.html"
+                "handle": "filesystem"
+              },
+              {
+                "src": "/.*",
+                "dest": "/index.html"
               }
             ],
             "headers": [
