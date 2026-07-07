@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>$(PRODUCT_NAME) usa el microfono para transmitir audio push-to-talk.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Handy usa la camara para escanear el codigo QR de tu invitacion al evento.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Handy usa la red local para conectarse al servidor de prueba del evento.</string>
 	<key>NSAppTransportSecurity</key>

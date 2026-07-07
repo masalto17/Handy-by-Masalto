@@ -1,11 +1,11 @@
 {
-    "name": "event_radio_app",
-    "short_name": "event_radio_app",
+    "name": "Handy by Masalto",
+    "short_name": "Handy",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#030404",
+    "theme_color": "#030404",
+    "description": "Radio operativa push-to-talk para la comunicacion interna de eventos, espectaculos y festivales.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
@@ -31,5 +31,6 @@
             "type": "image/png",
             "purpose": "maskable"
         }
-    ]
+    ],
+    "lang": "es"
 }
