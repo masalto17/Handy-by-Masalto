@@ -77,88 +77,109 @@ class _JoinEventScreenState extends ConsumerState<JoinEventScreen> {
     final isLoading = sessionState.isLoading;
 
     return AppScaffold(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 28),
-            const _JoinBrandHeader(),
-            const SizedBox(height: 42),
-            Text(
-              'Ingresar a un evento',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Usa el codigo o QR que te compartio el coordinador.',
-              style: TextStyle(color: Colors.white70),
-            ),
-            const SizedBox(height: 24),
-            const AccountIdentityCard(),
-            const SizedBox(height: 16),
-            if (EnvConfig.allowDemoShortcuts &&
-                EnvConfig.isSupabaseAvailable &&
-                EnvConfig.isLocalSupabase) ...[
-              OutlinedButton.icon(
-                onPressed: isLoading ? null : _joinAsLocalAdminDemo,
-                icon: const Icon(Icons.admin_panel_settings_outlined),
-                label: const Text('Ingresar como admin demo'),
-              ),
-              const SizedBox(height: 16),
-            ],
-            _InviteCodePanel(
-              controller: _codeController,
-              error: _error,
-              onSubmitted: isLoading ? null : _join,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: isLoading ? null : _join,
-              icon: isLoading
-                  ? const SizedBox.square(
-                      dimension: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.login),
-              label: Text(isLoading ? 'Validando...' : 'Ingresar'),
-            ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: () => context.push('/scan'),
-              icon: const Icon(Icons.qr_code_scanner),
-              label: const Text('Escanear QR'),
-            ),
-            const SizedBox(height: 4),
-            TextButton.icon(
-              onPressed: () => showHowItWorksSheet(context),
-              icon: const Icon(Icons.help_outline, size: 18),
-              label: Text(AppLocalizations.of(context).howItWorks),
-            ),
-            const SizedBox(height: 20),
-            const Row(
-              children: [
-                Expanded(child: Divider(color: Colors.white24)),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Text('O', style: TextStyle(color: Colors.white54)),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxHeight < 700;
+          final contentWidth = compact
+              ? constraints.maxWidth > 478
+                  ? 430.0
+                  : constraints.maxWidth - 48
+              : constraints.maxWidth > 408
+                  ? 342.0
+                  : constraints.maxWidth - 48;
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+            child: Center(
+              child: SizedBox(
+                width: contentWidth,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SizedBox(height: constraints.maxHeight > 760 ? 28 : 4),
+                    const _JoinBrandHeader(),
+                    SizedBox(height: compact ? 12 : 34),
+                    Text(
+                      'Ingresar a un evento',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Usa el codigo de invitacion que te compartio el coordinador.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.white70, height: 1.35),
+                    ),
+                    const SizedBox(height: 18),
+                    const AccountIdentityCard(),
+                    const SizedBox(height: 16),
+                    _InviteCodePanel(
+                      controller: _codeController,
+                      error: _error,
+                      isLoading: isLoading,
+                      onSubmitted: isLoading ? null : _join,
+                    ),
+                    const SizedBox(height: 18),
+                    const _QrDivider(),
+                    const SizedBox(height: 14),
+                    OutlinedButton.icon(
+                      onPressed: () => context.push('/scan'),
+                      icon: const Icon(Icons.qr_code_scanner),
+                      label: const Text('Escanear QR'),
+                    ),
+                    const SizedBox(height: 4),
+                    TextButton.icon(
+                      onPressed: () => showHowItWorksSheet(context),
+                      icon: const Icon(Icons.help_outline, size: 18),
+                      label: Text(AppLocalizations.of(context).howItWorks),
+                    ),
+                    const SizedBox(height: 16),
+                    if (EnvConfig.allowDemoShortcuts &&
+                        EnvConfig.isSupabaseAvailable &&
+                        EnvConfig.isLocalSupabase) ...[
+                      OutlinedButton.icon(
+                        onPressed: isLoading ? null : _joinAsLocalAdminDemo,
+                        icon: const Icon(Icons.admin_panel_settings_outlined),
+                        label: const Text('Ingresar como admin demo'),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    OutlinedButton.icon(
+                      onPressed: isLoading ? null : _createEvent,
+                      icon: const Icon(Icons.add_circle_outline),
+                      label: const Text('Sos organizador? Crea tu evento'),
+                    ),
+                    if (EnvConfig.allowDemoShortcuts) ...[
+                      const SizedBox(height: 24),
+                      const _DemoCodesCard(),
+                    ],
+                  ],
                 ),
-                Expanded(child: Divider(color: Colors.white24)),
-              ],
+              ),
             ),
-            const SizedBox(height: 16),
-            OutlinedButton.icon(
-              onPressed: isLoading ? null : _createEvent,
-              icon: const Icon(Icons.add_circle_outline),
-              label: const Text('Sos organizador? Crea tu evento'),
-            ),
-            if (EnvConfig.allowDemoShortcuts) ...[
-              const SizedBox(height: 24),
-              const _DemoCodesCard(),
-            ],
-          ],
-        ),
+          );
+        },
       ),
+    );
+  }
+}
+
+class _QrDivider extends StatelessWidget {
+  const _QrDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      children: [
+        Expanded(child: Divider(color: Colors.white24)),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Text(
+            'o escanear codigo QR',
+            style: TextStyle(color: Colors.white54, fontSize: 12),
+          ),
+        ),
+        Expanded(child: Divider(color: Colors.white24)),
+      ],
     );
   }
 }
@@ -174,10 +195,7 @@ class _DemoCodesCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Codigos demo',
-              style: TextStyle(fontWeight: FontWeight.w800),
-            ),
+            Text('Codigos demo', style: TextStyle(fontWeight: FontWeight.w800)),
             SizedBox(height: 8),
             Text('SATI26: evento activo'),
             Text('MARCOS26: participante seguridad'),
@@ -196,50 +214,27 @@ class _JoinBrandHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    final logoSize = MediaQuery.sizeOf(context).height < 700 ? 120.0 : 282.0;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          width: 58,
-          height: 58,
+        DecoratedBox(
           decoration: BoxDecoration(
-            color: AppTheme.brandGold.withValues(alpha: 0.14),
-            borderRadius: BorderRadius.circular(12),
-            border:
-                Border.all(color: AppTheme.brandGold.withValues(alpha: 0.6)),
+            borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(
-                color: AppTheme.brandGold.withValues(alpha: 0.18),
-                blurRadius: 24,
+                color: AppTheme.brandGold.withValues(alpha: 0.16),
+                blurRadius: 38,
               ),
             ],
           ),
-          child: const Icon(Icons.settings_remote_outlined,
-              color: AppTheme.brandGold),
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'HANDY',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      letterSpacing: 4.0,
-                      fontWeight: FontWeight.w900,
-                    ),
-              ),
-              const SizedBox(height: 2),
-              const Text(
-                'by MASALTO · radio operativa para eventos',
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: AppTheme.brandGold,
-                  letterSpacing: 1.1,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
+          child: Image.asset(
+            AppTheme.logoAsset,
+            width: logoSize,
+            fit: BoxFit.contain,
+            filterQuality: FilterQuality.high,
+            semanticLabel: 'HANDY by MASALTO',
           ),
         ),
       ],
@@ -251,64 +246,57 @@ class _InviteCodePanel extends StatelessWidget {
   const _InviteCodePanel({
     required this.controller,
     required this.error,
+    required this.isLoading,
     required this.onSubmitted,
   });
 
   final TextEditingController controller;
   final String? error;
+  final bool isLoading;
   final VoidCallback? onSubmitted;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: AppTheme.surface.withValues(alpha: 0.86),
+    return DecoratedBox(
+      decoration: AppTheme.panelDecoration(glow: true),
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                const Icon(
-                  Icons.confirmation_number_outlined,
-                  color: AppTheme.accent,
-                  size: 18,
-                ),
-                Text(
-                  'Codigo de invitacion',
-                  style: Theme.of(context).textTheme.labelLarge,
-                ),
-                const Text(
-                  'VALIDACION SEGURA',
-                  style: TextStyle(
-                    color: Colors.white54,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.4,
-                  ),
-                ),
-              ],
+            Text(
+              'Codigo de invitacion',
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(color: Colors.white70),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             TextField(
               controller: controller,
               textCapitalization: TextCapitalization.characters,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 8,
-              ),
+              textAlign: TextAlign.left,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
               decoration: InputDecoration(
-                hintText: 'CODIGO',
+                hintText: 'SATI26',
                 errorText: error,
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                suffixIcon: const Icon(Icons.qr_code_2),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 16,
+                ),
               ),
               onSubmitted: (_) => onSubmitted?.call(),
+            ),
+            const SizedBox(height: 14),
+            ElevatedButton.icon(
+              onPressed: onSubmitted,
+              icon: isLoading
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.login),
+              label: Text(isLoading ? 'Validando...' : 'Ingresar'),
             ),
           ],
         ),

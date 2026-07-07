@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:event_radio_app/src/core/theme/app_theme.dart';
 import 'package:event_radio_app/src/features/channel/presentation/push_to_talk_button.dart';
 import 'package:event_radio_app/src/shared/audio/audio_room_service.dart';
 import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
@@ -62,10 +63,9 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
     });
 
     try {
-      await ref.read(audioRoomServiceProvider).prepareListening(
-        session: session,
-        channels: [channel],
-      );
+      await ref
+          .read(audioRoomServiceProvider)
+          .prepareListening(session: session, channels: [channel]);
       if (!mounted) return;
       setState(() {
         _isPreparingAudio = false;
@@ -89,10 +89,9 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
 
     setState(() => _isSendingSos = true);
     try {
-      await ref.read(eventRadioRepositoryProvider).sendSosAlert(
-            session: session,
-            channel: channel,
-          );
+      await ref
+          .read(eventRadioRepositoryProvider)
+          .sendSosAlert(session: session, channel: channel);
       ref.invalidate(voiceMessagesProvider(channel.id));
       ref.invalidate(eventLogsProvider(session.event.id));
       if (!mounted) return;
@@ -101,14 +100,14 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
       );
     } on StateError catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.message)));
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No pudimos activar SOS.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No pudimos activar SOS.')));
     } finally {
       if (mounted) {
         setState(() => _isSendingSos = false);
@@ -122,7 +121,7 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
     ref.watch(sessionRealtimeProvider);
 
     return AppScaffold(
-      title: 'Canal',
+      title: 'CANAL',
       actions: const [LeaveEventAction()],
       child: SessionGuard(
         builder: (context, session) {
@@ -147,6 +146,7 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
                   : permission?.canTalk ?? false);
           final canSendSos =
               canOperate && canListen && (permission?.canTalk ?? false);
+          final compactLayout = MediaQuery.sizeOf(context).height < 720;
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!mounted) return;
@@ -161,88 +161,125 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
           });
 
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          channel.name.toUpperCase(),
-                          style: Theme.of(context).textTheme.headlineMedium,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          channel.description ?? 'Canal operativo del evento.',
-                          style: const TextStyle(color: Colors.white70),
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 560),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _ChannelHeader(channel: channel),
+                      if (canBroadcast) ...[
+                        const SizedBox(height: 18),
+                        _BroadcastTargetSelector(
+                          broadcastAll: _broadcastAll,
+                          totalChannels: session.channels.length,
+                          onChanged: (value) {
+                            setState(() => _broadcastAll = value);
+                          },
                         ),
                       ],
-                    ),
+                      if (!compactLayout) ...[
+                        const SizedBox(height: 16),
+                        _AudioConnectionStatus(
+                          isPreparing: _isPreparingAudio,
+                          isReady: _audioReady,
+                          error: _audioError,
+                          canListen: canListen,
+                          canOperate: canOperate,
+                        ),
+                      ],
+                      _ChannelPresenceBar(channelId: channel.id),
+                      SizedBox(height: compactLayout ? 12 : 28),
+                      PushToTalkButton(
+                        session: session,
+                        channels: targetChannels,
+                        destinationLabel: destinationLabel,
+                        canTalk: canTalk,
+                      ),
+                      SizedBox(height: compactLayout ? 12 : 24),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () =>
+                                  context.push('/history/${channel.id}'),
+                              icon: const Icon(Icons.history),
+                              label: const Text('Historial'),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: canSendSos && !_isSendingSos
+                                  ? () => _sendSos(
+                                        session: session,
+                                        channel: channel,
+                                      )
+                                  : null,
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: AppTheme.danger.withValues(
+                                  alpha: 0.92,
+                                ),
+                                side: const BorderSide(color: AppTheme.danger),
+                              ),
+                              icon: _isSendingSos
+                                  ? const SizedBox.square(
+                                      dimension: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(Icons.warning_amber_rounded),
+                              label: Text(canSendSos ? 'SOS' : 'SOS bloqueado'),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      _LatestMessages(channelId: channel.id),
+                    ],
                   ),
-                  PriorityBadge(isEmergency: channel.isEmergency),
-                ],
-              ),
-              if (canBroadcast) ...[
-                const SizedBox(height: 18),
-                _BroadcastTargetSelector(
-                  broadcastAll: _broadcastAll,
-                  totalChannels: session.channels.length,
-                  onChanged: (value) {
-                    setState(() => _broadcastAll = value);
-                  },
                 ),
-              ],
-              const SizedBox(height: 18),
-              _AudioConnectionStatus(
-                isPreparing: _isPreparingAudio,
-                isReady: _audioReady,
-                error: _audioError,
-                canListen: canListen,
-                canOperate: canOperate,
               ),
-              _ChannelPresenceBar(channelId: channel.id),
-              const SizedBox(height: 28),
-              PushToTalkButton(
-                session: session,
-                channels: targetChannels,
-                destinationLabel: destinationLabel,
-                canTalk: canTalk,
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () => context.push('/history/${channel.id}'),
-                      icon: const Icon(Icons.history),
-                      label: const Text('Historial'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: canSendSos && !_isSendingSos
-                          ? () => _sendSos(session: session, channel: channel)
-                          : null,
-                      icon: _isSendingSos
-                          ? const SizedBox.square(
-                              dimension: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.warning_amber_rounded),
-                      label: Text(canSendSos ? 'SOS' : 'SOS bloqueado'),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              _LatestMessages(channelId: channel.id),
             ],
           );
         },
       ),
+    );
+  }
+}
+
+class _ChannelHeader extends StatelessWidget {
+  const _ChannelHeader({required this.channel});
+
+  final EventChannel channel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                channel.name.toUpperCase(),
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                channel.description ?? 'Canal operativo del evento.',
+                style: const TextStyle(color: Colors.white70),
+              ),
+            ],
+          ),
+        ),
+        PriorityBadge(isEmergency: channel.isEmergency),
+      ],
     );
   }
 }
@@ -260,7 +297,8 @@ class _BroadcastTargetSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return DecoratedBox(
+      decoration: AppTheme.panelDecoration(),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -343,7 +381,8 @@ class _AudioConnectionStatus extends StatelessWidget {
       label = 'Escucha lista para conectar';
     }
 
-    return Card(
+    return DecoratedBox(
+      decoration: AppTheme.panelDecoration(),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
@@ -375,15 +414,17 @@ class _LatestMessages extends ConsumerWidget {
     return messagesState.when(
       data: (messages) {
         if (messages.isEmpty) {
-          return const Card(
-            child: Padding(
+          return DecoratedBox(
+            decoration: AppTheme.panelDecoration(),
+            child: const Padding(
               padding: EdgeInsets.all(16),
               child: Text('Todavia no hay mensajes en este canal.'),
             ),
           );
         }
 
-        return Card(
+        return DecoratedBox(
+          decoration: AppTheme.panelDecoration(),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -400,17 +441,33 @@ class _LatestMessages extends ConsumerWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (message.isPriority) ...[
-                          const Icon(
-                            Icons.priority_high,
-                            color: Colors.redAccent,
+                        Container(
+                          width: 30,
+                          height: 30,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: message.isPriority
+                                  ? AppTheme.danger
+                                  : AppTheme.accent,
+                            ),
+                          ),
+                          child: Icon(
+                            message.isPriority
+                                ? Icons.priority_high
+                                : Icons.play_arrow,
+                            color: message.isPriority
+                                ? AppTheme.danger
+                                : AppTheme.accent,
                             size: 18,
                           ),
-                          const SizedBox(width: 6),
-                        ],
+                        ),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             '${message.senderName}: ${_messageSummary(message)}',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -423,8 +480,9 @@ class _LatestMessages extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, __) => const Card(
-        child: Padding(
+      error: (_, __) => DecoratedBox(
+        decoration: AppTheme.panelDecoration(),
+        child: const Padding(
           padding: EdgeInsets.all(16),
           child: Text('No pudimos cargar el historial.'),
         ),
@@ -466,7 +524,8 @@ class _ChannelPresenceBar extends ConsumerWidget {
 
         return Padding(
           padding: const EdgeInsets.only(top: 12),
-          child: Card(
+          child: DecoratedBox(
+            decoration: AppTheme.panelDecoration(),
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Row(

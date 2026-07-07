@@ -74,10 +74,9 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
         // Browser speech recognition must be started close to the user gesture
         // and is optional.
       }
-      await ref.read(audioRoomServiceProvider).startPushToTalk(
-            session: widget.session,
-            channels: widget.channels,
-          );
+      await ref
+          .read(audioRoomServiceProvider)
+          .startPushToTalk(session: widget.session, channels: widget.channels);
       try {
         await _recorder.start();
       } catch (_) {
@@ -211,15 +210,18 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
 
   @override
   Widget build(BuildContext context) {
+    final compact = MediaQuery.sizeOf(context).height < 720;
+    final controlSize = compact ? 168.0 : 244.0;
+    final iconSize = compact ? 58.0 : 82.0;
     final color = _isTransmitting
         ? AppTheme.accent
         : widget.canTalk
-            ? AppTheme.surfaceRaised
+            ? AppTheme.backgroundRaised
             : AppTheme.background;
     final borderColor = _isTransmitting
         ? AppTheme.accent
         : widget.canTalk
-            ? Colors.white54
+            ? AppTheme.accent
             : Colors.white24;
     final statusLabel = _isSaving
         ? 'GUARDANDO'
@@ -240,81 +242,92 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
                   ? 'Boton para hablar. Manten presionado mientras hablas.'
                   : 'Transmision bloqueada en este canal.',
           child: GestureDetector(
-          key: const Key('ptt-button'),
-          onTapDown: (_) => _startTransmit(),
-          onTapUp: (_) => _stopTransmit(),
-          onTapCancel: _stopTransmit,
-          child: AnimatedScale(
-            scale: _isTransmitting ? 0.96 : 1,
-            duration: const Duration(milliseconds: 160),
-            child: AnimatedContainer(
+            key: const Key('ptt-button'),
+            onTapDown: (_) => _startTransmit(),
+            onTapUp: (_) => _stopTransmit(),
+            onTapCancel: _stopTransmit,
+            child: AnimatedScale(
+              scale: _isTransmitting ? 0.96 : 1,
               duration: const Duration(milliseconds: 160),
-              width: 232,
-              height: 232,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: borderColor.withValues(alpha: 0.75),
-                  width: 3,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: (_isTransmitting ? AppTheme.accent : Colors.black)
-                        .withValues(alpha: _isTransmitting ? 0.36 : 0.45),
-                    blurRadius: _isTransmitting ? 36 : 18,
-                    spreadRadius: _isTransmitting ? 7 : 0,
-                  ),
-                ],
-              ),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 160),
+                width: controlSize,
+                height: controlSize,
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: color,
-                  gradient: RadialGradient(
-                    colors: [
-                      _isTransmitting
-                          ? AppTheme.accent
-                          : AppTheme.surfaceRaised,
-                      _isTransmitting
-                          ? AppTheme.accentSoft
-                          : AppTheme.background,
-                    ],
+                  border: Border.all(
+                    color: borderColor.withValues(alpha: 0.85),
+                    width: 4,
                   ),
-                  border: Border.all(color: borderColor, width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: (_isTransmitting ? AppTheme.accent : borderColor)
+                          .withValues(alpha: _isTransmitting ? 0.36 : 0.2),
+                      blurRadius: _isTransmitting ? 40 : 30,
+                      spreadRadius: _isTransmitting ? 7 : 1,
+                    ),
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.52),
+                      blurRadius: 28,
+                      offset: const Offset(0, 16),
+                    ),
+                  ],
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      _isTransmitting ? Icons.graphic_eq : Icons.mic,
-                      size: 82,
-                      color: Colors.white,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 160),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: color,
+                    gradient: RadialGradient(
+                      colors: [
+                        _isTransmitting
+                            ? AppTheme.accent
+                            : AppTheme.surfaceRaised,
+                        _isTransmitting
+                            ? AppTheme.accentSoft
+                            : AppTheme.background,
+                      ],
                     ),
-                    const SizedBox(height: 14),
-                    Text(
-                      _isTransmitting ? 'AL AIRE' : 'PUSH-TO-TALK',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 0.8,
+                    border: Border.all(
+                      color: borderColor.withValues(alpha: 0.95),
+                      width: 2,
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        _isTransmitting ? Icons.graphic_eq : Icons.mic,
+                        size: iconSize,
+                        color: Colors.white,
                       ),
-                    ),
-                    if (_isTransmitting) ...[
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 14),
                       Text(
-                        '${_elapsedSeconds}s',
-                        style: const TextStyle(
-                          color: Colors.white70,
+                        _isTransmitting ? 'AL AIRE' : 'PUSH-TO-TALK',
+                        style: TextStyle(
+                          color: _isTransmitting
+                              ? Colors.black
+                              : AppTheme.brandGold,
                           fontWeight: FontWeight.w800,
+                          letterSpacing: 0.8,
                         ),
                       ),
+                      if (_isTransmitting) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          '${_elapsedSeconds}s',
+                          style: const TextStyle(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
           ),
         ),
         const SizedBox(height: 16),
@@ -331,16 +344,18 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
                   ? Icons.touch_app
                   : Icons.lock,
         ),
-        const SizedBox(height: 8),
-        Text(
-          widget.canTalk
-              ? EnvConfig.hasLiveKitConfig
-                  ? 'Destino: ${widget.destinationLabel}. Audio real LiveKit activo; se guarda audio en historial.'
-                  : 'Destino: ${widget.destinationLabel}. Audio simulado; LiveKit se activa al configurar credenciales.'
-              : 'Tu permiso actual no permite transmitir en este canal.',
-          textAlign: TextAlign.center,
-          style: const TextStyle(color: Colors.white60),
-        ),
+        if (!compact) ...[
+          const SizedBox(height: 8),
+          Text(
+            widget.canTalk
+                ? EnvConfig.hasLiveKitConfig
+                    ? 'Destino: ${widget.destinationLabel}. Audio real LiveKit activo; se guarda audio en historial.'
+                    : 'Destino: ${widget.destinationLabel}. Audio simulado; LiveKit se activa al configurar credenciales.'
+                : 'Tu permiso actual no permite transmitir en este canal.',
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.white60),
+          ),
+        ],
       ],
     );
   }

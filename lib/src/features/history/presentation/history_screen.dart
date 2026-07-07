@@ -19,7 +19,7 @@ class HistoryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return AppScaffold(
-      title: 'Historial',
+      title: 'HISTORIAL',
       actions: const [LeaveEventAction()],
       child: SessionGuard(
         builder: (context, session) {
@@ -41,7 +41,13 @@ class HistoryScreen extends ConsumerWidget {
             data: (messages) {
               if (messages.isEmpty) {
                 return Center(
-                  child: Text('Sin mensajes en ${channel.name}.'),
+                  child: DecoratedBox(
+                    decoration: AppTheme.panelDecoration(),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text('Sin mensajes en ${channel.name}.'),
+                    ),
+                  ),
                 );
               }
 
@@ -55,7 +61,10 @@ class HistoryScreen extends ConsumerWidget {
               );
 
               return ListView.builder(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 itemCount: messages.length + (hasPendingAudio ? 1 : 0),
                 itemBuilder: (context, index) {
                   if (hasPendingAudio && index == 0) {
@@ -67,9 +76,8 @@ class HistoryScreen extends ConsumerWidget {
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (_, __) => const Center(
-              child: Text('No pudimos cargar el historial.'),
-            ),
+            error: (_, __) =>
+                const Center(child: Text('No pudimos cargar el historial.')),
           );
         },
       ),
@@ -125,32 +133,37 @@ class _TranscriptionActionState extends ConsumerState<_TranscriptionAction> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 14),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            const Icon(Icons.text_snippet_outlined, color: AppTheme.accent),
-            const SizedBox(width: 12),
-            const Expanded(
-              child: Text(
-                'Hay audios pendientes de transcripcion.',
-                style: TextStyle(fontWeight: FontWeight.w700),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: DecoratedBox(
+        decoration: AppTheme.panelDecoration(
+          borderColor: AppTheme.accent.withValues(alpha: 0.44),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              const Icon(Icons.text_snippet_outlined, color: AppTheme.accent),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Hay audios pendientes de transcripcion.',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
               ),
-            ),
-            FilledButton.icon(
-              onPressed: _isProcessing ? null : _transcribe,
-              icon: _isProcessing
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.auto_awesome),
-              label: Text(_isProcessing ? 'Procesando' : 'Transcribir'),
-            ),
-          ],
+              FilledButton.icon(
+                onPressed: _isProcessing ? null : _transcribe,
+                icon: _isProcessing
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.auto_awesome),
+                label: Text(_isProcessing ? 'Procesando' : 'Transcribir'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -210,9 +223,7 @@ class _VoiceMessageTileState extends ConsumerState<_VoiceMessageTile> {
         throw StateError('Audio no disponible.');
       }
 
-      await _player.play(
-        UrlSource(url, mimeType: 'audio/wav'),
-      );
+      await _player.play(UrlSource(url, mimeType: 'audio/wav'));
 
       if (mounted) {
         setState(() => _isPlaying = true);
@@ -233,39 +244,107 @@ class _VoiceMessageTileState extends ConsumerState<_VoiceMessageTile> {
   Widget build(BuildContext context) {
     final message = widget.message;
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 10),
-      child: ListTile(
-        leading: Icon(
-          message.isPriority ? Icons.priority_high : Icons.graphic_eq,
-          color: message.isPriority ? Colors.redAccent : null,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: DecoratedBox(
+        decoration: AppTheme.panelDecoration(
+          borderColor: message.isPriority
+              ? AppTheme.danger.withValues(alpha: 0.52)
+              : AppTheme.surfaceBorder,
         ),
-        title: Text(message.senderName),
-        subtitle: Text(_messageSummary(message)),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              DateFormat('HH:mm').format(message.createdAt),
-              style: const TextStyle(color: Colors.white54),
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 8,
+          ),
+          leading: Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: message.isPriority ? AppTheme.danger : AppTheme.accent,
+                width: 2,
+              ),
             ),
-            if (message.hasAudio) ...[
-              const SizedBox(width: 10),
-              IconButton(
-                tooltip: _isPlaying ? 'Detener audio' : 'Reproducir audio',
-                onPressed: _togglePlayback,
-                color: _isPlaying ? AppTheme.accent : Colors.white,
-                icon: _isLoading
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Icon(_isPlaying ? Icons.stop : Icons.play_arrow),
+            child: Icon(
+              message.isPriority ? Icons.priority_high : Icons.play_arrow,
+              color: message.isPriority ? AppTheme.danger : AppTheme.accent,
+            ),
+          ),
+          title: Text(
+            message.senderName,
+            style: const TextStyle(fontWeight: FontWeight.w900),
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _messageSummary(message),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 8),
+              _WaveformPreview(
+                color: message.isPriority ? AppTheme.danger : Colors.white70,
               ),
             ],
-          ],
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                DateFormat('HH:mm').format(message.createdAt),
+                style: const TextStyle(color: Colors.white54),
+              ),
+              if (message.hasAudio) ...[
+                const SizedBox(width: 10),
+                IconButton(
+                  tooltip: _isPlaying ? 'Detener audio' : 'Reproducir audio',
+                  onPressed: _togglePlayback,
+                  color: _isPlaying ? AppTheme.accent : Colors.white,
+                  icon: _isLoading
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Icon(_isPlaying ? Icons.stop : Icons.play_arrow),
+                ),
+              ],
+            ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+class _WaveformPreview extends StatelessWidget {
+  const _WaveformPreview({required this.color});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    const heights = <double>[8, 14, 18, 10, 16, 22, 12, 20, 15, 24, 12, 18];
+
+    return SizedBox(
+      height: 24,
+      child: Row(
+        children: [
+          for (final height in heights) ...[
+            Container(
+              width: 2,
+              height: height,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.82),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(width: 3),
+          ],
+        ],
       ),
     );
   }

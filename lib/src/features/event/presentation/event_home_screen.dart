@@ -39,7 +39,7 @@ class EventHomeScreen extends ConsumerWidget {
     });
 
     return AppScaffold(
-      title: 'Handy',
+      title: 'EVENTO ACTIVO',
       actions: [
         IconButton(
           tooltip: 'Bitacora',
@@ -53,21 +53,34 @@ class EventHomeScreen extends ConsumerWidget {
           final canOperate = session.event.isOperational(DateTime.now());
 
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             children: [
-              _EventHeader(session: session),
-              if (!canOperate) ...[
-                const SizedBox(height: 12),
-                const _EventNoLongerActiveBanner(),
-              ],
-              const SizedBox(height: 20),
-              Text(
-                canOperate ? 'Canales asignados' : 'Canales e historial',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              ...session.orderedChannels.map(
-                (channel) => _ChannelTile(session: session, channel: channel),
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 560),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _EventHeader(session: session),
+                      if (!canOperate) ...[
+                        const SizedBox(height: 12),
+                        const _EventNoLongerActiveBanner(),
+                      ],
+                      const SizedBox(height: 22),
+                      Text(
+                        canOperate
+                            ? 'Canales asignados'
+                            : 'Canales e historial',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 10),
+                      ...session.orderedChannels.map(
+                        (channel) =>
+                            _ChannelTile(session: session, channel: channel),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           );
@@ -94,64 +107,57 @@ class _EventHeader extends StatelessWidget {
     final statusColor = canOperate ? AppTheme.success : AppTheme.warning;
     final statusIcon = canOperate ? Icons.circle : Icons.lock;
 
-    return Card(
+    return DecoratedBox(
+      decoration: AppTheme.panelDecoration(),
       child: Padding(
         padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Wrap(
-              spacing: 12,
-              runSpacing: 8,
-              crossAxisAlignment: WrapCrossAlignment.center,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        session.event.name,
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Operador: ${session.participant.displayName}',
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                    ],
+                  ),
+                ),
                 StatusPill(
                   label: statusLabel,
                   color: statusColor,
                   icon: statusIcon,
                 ),
+              ],
+            ),
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                const Icon(Icons.schedule, color: Colors.white54, size: 18),
+                const SizedBox(width: 8),
                 Text(
                   remainingText,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontWeight: FontWeight.w700,
+                  style: TextStyle(
+                    color: canOperate ? AppTheme.success : AppTheme.warning,
+                    fontWeight: FontWeight.w900,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 18),
-            Text(
-              session.event.name,
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Operador: ${session.participant.displayName}',
-              style: const TextStyle(color: Colors.white70),
-            ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             Text(
               '${formatter.format(session.event.startsAt)} - ${formatter.format(session.event.endsAt)}',
               style: const TextStyle(color: Colors.white54),
-            ),
-            const SizedBox(height: 14),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _MiniMetric(
-                  icon: Icons.radio,
-                  label: '${session.channels.length} canales',
-                ),
-                _MiniMetric(
-                  icon: Icons.groups_outlined,
-                  label: '${session.participants.length} usuarios',
-                ),
-                _MiniMetric(
-                  icon: Icons.shield_outlined,
-                  label: session.participant.role.value,
-                ),
-              ],
             ),
           ],
         ),
@@ -160,47 +166,8 @@ class _EventHeader extends StatelessWidget {
   }
 }
 
-class _MiniMetric extends StatelessWidget {
-  const _MiniMetric({
-    required this.icon,
-    required this.label,
-  });
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 15, color: Colors.white70),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _ChannelTile extends StatelessWidget {
-  const _ChannelTile({
-    required this.session,
-    required this.channel,
-  });
+  const _ChannelTile({required this.session, required this.channel});
 
   final EventSession session;
   final EventChannel channel;
@@ -214,31 +181,74 @@ class _ChannelTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       child: ListTile(
         onTap: () => context.push('/channel/${channel.id}'),
-        leading: CircleAvatar(
-          backgroundColor:
-              channel.isEmergency ? AppTheme.danger : AppTheme.surfaceRaised,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        leading: Container(
+          width: 46,
+          height: 46,
+          decoration: BoxDecoration(
+            color: channel.isEmergency
+                ? AppTheme.danger.withValues(alpha: 0.9)
+                : Colors.white.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: channel.isEmergency
+                  ? AppTheme.danger
+                  : Colors.white.withValues(alpha: 0.1),
+            ),
+          ),
           child: Icon(
             channel.isEmergency ? Icons.priority_high : Icons.radio,
             color: Colors.white,
           ),
         ),
-        title: Text(channel.name),
-        subtitle: Text(
-          !canOperate
-              ? 'Historial disponible · PTT bloqueado'
-              : permission?.canTalk == true
-                  ? 'Escucha y transmision habilitadas'
-                  : 'Solo escucha',
+        title: Text(
+          channel.name,
+          style: const TextStyle(fontWeight: FontWeight.w900),
+        ),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 3),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                channel.description ??
+                    (channel.isEmergency
+                        ? 'Solo emergencias'
+                        : 'Coordinacion general'),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 5),
+              Row(
+                children: [
+                  Icon(
+                    Icons.circle,
+                    size: 8,
+                    color: canOperate ? AppTheme.success : AppTheme.warning,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    !canOperate
+                        ? 'PTT bloqueado'
+                        : permission?.canTalk == true
+                            ? 'Operativo'
+                            : 'Solo escucha',
+                    style: TextStyle(
+                      color: canOperate ? AppTheme.success : AppTheme.warning,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (permission?.canTalk == true && canOperate)
-              const Icon(
-                Icons.mic,
-                color: AppTheme.success,
-                size: 18,
-              ),
+              const Icon(Icons.mic, color: AppTheme.success, size: 18),
             const SizedBox(width: 8),
             const Icon(Icons.chevron_right),
           ],
@@ -253,7 +263,10 @@ class _EventNoLongerActiveBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return DecoratedBox(
+      decoration: AppTheme.panelDecoration(
+        borderColor: AppTheme.warning.withValues(alpha: 0.55),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

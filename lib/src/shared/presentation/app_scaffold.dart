@@ -35,17 +35,7 @@ class AppScaffold extends StatelessWidget {
             const _RuntimeModeBanner(),
             Expanded(
               child: DecoratedBox(
-                decoration: const BoxDecoration(
-                  gradient: RadialGradient(
-                    center: Alignment.topCenter,
-                    radius: 1.15,
-                    colors: [
-                      Color(0xFF0A0A0A),        // CAMBIO: era 0xFF180606 (tinte rojo) → negro puro
-                      AppTheme.background,
-                    ],
-                    stops: [0, 0.62],
-                  ),
-                ),
+                decoration: AppTheme.screenDecoration(),
                 child: child,
               ),
             ),
@@ -81,10 +71,10 @@ class _RuntimeModeBanner extends StatelessWidget {
         label,
         textAlign: TextAlign.center,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0.6,
-            ),
+          color: color,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.6,
+        ),
       ),
     );
   }
