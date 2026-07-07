@@ -13,6 +13,7 @@ import 'package:event_radio_app/src/shared/presentation/status_pill.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class ChannelScreen extends ConsumerStatefulWidget {
   const ChannelScreen({required this.channelId, super.key});
@@ -37,10 +38,15 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
     super.initState();
     // Se captura aca porque "ref" no puede usarse dentro de dispose().
     _audioService = ref.read(audioRoomServiceProvider);
+    // Dentro de un canal la pantalla no debe bloquearse: el operador tiene
+    // que poder escuchar y responder al instante durante todo el evento.
+    // El catchError cubre plataformas sin soporte (y los widget tests).
+    unawaited(WakelockPlus.enable().catchError((_) {}));
   }
 
   @override
   void dispose() {
+    unawaited(WakelockPlus.disable().catchError((_) {}));
     // Al salir del canal se cortan las salas LiveKit para no consumir
     // minutos de audio sin nadie escuchando.
     unawaited(_audioService.stopListening());

@@ -28,7 +28,7 @@ class EventHomeScreen extends ConsumerWidget {
       HapticFeedback.vibrate();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: AppTheme.accent,
+          backgroundColor: AppTheme.danger,
           duration: const Duration(seconds: 6),
           content: Text(
             'SOS recibido en $channelName',

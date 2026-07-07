@@ -9,6 +9,7 @@ import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
 import 'package:event_radio_app/src/shared/domain/event_models.dart';
 import 'package:event_radio_app/src/shared/presentation/status_pill.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class PushToTalkButton extends ConsumerStatefulWidget {
@@ -54,6 +55,9 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
   Future<void> _startTransmit() async {
     if (!widget.canTalk || _isSaving || _isTransmitting) return;
 
+    // Confirmacion tactil tipo handie: se siente cuando abre y cierra el
+    // canal aunque no se este mirando la pantalla.
+    unawaited(HapticFeedback.mediumImpact());
     setState(() {
       _isTransmitting = true;
       _startedAt = DateTime.now();
@@ -100,6 +104,7 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
   Future<void> _stopTransmit() async {
     if (!_isTransmitting || _startedAt == null) return;
 
+    unawaited(HapticFeedback.lightImpact());
     _ticker?.cancel();
     final duration = DateTime.now().difference(_startedAt!).inSeconds;
     final normalizedDuration = duration.clamp(1, 90);

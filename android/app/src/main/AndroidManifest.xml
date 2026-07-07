@@ -3,11 +3,26 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <!-- Escaneo del QR de invitacion (mobile_scanner). -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Ruteo del audio PTT a auriculares/intercomunicadores Bluetooth,
+         imprescindible en eventos con ruido. BLUETOOTH legado cubre
+         Android 11 o menos; BLUETOOTH_CONNECT aplica desde Android 12. -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <!-- Evita que el sistema duerma la CPU en medio de una escucha. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- La camara es opcional: sin camara se puede ingresar con el codigo
+         escrito, asi el APK sigue instalable en dispositivos sin ella. -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 
     <application
         android:label="Handy"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
+        android:enableOnBackInvokedCallback="true"
         android:networkSecurityConfig="@xml/network_security_config">
         <activity
             android:name=".MainActivity"
