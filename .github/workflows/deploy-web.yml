@@ -35,7 +35,7 @@ jobs:
           {
             echo "SUPABASE_URL=${SUPABASE_URL}"
             echo "SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}"
-            echo "AUTH_REDIRECT_URL=eventradio://login-callback"
+            echo "AUTH_REDIRECT_URL=https://web-liard-three-34.vercel.app/"
             if [ -n "${LIVEKIT_URL}" ]; then
               echo "LIVEKIT_AUDIO_ENABLED=true"
               echo "LIVEKIT_URL=${LIVEKIT_URL}"
