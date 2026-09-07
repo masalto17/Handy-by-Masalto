@@ -18,7 +18,7 @@ dependencies:
   # 'any' deja que flutter_localizations fije la version de intl compatible
   # con el SDK y evita conflictos de resolucion.
   intl: any
-  livekit_client: ^2.8.1
+  livekit_client: ^2.10.0
   mobile_scanner: ^6.0.2
   permission_handler: ^11.3.1
   qr_flutter: ^4.1.0
