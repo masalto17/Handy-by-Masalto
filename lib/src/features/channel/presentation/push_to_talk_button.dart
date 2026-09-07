@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:event_radio_app/src/core/config/env_config.dart';
 import 'package:event_radio_app/src/core/theme/app_theme.dart';
+import 'package:event_radio_app/src/features/channel/domain/ptt_state.dart';
 import 'package:event_radio_app/src/shared/audio/audio_room_service.dart';
 import 'package:event_radio_app/src/shared/audio/live_speech_transcriber.dart';
 import 'package:event_radio_app/src/shared/audio/ptt_audio_recorder.dart';
@@ -31,18 +32,21 @@ class PushToTalkButton extends ConsumerStatefulWidget {
 }
 
 class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
-  bool _isTransmitting = false;
-  bool _isSaving = false;
+  PttState _ptt = PttState.idle;
   DateTime? _startedAt;
   Timer? _ticker;
-  int _elapsedSeconds = 0;
   final PttAudioRecorder _recorder = PttAudioRecorder();
   final LiveSpeechTranscriber _transcriber = LiveSpeechTranscriber();
+
+  void _setPtt(PttState next) {
+    if (!mounted) return;
+    setState(() => _ptt = next);
+  }
 
   @override
   void dispose() {
     _ticker?.cancel();
-    if (_isTransmitting) {
+    if (_ptt.isActive) {
       unawaited(ref.read(audioRoomServiceProvider).stopPushToTalk());
       unawaited(_recorder.stop());
       unawaited(_transcriber.stop());
@@ -53,22 +57,20 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
   }
 
   Future<void> _startTransmit() async {
-    if (!widget.canTalk || _isSaving || _isTransmitting) return;
+    if (!widget.canTalk || _ptt.isBusy) return;
 
     // Confirmacion tactil tipo handie: se siente cuando abre y cierra el
     // canal aunque no se este mirando la pantalla.
     unawaited(HapticFeedback.mediumImpact());
-    setState(() {
-      _isTransmitting = true;
-      _startedAt = DateTime.now();
-      _elapsedSeconds = 0;
-    });
+
+    // --- REQUESTING: el usuario presiono pero el canal no esta confirmado ---
+    _setPtt(const PttState(phase: PttPhase.requesting));
+    _startedAt = DateTime.now();
 
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted || _startedAt == null) return;
-      setState(() {
-        _elapsedSeconds = DateTime.now().difference(_startedAt!).inSeconds;
-      });
+      final elapsed = DateTime.now().difference(_startedAt!).inSeconds;
+      _setPtt(_ptt.copyWith(elapsedSeconds: elapsed));
     });
 
     try {
@@ -81,39 +83,49 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
       await ref
           .read(audioRoomServiceProvider)
           .startPushToTalk(session: widget.session, channels: widget.channels);
+
+      // --- TRANSMITTING: sala confirmada, microfono publicando ---
+      unawaited(HapticFeedback.heavyImpact());
+      _setPtt(_ptt.copyWith(phase: PttPhase.transmitting));
+
       try {
         await _recorder.start();
       } catch (_) {
         // Live audio remains the priority. Recording failures should not stop
         // a live PTT transmission.
       }
-    } catch (_) {
+    } catch (e) {
       _ticker?.cancel();
       if (!mounted) return;
-      setState(() {
-        _isTransmitting = false;
-        _startedAt = null;
-        _elapsedSeconds = 0;
+      final message = e is AudioRoomConfigurationException
+          ? e.message
+          : 'No pudimos iniciar el audio PTT.';
+      _setPtt(PttState(phase: PttPhase.error, errorMessage: message));
+      // Volver a idle despues de mostrar el error brevemente.
+      Future<void>.delayed(const Duration(seconds: 3), () {
+        if (mounted && _ptt.isError) {
+          _setPtt(PttState.idle);
+        }
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No pudimos iniciar el audio PTT.')),
+        SnackBar(content: Text(message)),
       );
     }
   }
 
   Future<void> _stopTransmit() async {
-    if (!_isTransmitting || _startedAt == null) return;
+    if (!_ptt.isActive || _startedAt == null) return;
 
     unawaited(HapticFeedback.lightImpact());
     _ticker?.cancel();
     final duration = DateTime.now().difference(_startedAt!).inSeconds;
     final normalizedDuration = duration.clamp(1, 90);
 
-    setState(() {
-      _isTransmitting = false;
-      _isSaving = true;
-      _elapsedSeconds = normalizedDuration;
-    });
+    // --- FINALIZING: guardando grabacion e historial ---
+    _setPtt(PttState(
+      phase: PttPhase.finalizing,
+      elapsedSeconds: normalizedDuration,
+    ));
 
     try {
       await ref.read(audioRoomServiceProvider).stopPushToTalk();
@@ -167,13 +179,8 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
         const SnackBar(content: Text('No pudimos guardar el PTT.')),
       );
     } finally {
-      if (mounted) {
-        setState(() {
-          _isSaving = false;
-          _startedAt = null;
-          _elapsedSeconds = 0;
-        });
-      }
+      _startedAt = null;
+      _setPtt(PttState.idle);
     }
   }
 
@@ -218,41 +225,54 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
     final compact = MediaQuery.sizeOf(context).height < 720;
     final controlSize = compact ? 168.0 : 244.0;
     final iconSize = compact ? 58.0 : 82.0;
-    final color = _isTransmitting
+
+    final isActive = _ptt.isTransmitting;
+    final isRequesting = _ptt.isRequesting;
+    final isBusy = _ptt.isBusy;
+
+    final color = isActive
         ? AppTheme.accent
-        : widget.canTalk
-            ? AppTheme.backgroundRaised
-            : AppTheme.background;
-    final borderColor = _isTransmitting
+        : isRequesting
+            ? AppTheme.accent.withValues(alpha: 0.6)
+            : widget.canTalk
+                ? AppTheme.backgroundRaised
+                : AppTheme.background;
+    final borderColor = isActive || isRequesting
         ? AppTheme.accent
         : widget.canTalk
             ? AppTheme.accent
             : Colors.white24;
-    final statusLabel = _isSaving
-        ? 'GUARDANDO'
-        : _isTransmitting
-            ? 'TRANSMITIENDO ${_elapsedSeconds}s'
-            : widget.canTalk
-                ? 'MANTENER PARA HABLAR'
-                : 'TRANSMISION BLOQUEADA';
+    final statusLabel = _ptt.isError
+        ? _ptt.errorMessage ?? 'ERROR'
+        : _ptt.isFinalizing
+            ? 'GUARDANDO'
+            : isActive
+                ? 'TRANSMITIENDO ${_ptt.elapsedSeconds}s'
+                : isRequesting
+                    ? 'CONECTANDO...'
+                    : widget.canTalk
+                        ? 'MANTENER PARA HABLAR'
+                        : 'TRANSMISION BLOQUEADA';
 
     return Column(
       children: [
         Semantics(
           button: true,
-          enabled: widget.canTalk && !_isSaving,
-          label: _isTransmitting
+          enabled: widget.canTalk && !isBusy,
+          label: isActive
               ? 'Transmitiendo. Solta para terminar.'
-              : widget.canTalk
-                  ? 'Boton para hablar. Manten presionado mientras hablas.'
-                  : 'Transmision bloqueada en este canal.',
+              : isRequesting
+                  ? 'Conectando canal. Espera confirmacion.'
+                  : widget.canTalk
+                      ? 'Boton para hablar. Manten presionado mientras hablas.'
+                      : 'Transmision bloqueada en este canal.',
           child: GestureDetector(
             key: const Key('ptt-button'),
             onTapDown: (_) => _startTransmit(),
             onTapUp: (_) => _stopTransmit(),
             onTapCancel: _stopTransmit,
             child: AnimatedScale(
-              scale: _isTransmitting ? 0.96 : 1,
+              scale: _ptt.isActive ? 0.96 : 1,
               duration: const Duration(milliseconds: 160),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 160),
@@ -267,10 +287,10 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: (_isTransmitting ? AppTheme.accent : borderColor)
-                          .withValues(alpha: _isTransmitting ? 0.36 : 0.2),
-                      blurRadius: _isTransmitting ? 40 : 30,
-                      spreadRadius: _isTransmitting ? 7 : 1,
+                      color: (isActive ? AppTheme.accent : borderColor)
+                          .withValues(alpha: isActive ? 0.36 : 0.2),
+                      blurRadius: isActive ? 40 : 30,
+                      spreadRadius: isActive ? 7 : 1,
                     ),
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.52),
@@ -286,12 +306,16 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
                     color: color,
                     gradient: RadialGradient(
                       colors: [
-                        _isTransmitting
+                        isActive
                             ? AppTheme.accent
-                            : AppTheme.surfaceRaised,
-                        _isTransmitting
+                            : isRequesting
+                                ? AppTheme.accent.withValues(alpha: 0.5)
+                                : AppTheme.surfaceRaised,
+                        isActive
                             ? AppTheme.accentSoft
-                            : AppTheme.background,
+                            : isRequesting
+                                ? AppTheme.accent.withValues(alpha: 0.2)
+                                : AppTheme.background,
                       ],
                     ),
                     border: Border.all(
@@ -302,26 +326,50 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        _isTransmitting ? Icons.graphic_eq : Icons.mic,
-                        size: iconSize,
-                        color: Colors.white,
-                      ),
+                      if (isRequesting)
+                        SizedBox(
+                          width: iconSize * 0.6,
+                          height: iconSize * 0.6,
+                          child: const CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 3,
+                          ),
+                        )
+                      else
+                        Icon(
+                          isActive
+                              ? Icons.graphic_eq
+                              : _ptt.isError
+                                  ? Icons.error_outline
+                                  : Icons.mic,
+                          size: iconSize,
+                          color: _ptt.isError ? AppTheme.danger : Colors.white,
+                        ),
                       const SizedBox(height: 14),
                       Text(
-                        _isTransmitting ? 'AL AIRE' : 'PUSH-TO-TALK',
+                        isActive
+                            ? 'AL AIRE'
+                            : isRequesting
+                                ? 'CONECTANDO'
+                                : _ptt.isError
+                                    ? 'ERROR'
+                                    : 'PUSH-TO-TALK',
                         style: TextStyle(
-                          color: _isTransmitting
+                          color: isActive
                               ? Colors.black
-                              : AppTheme.brandGold,
+                              : _ptt.isError
+                                  ? AppTheme.danger
+                                  : isRequesting
+                                      ? Colors.white70
+                                      : AppTheme.brandGold,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 0.8,
                         ),
                       ),
-                      if (_isTransmitting) ...[
+                      if (isActive) ...[
                         const SizedBox(height: 6),
                         Text(
-                          '${_elapsedSeconds}s',
+                          '${_ptt.elapsedSeconds}s',
                           style: const TextStyle(
                             color: Colors.black87,
                             fontWeight: FontWeight.w800,
@@ -338,25 +386,35 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
         const SizedBox(height: 16),
         StatusPill(
           label: statusLabel,
-          color: _isTransmitting
-              ? AppTheme.accent
-              : widget.canTalk
-                  ? AppTheme.success
-                  : Colors.white54,
-          icon: _isTransmitting
-              ? Icons.radio_button_checked
-              : widget.canTalk
-                  ? Icons.touch_app
-                  : Icons.lock,
+          color: _ptt.isError
+              ? AppTheme.danger
+              : isActive
+                  ? AppTheme.accent
+                  : isRequesting
+                      ? Colors.orangeAccent
+                      : widget.canTalk
+                          ? AppTheme.success
+                          : Colors.white54,
+          icon: _ptt.isError
+              ? Icons.error_outline
+              : isActive
+                  ? Icons.radio_button_checked
+                  : isRequesting
+                      ? Icons.sync
+                      : widget.canTalk
+                          ? Icons.touch_app
+                          : Icons.lock,
         ),
         if (!compact) ...[
           const SizedBox(height: 8),
           Text(
-            widget.canTalk
-                ? EnvConfig.hasLiveKitConfig
-                    ? 'Destino: ${widget.destinationLabel}. Audio real LiveKit activo; se guarda audio en historial.'
-                    : 'Destino: ${widget.destinationLabel}. Audio simulado; LiveKit se activa al configurar credenciales.'
-                : 'Tu permiso actual no permite transmitir en este canal.',
+            _ptt.isError
+                ? _ptt.errorMessage ?? 'Error al conectar.'
+                : widget.canTalk
+                    ? EnvConfig.hasLiveKitConfig
+                        ? 'Destino: ${widget.destinationLabel}. Audio real LiveKit activo; se guarda audio en historial.'
+                        : 'Destino: ${widget.destinationLabel}. Audio simulado; LiveKit se activa al configurar credenciales.'
+                    : 'Tu permiso actual no permite transmitir en este canal.',
             textAlign: TextAlign.center,
             style: const TextStyle(color: Colors.white60),
           ),

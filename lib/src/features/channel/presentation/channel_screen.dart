@@ -32,6 +32,7 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
   String? _audioError;
   String? _preparedChannelId;
   late final AudioRoomService _audioService;
+  StreamSubscription<ReconnectionFailure>? _reconnectionSub;
 
   @override
   void initState() {
@@ -42,10 +43,42 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
     // que poder escuchar y responder al instante durante todo el evento.
     // El catchError cubre plataformas sin soporte (y los widget tests).
     unawaited(WakelockPlus.enable().catchError((_) {}));
+
+    // Escuchar fallos de reconexion para mostrar aviso visible al operador.
+    _reconnectionSub = _audioService.reconnectionFailures.listen((failure) {
+      if (!mounted) return;
+      if (failure.channelId == widget.channelId) {
+        setState(() {
+          _audioReady = false;
+          _audioError =
+              'Conexion perdida con ${failure.channelName} despues de ${failure.attempts} intentos.';
+        });
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 8),
+          content: Text(
+            'Conexion perdida: ${failure.channelName}. '
+            'Intentar salir y volver a entrar al canal.',
+          ),
+          action: SnackBarAction(
+            label: 'Reintentar',
+            onPressed: () {
+              // Resetear el estado para que prepareListening intente de nuevo.
+              setState(() {
+                _preparedChannelId = null;
+                _audioError = null;
+              });
+            },
+          ),
+        ),
+      );
+    });
   }
 
   @override
   void dispose() {
+    _reconnectionSub?.cancel();
     unawaited(WakelockPlus.disable().catchError((_) {}));
     // Al salir del canal se cortan las salas LiveKit para no consumir
     // minutos de audio sin nadie escuchando.
