@@ -43,6 +43,20 @@ class ChannelPresence {
   bool get someoneSpeaking => speakingNames.isNotEmpty;
 }
 
+/// Evento emitido cuando una reconexion a una sala LiveKit agota todos los
+/// intentos y el canal queda desconectado sin aviso.
+class ReconnectionFailure {
+  const ReconnectionFailure({
+    required this.channelId,
+    required this.channelName,
+    required this.attempts,
+  });
+
+  final String channelId;
+  final String channelName;
+  final int attempts;
+}
+
 class AudioRoomState {
   const AudioRoomState({this.byChannelId = const {}});
 
@@ -77,6 +91,11 @@ abstract class AudioRoomService {
   AudioRoomState get state;
 
   Stream<AudioRoomState> get stateChanges;
+
+  /// Emite un evento cada vez que una reconexion agota todos los intentos
+  /// y un canal queda desconectado. La UI debe escucharlo para mostrar
+  /// aviso visible al operador.
+  Stream<ReconnectionFailure> get reconnectionFailures;
 
   Future<void> dispose();
 }
@@ -116,6 +135,10 @@ class MockAudioRoomService implements AudioRoomService {
   @override
   Stream<AudioRoomState> get stateChanges =>
       const Stream<AudioRoomState>.empty();
+
+  @override
+  Stream<ReconnectionFailure> get reconnectionFailures =>
+      const Stream<ReconnectionFailure>.empty();
 
   @override
   Future<void> prepareListening({
@@ -218,6 +241,8 @@ class LiveKitAudioRoomService implements AudioRoomService {
 
   final StreamController<AudioRoomState> _stateController =
       StreamController<AudioRoomState>.broadcast();
+  final StreamController<ReconnectionFailure> _reconnectionFailureController =
+      StreamController<ReconnectionFailure>.broadcast();
   AudioRoomState _state = AudioRoomState.empty;
   bool _isDisposed = false;
 
@@ -226,6 +251,10 @@ class LiveKitAudioRoomService implements AudioRoomService {
 
   @override
   Stream<AudioRoomState> get stateChanges => _stateController.stream;
+
+  @override
+  Stream<ReconnectionFailure> get reconnectionFailures =>
+      _reconnectionFailureController.stream;
 
   @override
   Future<void> prepareListening({
@@ -324,6 +353,7 @@ class LiveKitAudioRoomService implements AudioRoomService {
     _isDisposed = true;
     await stopListening();
     await _stateController.close();
+    await _reconnectionFailureController.close();
   }
 
   Future<void> _closeRoom(String roomName) async {
@@ -423,6 +453,17 @@ class LiveKitAudioRoomService implements AudioRoomService {
       } catch (_) {
         // Reintentar con backoff hasta agotar los intentos.
       }
+    }
+
+    // Todos los intentos de reconexion agotados: emitir fallo visible.
+    if (!_isDisposed && !_reconnectionFailureController.isClosed) {
+      _reconnectionFailureController.add(
+        ReconnectionFailure(
+          channelId: roomSession.channel.id,
+          channelName: roomSession.channel.name,
+          attempts: roomSession.reconnectAttempts,
+        ),
+      );
     }
     _recomputeState();
   }
