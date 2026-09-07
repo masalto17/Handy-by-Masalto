@@ -111,7 +111,7 @@ Reconexión: 3 intentos con backoff exponencial (2s, 4s, 6s). Si falla, emite `R
 - **build-apk.yml** — APK Android (dispatch manual o tag `v*`), modo demo o real
 - **deploy-web.yml** — Build web + deploy a Vercel en push a main
 
-Flutter está pineado a `3.32.x` en los tres workflows.
+Los tres workflows usan `channel: stable` (sin pin de versión). Las dependencias del proyecto (en particular `record`) requieren Dart ≥3.12, por lo que Flutter stable actual es el mínimo funcional.
 
 ## Convenciones
 
