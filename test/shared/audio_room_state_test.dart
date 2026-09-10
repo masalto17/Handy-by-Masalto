@@ -1,4 +1,5 @@
 import 'package:event_radio_app/src/shared/audio/audio_room_service.dart';
+import 'package:event_radio_app/src/shared/domain/event_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
