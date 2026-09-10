@@ -45,7 +45,7 @@ void main() {
         participantCount: 2,
         speakingNames: [],
       );
-      final state = AudioRoomState(byChannelId: {'ch-1': presence});
+      const state = AudioRoomState(byChannelId: {'ch-1': presence});
 
       expect(state.forChannel('ch-1'), isNotNull);
       expect(state.forChannel('ch-1')!.channelName, 'Produccion');
@@ -71,7 +71,7 @@ void main() {
         speakingNames: ['Laura'],
       );
 
-      final withEmergencySpeaking = AudioRoomState(byChannelId: {
+      const withEmergencySpeaking = AudioRoomState(byChannelId: {
         'ch-emer': emergencyPresence,
         'ch-prod': normalPresence,
       });
@@ -85,7 +85,7 @@ void main() {
         participantCount: 2,
         speakingNames: [],
       );
-      final withoutEmergencySpeaking = AudioRoomState(byChannelId: {
+      const withoutEmergencySpeaking = AudioRoomState(byChannelId: {
         'ch-emer': silentEmergency,
         'ch-prod': normalPresence,
       });
@@ -101,7 +101,7 @@ void main() {
         participantCount: 3,
         speakingNames: ['Laura'],
       );
-      final state = AudioRoomState(byChannelId: {'ch-prod': normalSpeaking});
+      const state = AudioRoomState(byChannelId: {'ch-prod': normalSpeaking});
       expect(state.emergencySpeaking, isFalse);
     });
   });
