@@ -22,17 +22,28 @@ enum PttPhase {
   error,
 }
 
+/// Estado inmutable del ciclo Push-to-Talk.
+///
+/// Combina la [phase] actual con datos auxiliares como el tiempo
+/// transcurrido y un posible mensaje de error.
 class PttState {
+  /// Crea un estado PTT. Por defecto, [phase] es [PttPhase.idle].
   const PttState({
     this.phase = PttPhase.idle,
     this.elapsedSeconds = 0,
     this.errorMessage,
   });
 
+  /// Fase actual del ciclo PTT.
   final PttPhase phase;
+
+  /// Segundos transcurridos desde el inicio de la transmision.
   final int elapsedSeconds;
+
+  /// Mensaje descriptivo cuando [phase] es [PttPhase.error].
   final String? errorMessage;
 
+  /// Atajos de lectura para cada fase.
   bool get isIdle => phase == PttPhase.idle;
   bool get isRequesting => phase == PttPhase.requesting;
   bool get isTransmitting => phase == PttPhase.transmitting;

@@ -40,6 +40,7 @@ class ChannelPresence {
   final int participantCount;
   final List<String> speakingNames;
 
+  /// `true` si al menos un participante esta hablando en este canal.
   bool get someoneSpeaking => speakingNames.isNotEmpty;
 }
 
@@ -57,13 +58,21 @@ class ReconnectionFailure {
   final int attempts;
 }
 
+/// Estado agregado de presencia de todas las salas conectadas.
+///
+/// Inmutable: cada cambio produce una nueva instancia emitida por
+/// [AudioRoomService.stateChanges].
 class AudioRoomState {
+  /// Crea un estado con presencia por canal.
   const AudioRoomState({this.byChannelId = const {}});
 
+  /// Mapa de presencia indexado por ID de canal.
   final Map<String, ChannelPresence> byChannelId;
 
+  /// Presencia de un canal especifico, o `null` si no esta conectado.
   ChannelPresence? forChannel(String channelId) => byChannelId[channelId];
 
+  /// `true` si alguien esta hablando en un canal de emergencia.
   bool get emergencySpeaking => byChannelId.values.any(
         (presence) => presence.isEmergency && presence.someoneSpeaking,
       );
@@ -71,25 +80,42 @@ class AudioRoomState {
   static const empty = AudioRoomState();
 }
 
+/// Servicio de audio en tiempo real para la radio PTT.
+///
+/// Gestiona salas LiveKit, publicacion de microfono, escucha pasiva,
+/// presencia y reconexion automatica. Las implementaciones concretas son
+/// [LiveKitAudioRoomService] (produccion) y [MockAudioRoomService] (demo).
 abstract class AudioRoomService {
+  /// Conecta a las salas de los [channels] en modo escucha (microfono apagado).
+  ///
+  /// Las salas permanecen abiertas hasta [stopListening]. Llamar multiples
+  /// veces es idempotente si los canales ya estan conectados.
   Future<void> prepareListening({
     required EventSession session,
     required List<EventChannel> channels,
   });
 
+  /// Activa el microfono en los [channels] indicados (broadcast).
+  ///
+  /// Solicita permiso de microfono si no fue concedido. Lanza
+  /// [AudioRoomConfigurationException] si el permiso es denegado o
+  /// ninguna sala pudo conectarse.
   Future<void> startPushToTalk({
     required EventSession session,
     required List<EventChannel> channels,
   });
 
+  /// Desactiva el microfono y cierra salas transitorias (broadcast).
   Future<void> stopPushToTalk();
 
   /// Corta todas las salas conectadas. Se llama al salir de la pantalla de
   /// canal para no consumir minutos LiveKit sin necesidad.
   Future<void> stopListening();
 
+  /// Estado actual de presencia de todas las salas conectadas.
   AudioRoomState get state;
 
+  /// Stream de cambios de presencia (participantes, hablantes).
   Stream<AudioRoomState> get stateChanges;
 
   /// Emite un evento cada vez que una reconexion agota todos los intentos
@@ -97,9 +123,13 @@ abstract class AudioRoomService {
   /// aviso visible al operador.
   Stream<ReconnectionFailure> get reconnectionFailures;
 
+  /// Libera todos los recursos: desconecta salas y cierra streams.
   Future<void> dispose();
 }
 
+/// Identificador de una sala LiveKit: evento + participante + canal.
+///
+/// Se usa para solicitar tokens y conectar a la sala correcta.
 class AudioRoomTarget {
   const AudioRoomTarget({
     required this.eventId,
@@ -111,21 +141,29 @@ class AudioRoomTarget {
   final String participantId;
   final EventChannel channel;
 
+  /// Nombre de la sala LiveKit derivado del canal.
   String get roomName => channel.livekitRoomName;
 }
 
+/// Funcion que obtiene un token LiveKit para conectar a una sala.
 typedef LiveKitTokenProvider = FutureOr<String> Function(
     AudioRoomTarget target);
 
+/// Excepcion de configuracion de audio (permiso denegado, token invalido, etc.).
 class AudioRoomConfigurationException implements Exception {
+  /// Crea la excepcion con un [message] descriptivo.
   const AudioRoomConfigurationException(this.message);
 
+  /// Descripcion legible del error.
   final String message;
 
   @override
   String toString() => message;
 }
 
+/// Implementacion mock de [AudioRoomService] para modo demo y tests.
+///
+/// No conecta a LiveKit: simula las transiciones de estado sin audio real.
 class MockAudioRoomService implements AudioRoomService {
   bool _isTransmitting = false;
 
@@ -170,6 +208,7 @@ class MockAudioRoomService implements AudioRoomService {
   }
 }
 
+/// Obtiene tokens LiveKit llamando a la edge function `livekit-token`.
 class SupabaseLiveKitTokenProvider {
   SupabaseLiveKitTokenProvider({SupabaseClient? client})
       : _client = client ?? Supabase.instance.client;
@@ -220,6 +259,10 @@ class _RoomSession {
   }
 }
 
+/// Implementacion real de [AudioRoomService] usando LiveKit.
+///
+/// Gestiona multiples salas simultaneas con reconexion automatica
+/// (3 intentos, backoff exponencial) y emergency ducking.
 class LiveKitAudioRoomService implements AudioRoomService {
   LiveKitAudioRoomService({
     required this.serverUrl,
