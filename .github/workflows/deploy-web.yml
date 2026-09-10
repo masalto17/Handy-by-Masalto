@@ -59,17 +59,15 @@ jobs:
 
       - name: Configure Vercel static routing
         run: |
+          # Sin cleanUrls: bajo esa opcion /index.html deja de ser una URL
+          # canonica y el fallback SPA no resuelve, asi que toda ruta que no
+          # sea "/" devolvia 404 (deep links y F5 en /admin, /channel/... ).
           cat > build/web/vercel.json <<'JSON'
           {
-            "cleanUrls": true,
-            "trailingSlash": false,
-            "routes": [
+            "rewrites": [
               {
-                "handle": "filesystem"
-              },
-              {
-                "src": "/.*",
-                "dest": "/index.html"
+                "source": "/(.*)",
+                "destination": "/index.html"
               }
             ],
             "headers": [
