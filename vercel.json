@@ -2,11 +2,9 @@
   "buildCommand": "bash scripts/vercel-build.sh",
   "installCommand": "echo \"sin dependencias npm: las instala scripts/vercel-build.sh\"",
   "outputDirectory": "build/web",
-  "cleanUrls": true,
-  "trailingSlash": false,
   "rewrites": [
     {
-      "source": "/:path*",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ],
