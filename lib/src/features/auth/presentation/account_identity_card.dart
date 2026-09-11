@@ -33,7 +33,7 @@ class AccountIdentityCard extends ConsumerWidget {
           loading: () => const _LoadingContent(),
           error: (_, __) => Text(
             AppLocalizations.of(context).accountLoadError,
-            style: const TextStyle(color: Colors.white70),
+            style: const TextStyle(color: AppTheme.textSecondary),
           ),
         ),
       ),
@@ -68,7 +68,7 @@ class _UnsignedContent extends ConsumerWidget {
         const SizedBox(height: 8),
         Text(
           l10n.accountMvpInfo,
-          style: const TextStyle(color: Colors.white70),
+          style: const TextStyle(color: AppTheme.textSecondary),
         ),
         const SizedBox(height: 12),
         OutlinedButton.icon(
@@ -164,7 +164,7 @@ class _SignedContent extends StatelessWidget {
     return Row(
       children: [
         CircleAvatar(
-          backgroundColor: isGuest ? Colors.white12 : AppTheme.accent,
+          backgroundColor: isGuest ? AppTheme.iconMuted : AppTheme.accent,
           child: Icon(
             isGuest ? Icons.person_outline : Icons.verified_user_outlined,
             color: Colors.white,
@@ -180,7 +180,7 @@ class _SignedContent extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 2),
-              Text(subtitle, style: const TextStyle(color: Colors.white70)),
+              Text(subtitle, style: const TextStyle(color: AppTheme.textSecondary)),
             ],
           ),
         ),

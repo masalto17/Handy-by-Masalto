@@ -124,7 +124,7 @@ class _CreateEventDialogState extends ConsumerState<_CreateEventDialog> {
           children: [
             Text(
               l10n.createEventDescription,
-              style: const TextStyle(color: Colors.white70),
+              style: const TextStyle(color: AppTheme.textSecondary),
             ),
             const SizedBox(height: 16),
             TextField(
@@ -164,11 +164,11 @@ class _CreateEventDialogState extends ConsumerState<_CreateEventDialog> {
             const SizedBox(height: 4),
             Text(
               _template.tagline,
-              style: const TextStyle(color: Colors.white54, fontSize: 12),
+              style: const TextStyle(color: AppTheme.textTertiary, fontSize: 12),
             ),
             if (_error != null) ...[
               const SizedBox(height: 12),
-              Text(_error!, style: const TextStyle(color: Colors.redAccent)),
+              Text(_error!, style: const TextStyle(color: AppTheme.danger)),
             ],
           ],
         ),

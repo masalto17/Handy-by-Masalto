@@ -1,3 +1,4 @@
+import 'package:event_radio_app/src/core/theme/app_theme.dart';
 import 'package:event_radio_app/l10n/app_localizations.dart';
 import 'package:event_radio_app/src/core/config/env_config.dart';
 import 'package:event_radio_app/src/features/admin/presentation/admin_helpers.dart';
@@ -42,7 +43,7 @@ class AdminPilotReadinessCard extends ConsumerWidget {
             const SizedBox(height: 8),
             Text(
               AppLocalizations.of(context).adminPilotReadinessHint,
-              style: const TextStyle(color: Colors.white70),
+              style: const TextStyle(color: AppTheme.textSecondary),
             ),
             if (!canOperate) ...[
               const SizedBox(height: 12),
@@ -262,18 +263,18 @@ class _PilotActionBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color(0xFF2A2115),
+      color: AppTheme.warningSurface,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
             const Icon(Icons.warning_amber_outlined,
-                color: Colors.orangeAccent),
+                color: AppTheme.warning),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
                 AppLocalizations.of(context).adminPilotActionBanner,
-                style: const TextStyle(color: Colors.white70),
+                style: const TextStyle(color: AppTheme.textSecondary),
               ),
             ),
           ],
@@ -305,10 +306,10 @@ class _PilotCheckTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = check.isReady
-        ? Colors.greenAccent
+        ? AppTheme.success
         : check.required
-            ? Colors.orangeAccent
-            : Colors.white54;
+            ? AppTheme.warning
+            : AppTheme.textTertiary;
     final icon = check.isReady
         ? Icons.check_circle_outline
         : check.required
@@ -332,7 +333,7 @@ class _ReadinessPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = ready ? Colors.greenAccent : Colors.orangeAccent;
+    final color = ready ? AppTheme.success : AppTheme.warning;
     return Chip(
       avatar: Icon(
         ready ? Icons.verified_outlined : Icons.warning_amber_outlined,

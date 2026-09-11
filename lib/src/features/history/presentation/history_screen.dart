@@ -299,7 +299,7 @@ class _VoiceMessageTileState extends ConsumerState<_VoiceMessageTile> {
               ),
               const SizedBox(height: 8),
               _WaveformPreview(
-                color: message.isPriority ? AppTheme.danger : Colors.white70,
+                color: message.isPriority ? AppTheme.danger : AppTheme.textSecondary,
               ),
             ],
           ),
@@ -308,7 +308,7 @@ class _VoiceMessageTileState extends ConsumerState<_VoiceMessageTile> {
             children: [
               Text(
                 DateFormat('HH:mm').format(message.createdAt),
-                style: const TextStyle(color: Colors.white54),
+                style: const TextStyle(color: AppTheme.textTertiary),
               ),
               if (message.hasAudio) ...[
                 const SizedBox(width: 10),

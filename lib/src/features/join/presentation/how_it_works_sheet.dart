@@ -101,7 +101,7 @@ class _HowItWorksStep extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   detail,
-                  style: const TextStyle(color: Colors.white70, height: 1.3),
+                  style: const TextStyle(color: AppTheme.textSecondary, height: 1.3),
                 ),
               ],
             ),

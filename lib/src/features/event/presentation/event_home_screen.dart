@@ -135,7 +135,7 @@ class _EventHeader extends StatelessWidget {
                       const SizedBox(height: 6),
                       Text(
                         l10n.eventOperator(session.participant.displayName),
-                        style: const TextStyle(color: Colors.white70),
+                        style: const TextStyle(color: AppTheme.textSecondary),
                       ),
                     ],
                   ),
@@ -150,7 +150,7 @@ class _EventHeader extends StatelessWidget {
             const SizedBox(height: 18),
             Row(
               children: [
-                const Icon(Icons.schedule, color: Colors.white54, size: 18),
+                const Icon(Icons.schedule, color: AppTheme.textTertiary, size: 18),
                 const SizedBox(width: 8),
                 Text(
                   remainingText,
@@ -164,7 +164,7 @@ class _EventHeader extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               '${formatter.format(session.event.startsAt)} - ${formatter.format(session.event.endsAt)}',
-              style: const TextStyle(color: Colors.white54),
+              style: const TextStyle(color: AppTheme.textTertiary),
             ),
           ],
         ),
@@ -298,7 +298,7 @@ class _EventNoLongerActiveBanner extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               AppLocalizations.of(context).eventNoLongerActiveDetail,
-              style: const TextStyle(color: Colors.white70),
+              style: const TextStyle(color: AppTheme.textSecondary),
             ),
           ],
         ),

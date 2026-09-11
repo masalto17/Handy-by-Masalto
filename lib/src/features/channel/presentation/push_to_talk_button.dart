@@ -246,7 +246,7 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
         ? AppTheme.accent
         : widget.canTalk
             ? AppTheme.accent
-            : Colors.white24;
+            : AppTheme.borderSubtle;
     final statusLabel = _ptt.isError
         ? _ptt.errorMessage ?? l10n.pttError
         : _ptt.isFinalizing
@@ -365,7 +365,7 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
                               : _ptt.isError
                                   ? AppTheme.danger
                                   : isRequesting
-                                      ? Colors.white70
+                                      ? AppTheme.textSecondary
                                       : AppTheme.brandGold,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 0.8,
@@ -396,10 +396,10 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
               : isActive
                   ? AppTheme.accent
                   : isRequesting
-                      ? Colors.orangeAccent
+                      ? AppTheme.warning
                       : widget.canTalk
                           ? AppTheme.success
-                          : Colors.white54,
+                          : AppTheme.textTertiary,
           icon: _ptt.isError
               ? Icons.error_outline
               : isActive
@@ -421,7 +421,7 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
                         : l10n.pttDestinationSimulated(widget.destinationLabel)
                     : l10n.pttNoPermission,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white60),
+            style: const TextStyle(color: AppTheme.textSubtle),
           ),
         ],
       ],

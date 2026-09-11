@@ -40,7 +40,7 @@ class BootstrapErrorScreen extends StatelessWidget {
               Text(
                 error.message,
                 style: const TextStyle(
-                  color: Colors.white70,
+                  color: AppTheme.textSecondary,
                   fontSize: 16,
                 ),
                 textAlign: TextAlign.center,
@@ -56,7 +56,7 @@ class BootstrapErrorScreen extends StatelessWidget {
                   child: Text(
                     error.detail!,
                     style: const TextStyle(
-                      color: Colors.white54,
+                      color: AppTheme.textTertiary,
                       fontSize: 12,
                       fontFamily: 'monospace',
                     ),
@@ -67,7 +67,7 @@ class BootstrapErrorScreen extends StatelessWidget {
               const SizedBox(height: 32),
               Text(
                 l10n.bootstrapErrorHint,
-                style: const TextStyle(color: Colors.white54, fontSize: 13),
+                style: const TextStyle(color: AppTheme.textTertiary, fontSize: 13),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),

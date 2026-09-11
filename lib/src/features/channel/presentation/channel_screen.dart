@@ -329,7 +329,7 @@ class _ChannelHeader extends StatelessWidget {
               Text(
                 channel.description ??
                     AppLocalizations.of(context).channelDefaultDescription,
-                style: const TextStyle(color: Colors.white70),
+                style: const TextStyle(color: AppTheme.textSecondary),
               ),
             ],
           ),
@@ -418,27 +418,27 @@ class _AudioConnectionStatus extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     if (!canOperate) {
       icon = Icons.lock_outline;
-      color = Colors.white54;
+      color = AppTheme.textTertiary;
       label = l10n.channelAudioBlocked;
     } else if (!canListen) {
       icon = Icons.hearing_disabled_outlined;
-      color = Colors.white54;
+      color = AppTheme.textTertiary;
       label = l10n.channelNoListenPermission;
     } else if (isPreparing) {
       icon = Icons.sync;
-      color = Colors.orangeAccent;
+      color = AppTheme.warning;
       label = l10n.channelConnectingLiveKit;
     } else if (error != null) {
       icon = Icons.error_outline;
-      color = Colors.redAccent;
+      color = AppTheme.danger;
       label = error!;
     } else if (isReady) {
       icon = Icons.hearing_outlined;
-      color = Colors.greenAccent;
+      color = AppTheme.success;
       label = l10n.channelListening;
     } else {
       icon = Icons.radio_outlined;
-      color = Colors.white70;
+      color = AppTheme.textSecondary;
       label = l10n.channelReadyToConnect;
     }
 
@@ -611,8 +611,8 @@ class _ChannelPresenceBar extends ConsumerWidget {
                             : Icons.headset_mic_outlined,
                         size: 20,
                         color: presence.someoneSpeaking
-                            ? Colors.redAccent
-                            : Colors.white70,
+                            ? AppTheme.danger
+                            : AppTheme.textSecondary,
                       ),
                       const SizedBox(width: 10),
                       Expanded(
@@ -632,7 +632,7 @@ class _ChannelPresenceBar extends ConsumerWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
-                                color: Colors.white70,
+                                color: AppTheme.textSecondary,
                                 fontSize: 12,
                               ),
                             ),

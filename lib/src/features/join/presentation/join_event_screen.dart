@@ -123,7 +123,7 @@ class _JoinEventScreenState extends ConsumerState<JoinEventScreen> {
                       AppLocalizations.of(context).joinSubtitle,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                        color: Colors.white70,
+                        color: AppTheme.textSecondary,
                         height: 1.35,
                       ),
                     ),
@@ -192,15 +192,15 @@ class _QrDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Expanded(child: Divider(color: Colors.white24)),
+        const Expanded(child: Divider(color: AppTheme.borderSubtle)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Text(
             AppLocalizations.of(context).joinOrScanQr,
-            style: const TextStyle(color: Colors.white54, fontSize: 12),
+            style: const TextStyle(color: AppTheme.textTertiary, fontSize: 12),
           ),
         ),
-        const Expanded(child: Divider(color: Colors.white24)),
+        const Expanded(child: Divider(color: AppTheme.borderSubtle)),
       ],
     );
   }
@@ -294,7 +294,7 @@ class _InviteCodePanel extends StatelessWidget {
               AppLocalizations.of(context).joinInviteCodeLabel,
               style: Theme.of(
                 context,
-              ).textTheme.labelLarge?.copyWith(color: Colors.white70),
+              ).textTheme.labelLarge?.copyWith(color: AppTheme.textSecondary),
             ),
             const SizedBox(height: 8),
             TextField(

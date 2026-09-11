@@ -62,7 +62,7 @@ class AdminEventCard extends ConsumerWidget {
             Text(
               session.event.description ??
                   AppLocalizations.of(context).adminNoDescription,
-              style: const TextStyle(color: Colors.white70),
+              style: const TextStyle(color: AppTheme.textSecondary),
             ),
             const SizedBox(height: 10),
             Wrap(
@@ -545,7 +545,7 @@ class _EventTemplatePicker extends StatelessWidget {
                         Icon(
                           _icons[template.icon] ?? Icons.tune,
                           color:
-                              isSelected ? AppTheme.brandGold : Colors.white70,
+                              isSelected ? AppTheme.brandGold : AppTheme.textSecondary,
                           size: 22,
                         ),
                         const SizedBox(height: 6),
@@ -563,7 +563,7 @@ class _EventTemplatePicker extends StatelessWidget {
                           child: Text(
                             template.tagline,
                             style: const TextStyle(
-                              color: Colors.white60,
+                              color: AppTheme.textSubtle,
                               fontSize: 10.5,
                               height: 1.2,
                             ),

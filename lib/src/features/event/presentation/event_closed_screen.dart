@@ -54,12 +54,12 @@ class EventClosedScreen extends ConsumerWidget {
                         l10n.eventClosedSchedule(
                           DateFormat('dd/MM HH:mm').format(session.event.endsAt),
                         ),
-                        style: const TextStyle(color: Colors.white70),
+                        style: const TextStyle(color: AppTheme.textSecondary),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         l10n.eventClosedHistoryAvailable,
-                        style: const TextStyle(color: Colors.white70),
+                        style: const TextStyle(color: AppTheme.textSecondary),
                       ),
                     ],
                   ),

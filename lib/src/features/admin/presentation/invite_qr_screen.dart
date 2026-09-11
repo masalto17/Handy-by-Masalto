@@ -34,12 +34,12 @@ class InviteQrScreen extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 session.event.name,
-                style: const TextStyle(color: Colors.white70),
+                style: const TextStyle(color: AppTheme.textSecondary),
               ),
               const SizedBox(height: 6),
               Text(
                 '${DateFormat('dd/MM HH:mm').format(session.event.startsAt)} - ${DateFormat('HH:mm').format(session.event.endsAt)}',
-                style: const TextStyle(color: Colors.white54),
+                style: const TextStyle(color: AppTheme.textTertiary),
               ),
               const SizedBox(height: 16),
               if (session.participant.canAccessAdmin)
@@ -76,7 +76,7 @@ class _InviteUsageNote extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Text(
           AppLocalizations.of(context).invitationsUsageNote,
-          style: const TextStyle(color: Colors.white70),
+          style: const TextStyle(color: AppTheme.textSecondary),
         ),
       ),
     );
@@ -129,7 +129,7 @@ class _ParticipantInviteCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         '${participant.role.value} · ${channels.isEmpty ? AppLocalizations.of(context).invitationsNoChannels : channels}',
-                        style: const TextStyle(color: Colors.white70),
+                        style: const TextStyle(color: AppTheme.textSecondary),
                       ),
                     ],
                   ),
@@ -165,7 +165,7 @@ class _ParticipantInviteCard extends StatelessWidget {
             const SizedBox(height: 8),
             SelectableText(
               qrValue,
-              style: const TextStyle(color: Colors.white60),
+              style: const TextStyle(color: AppTheme.textSubtle),
             ),
             const SizedBox(height: 12),
             Wrap(

@@ -109,7 +109,7 @@ class _QrJoinScreenState extends ConsumerState<QrJoinScreen> {
           const SizedBox(height: 8),
           Text(
             l10n.scanQrHint,
-            style: const TextStyle(color: Colors.white70),
+            style: const TextStyle(color: AppTheme.textSecondary),
           ),
           if (EnvConfig.allowDemoShortcuts) ...[
             const SizedBox(height: 16),
@@ -129,7 +129,7 @@ class _QrJoinScreenState extends ConsumerState<QrJoinScreen> {
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   color: AppTheme.surface,
-                  border: Border.all(color: Colors.white24),
+                  border: Border.all(color: AppTheme.borderSubtle),
                 ),
                 child: _cameraRequested
                     ? MobileScanner(
@@ -193,7 +193,7 @@ class _ScannerPlaceholder extends StatelessWidget {
     return Stack(
       alignment: Alignment.center,
       children: [
-        const Icon(Icons.qr_code_scanner, size: 96, color: Colors.white24),
+        const Icon(Icons.qr_code_scanner, size: 96, color: AppTheme.borderSubtle),
         Positioned.fill(
           child: Padding(
             padding: const EdgeInsets.all(32),
@@ -210,7 +210,7 @@ class _ScannerPlaceholder extends StatelessWidget {
           child: Text(
             AppLocalizations.of(context).scanQrCameraPaused,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: Colors.white70,
+                  color: AppTheme.textSecondary,
                 ),
           ),
         ),

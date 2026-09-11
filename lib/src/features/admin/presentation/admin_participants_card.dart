@@ -1,3 +1,4 @@
+import 'package:event_radio_app/src/core/theme/app_theme.dart';
 import 'package:event_radio_app/l10n/app_localizations.dart';
 import 'package:event_radio_app/src/features/admin/presentation/admin_helpers.dart';
 import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
@@ -352,7 +353,7 @@ class AdminParticipantsCard extends ConsumerWidget {
                 children: [
                   Text(
                     session.event.name,
-                    style: const TextStyle(color: Colors.white70),
+                    style: const TextStyle(color: AppTheme.textSecondary),
                   ),
                   const SizedBox(height: 16),
                   Center(
@@ -385,7 +386,7 @@ class AdminParticipantsCard extends ConsumerWidget {
                   const SizedBox(height: 12),
                   SelectableText(
                     qrValue,
-                    style: const TextStyle(color: Colors.white60),
+                    style: const TextStyle(color: AppTheme.textSubtle),
                   ),
                 ],
               ),
