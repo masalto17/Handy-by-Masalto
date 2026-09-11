@@ -6,6 +6,13 @@ void main() {
     test('generates deep link from invite code', () {
       expect(inviteUri('ABC123'), 'event-radio://join?code=ABC123');
     });
+
+    test('generated URI has parseable scheme, host, and code', () {
+      final uri = Uri.parse(inviteUri('SATI26'));
+      expect(uri.scheme, 'event-radio');
+      expect(uri.host, 'join');
+      expect(uri.queryParameters['code'], 'SATI26');
+    });
   });
 
   group('normalizeChannelCode', () {

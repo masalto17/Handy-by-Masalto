@@ -310,7 +310,7 @@
   "adminErrorChannelCodeDuplicate": "That channel code already exists.",
   "adminErrorChannelPriority": "Priority must be a number between 0 and 100.",
   "adminDeleteChannel": "Delete channel",
-  "adminDeleteChannelContent": "This will remove \"{name}\" from assignments and mock history.",
+  "adminDeleteChannelContent": "This will remove \"{name}\" from assignments and message history.",
   "@adminDeleteChannelContent": {
     "placeholders": { "name": { "type": "String" } }
   },
@@ -359,7 +359,7 @@
   "adminErrorParticipantCode": "Complete the invite code.",
   "adminErrorParticipantCodeDuplicate": "That invite code is already in use.",
   "adminDeleteParticipant": "Delete participant",
-  "adminDeleteParticipantContent": "This will remove {name} from the mock event. Code {code} will no longer work.",
+  "adminDeleteParticipantContent": "This will remove {name} from this event. Code {code} will no longer work.",
   "@adminDeleteParticipantContent": {
     "placeholders": {
       "name": { "type": "String" },

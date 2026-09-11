@@ -13,16 +13,29 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class JoinEventScreen extends ConsumerStatefulWidget {
-  const JoinEventScreen({super.key});
+  const JoinEventScreen({this.initialCode, super.key});
+
+  /// Codigo de invitacion pre-cargado desde un deep link o QR.
+  final String? initialCode;
 
   @override
   ConsumerState<JoinEventScreen> createState() => _JoinEventScreenState();
 }
 
 class _JoinEventScreenState extends ConsumerState<JoinEventScreen> {
-  final _codeController = TextEditingController(
-    text: EnvConfig.allowDemoShortcuts ? 'SATI26' : '',
-  );
+  late final TextEditingController _codeController;
+
+  @override
+  void initState() {
+    super.initState();
+    final prefill = widget.initialCode ??
+        (EnvConfig.allowDemoShortcuts ? 'SATI26' : '');
+    _codeController = TextEditingController(text: prefill);
+    // Si llega un codigo por deep link, iniciar el ingreso automaticamente.
+    if (widget.initialCode != null && widget.initialCode!.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _join());
+    }
+  }
   String? _error;
 
   @override
