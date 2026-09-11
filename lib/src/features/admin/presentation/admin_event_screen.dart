@@ -1,3 +1,4 @@
+import 'package:event_radio_app/l10n/app_localizations.dart';
 import 'package:event_radio_app/src/core/config/env_config.dart';
 import 'package:event_radio_app/src/core/theme/app_theme.dart';
 import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
@@ -19,11 +20,12 @@ class AdminEventScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     return AppScaffold(
-      title: 'Admin',
+      title: l10n.adminTitle,
       actions: [
         IconButton(
-          tooltip: 'Invitacion QR',
+          tooltip: l10n.adminInviteQrTooltip,
           onPressed: () => context.push('/admin/invite'),
           icon: const Icon(Icons.qr_code_2),
         ),
@@ -32,9 +34,9 @@ class AdminEventScreen extends ConsumerWidget {
       child: SessionGuard(
         builder: (context, session) {
           if (!session.participant.canAccessAdmin) {
-            return const Center(
+            return Center(
               child:
-                  Text('Solo admins y coordinadores pueden ver la bitacora.'),
+                  Text(l10n.adminOnlyAdmins),
             );
           }
 
@@ -80,7 +82,7 @@ class _PilotReadinessCard extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Puesta en marcha',
+                    AppLocalizations.of(context).adminPilotReadiness,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
@@ -88,9 +90,9 @@ class _PilotReadinessCard extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Control rapido para validar si el evento esta listo para probar con varias personas.',
-              style: TextStyle(color: Colors.white70),
+            Text(
+              AppLocalizations.of(context).adminPilotReadinessHint,
+              style: const TextStyle(color: Colors.white70),
             ),
             if (!canOperate) ...[
               const SizedBox(height: 12),
@@ -106,18 +108,18 @@ class _PilotReadinessCard extends ConsumerWidget {
                 ElevatedButton.icon(
                   onPressed: () => _extendEventForPilot(context, ref),
                   icon: const Icon(Icons.more_time),
-                  label: Text(canOperate ? 'Extender 8h' : 'Activar 8h'),
+                  label: Text(canOperate ? AppLocalizations.of(context).adminExtend8h : AppLocalizations.of(context).adminActivate8h),
                 ),
                 OutlinedButton.icon(
                   onPressed: () => context.push('/admin/invite'),
                   icon: const Icon(Icons.qr_code_2),
-                  label: const Text('Ver invitaciones'),
+                  label: Text(AppLocalizations.of(context).adminViewInvitations),
                 ),
                 OutlinedButton.icon(
                   onPressed: () =>
                       _copyReadinessSummary(context, checks, ready),
                   icon: const Icon(Icons.copy),
-                  label: const Text('Copiar paquete ensayo'),
+                  label: Text(AppLocalizations.of(context).adminCopyTestPackage),
                 ),
               ],
             ),
@@ -267,7 +269,7 @@ class _PilotReadinessCard extends ConsumerWidget {
     await Clipboard.setData(ClipboardData(text: buffer.toString()));
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Paquete de ensayo copiado.')),
+      SnackBar(content: Text(AppLocalizations.of(context).adminTestPackageCopied)),
     );
   }
 
@@ -288,7 +290,7 @@ class _PilotReadinessCard extends ConsumerWidget {
     ref.invalidate(eventLogsProvider(session.event.id));
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Evento listo por 8 horas.')),
+      SnackBar(content: Text(AppLocalizations.of(context).adminEventReady8h)),
     );
   }
 }
@@ -298,18 +300,18 @@ class _PilotActionBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Card(
-      color: Color(0xFF2A2115),
+    return Card(
+      color: const Color(0xFF2A2115),
       child: Padding(
-        padding: EdgeInsets.all(12),
+        padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            Icon(Icons.warning_amber_outlined, color: Colors.orangeAccent),
-            SizedBox(width: 10),
+            const Icon(Icons.warning_amber_outlined, color: Colors.orangeAccent),
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
-                'El evento no esta operativo ahora. Activarlo evita errores de ingreso durante la prueba.',
-                style: TextStyle(color: Colors.white70),
+                AppLocalizations.of(context).adminPilotActionBanner,
+                style: const TextStyle(color: Colors.white70),
               ),
             ),
           ],
@@ -375,7 +377,7 @@ class _ReadinessPill extends StatelessWidget {
         color: color,
         size: 16,
       ),
-      label: Text(ready ? 'LISTO ENSAYO' : 'REVISAR'),
+      label: Text(ready ? AppLocalizations.of(context).adminReadyTest : AppLocalizations.of(context).adminReview),
       labelStyle: TextStyle(color: color, fontWeight: FontWeight.w800),
       backgroundColor: color.withValues(alpha: 0.12),
       side: BorderSide(color: color.withValues(alpha: 0.45)),
@@ -403,12 +405,12 @@ class _EventAdminCard extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Evento',
+                    AppLocalizations.of(context).adminEventCard,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
                 IconButton(
-                  tooltip: 'Crear evento',
+                  tooltip: AppLocalizations.of(context).adminCreateEvent,
                   onPressed: () => _showEventDialog(
                     context,
                     ref,
@@ -418,7 +420,7 @@ class _EventAdminCard extends ConsumerWidget {
                   icon: const Icon(Icons.add_circle_outline),
                 ),
                 IconButton(
-                  tooltip: 'Editar evento',
+                  tooltip: AppLocalizations.of(context).adminEditEvent,
                   onPressed: () => _showEventDialog(
                     context,
                     ref,
@@ -435,7 +437,7 @@ class _EventAdminCard extends ConsumerWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              session.event.description ?? 'Sin descripcion',
+              session.event.description ?? AppLocalizations.of(context).adminNoDescription,
               style: const TextStyle(color: Colors.white70),
             ),
             const SizedBox(height: 10),
@@ -443,27 +445,27 @@ class _EventAdminCard extends ConsumerWidget {
               spacing: 12,
               runSpacing: 8,
               children: [
-                _MetaChip(label: 'Estado', value: session.event.status.value),
+                _MetaChip(label: AppLocalizations.of(context).adminMetaStatus, value: session.event.status.value),
                 _MetaChip(
-                  label: 'Inicio',
+                  label: AppLocalizations.of(context).adminMetaStart,
                   value:
                       DateFormat('dd/MM HH:mm').format(session.event.startsAt),
                 ),
                 _MetaChip(
-                  label: 'Fin',
+                  label: AppLocalizations.of(context).adminMetaEnd,
                   value: DateFormat('dd/MM HH:mm').format(session.event.endsAt),
                 ),
                 _MetaChip(
-                  label: 'Duracion',
+                  label: AppLocalizations.of(context).adminMetaDuration,
                   value:
                       '${duration.inHours}h ${duration.inMinutes.remainder(60)}m',
                 ),
                 _MetaChip(
-                  label: 'Canales',
+                  label: AppLocalizations.of(context).adminMetaChannels,
                   value: session.channels.length.toString(),
                 ),
                 _MetaChip(
-                  label: 'Participantes',
+                  label: AppLocalizations.of(context).adminMetaParticipants,
                   value: session.participants.length.toString(),
                 ),
               ],
@@ -476,19 +478,19 @@ class _EventAdminCard extends ConsumerWidget {
                 OutlinedButton.icon(
                   onPressed: () => _extendEvent(context, ref),
                   icon: const Icon(Icons.more_time),
-                  label: const Text('Extender 8h'),
+                  label: Text(AppLocalizations.of(context).adminExtend8h),
                 ),
                 if (session.event.status != EventStatus.closed)
                   OutlinedButton.icon(
                     onPressed: () => _closeEventNow(context, ref),
                     icon: const Icon(Icons.lock_clock),
-                    label: const Text('Cerrar ahora'),
+                    label: Text(AppLocalizations.of(context).adminCloseNow),
                   ),
                 if (!session.event.isOperational(DateTime.now()))
                   ElevatedButton.icon(
                     onPressed: () => _reactivateEvent(context, ref),
                     icon: const Icon(Icons.play_circle_outline),
-                    label: const Text('Reactivar 8h'),
+                    label: Text(AppLocalizations.of(context).adminReactivate8h),
                   ),
               ],
             ),
@@ -504,12 +506,13 @@ class _EventAdminCard extends ConsumerWidget {
     required EventSession session,
     bool createNew = false,
   }) async {
+    final l10n = AppLocalizations.of(context);
     final nameController = TextEditingController(
-      text: createNew ? 'Nuevo operativo' : session.event.name,
+      text: createNew ? l10n.adminNewOperative : session.event.name,
     );
     final descriptionController = TextEditingController(
       text: createNew
-          ? 'Evento creado desde Handy.'
+          ? l10n.createEventDefaultDescription
           : session.event.description ?? '',
     );
     var startsAt = createNew ? DateTime.now() : session.event.startsAt;
@@ -531,14 +534,14 @@ class _EventAdminCard extends ConsumerWidget {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text(createNew ? 'Crear evento' : 'Editar evento'),
+              title: Text(createNew ? l10n.adminCreateEvent : l10n.adminEditEvent),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextField(
                       controller: nameController,
-                      decoration: const InputDecoration(labelText: 'Nombre'),
+                      decoration: InputDecoration(labelText: l10n.adminDialogName),
                     ),
                     const SizedBox(height: 12),
                     TextField(
@@ -546,7 +549,7 @@ class _EventAdminCard extends ConsumerWidget {
                       minLines: 2,
                       maxLines: 3,
                       decoration:
-                          const InputDecoration(labelText: 'Descripcion'),
+                          InputDecoration(labelText: l10n.adminDialogDescription),
                     ),
                     const SizedBox(height: 12),
                     if (createNew) ...[
@@ -602,7 +605,7 @@ class _EventAdminCard extends ConsumerWidget {
                             controller: durationHoursController,
                             keyboardType: TextInputType.number,
                             decoration:
-                                const InputDecoration(labelText: 'Horas'),
+                                InputDecoration(labelText: l10n.adminDialogHours),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -611,7 +614,7 @@ class _EventAdminCard extends ConsumerWidget {
                             controller: durationMinutesController,
                             keyboardType: TextInputType.number,
                             decoration:
-                                const InputDecoration(labelText: 'Minutos'),
+                                InputDecoration(labelText: l10n.adminDialogMinutes),
                           ),
                         ),
                       ],
@@ -620,7 +623,7 @@ class _EventAdminCard extends ConsumerWidget {
                       const SizedBox(height: 12),
                       DropdownButtonFormField<EventStatus>(
                         initialValue: status,
-                        decoration: const InputDecoration(labelText: 'Estado'),
+                        decoration: InputDecoration(labelText: l10n.adminDialogStatus),
                         items: EventStatus.values
                             .map(
                               (item) => DropdownMenuItem(
@@ -640,7 +643,7 @@ class _EventAdminCard extends ConsumerWidget {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: const Text('Cancelar'),
+                  child: Text(l10n.adminDialogCancel),
                 ),
                 ElevatedButton(
                   onPressed: () async {
@@ -648,7 +651,7 @@ class _EventAdminCard extends ConsumerWidget {
                     if (eventName.isEmpty) {
                       _showAdminError(
                         dialogContext,
-                        'Completá el nombre del evento.',
+                        l10n.adminErrorEventName,
                       );
                       return;
                     }
@@ -659,7 +662,7 @@ class _EventAdminCard extends ConsumerWidget {
                     if (duration == null) {
                       _showAdminError(
                         dialogContext,
-                        'La duración debe estar entre 15 minutos y 24 horas.',
+                        l10n.adminErrorDuration,
                       );
                       return;
                     }
@@ -693,19 +696,18 @@ class _EventAdminCard extends ConsumerWidget {
                     }
                     if (context.mounted) {
                       final createdMessage = templateFailures.isEmpty
-                          ? 'Evento creado. Ya estas operando el nuevo evento.'
-                          : 'Evento creado. No se pudieron crear algunos canales: '
-                              '${templateFailures.join(', ')}.';
+                          ? l10n.adminEventCreated
+                          : l10n.adminEventCreatedWithFailures(templateFailures.join(', '));
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            createNew ? createdMessage : 'Evento actualizado.',
+                            createNew ? createdMessage : l10n.adminEventUpdated,
                           ),
                         ),
                       );
                     }
                   },
-                  child: const Text('Guardar'),
+                  child: Text(l10n.adminDialogSave),
                 ),
               ],
             );
@@ -756,7 +758,7 @@ class _EventAdminCard extends ConsumerWidget {
     ref.invalidate(eventLogsProvider(session.event.id));
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Evento cerrado. PTT bloqueado.')),
+      SnackBar(content: Text(AppLocalizations.of(context).adminEventClosed)),
     );
   }
 
@@ -774,7 +776,7 @@ class _EventAdminCard extends ConsumerWidget {
     ref.invalidate(eventLogsProvider(session.event.id));
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Evento reactivado por 8 horas.')),
+      SnackBar(content: Text(AppLocalizations.of(context).adminEventReactivated)),
     );
   }
 
@@ -795,7 +797,7 @@ class _EventAdminCard extends ConsumerWidget {
     ref.invalidate(eventLogsProvider(session.event.id));
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Evento extendido por 8 horas.')),
+      SnackBar(content: Text(AppLocalizations.of(context).adminEventExtended)),
     );
   }
 }
@@ -852,12 +854,12 @@ class _ChannelsAdminCard extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Canales',
+                    AppLocalizations.of(context).adminChannelsCard,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
                 IconButton(
-                  tooltip: 'Crear canal',
+                  tooltip: AppLocalizations.of(context).adminCreateChannel,
                   onPressed: () => _showChannelDialog(context, ref, session),
                   icon: const Icon(Icons.add),
                 ),
@@ -871,12 +873,12 @@ class _ChannelsAdminCard extends ConsumerWidget {
                 ),
                 title: Text(channel.name),
                 subtitle:
-                    Text('${channel.code} · prioridad ${channel.priority}'),
+                    Text(AppLocalizations.of(context).adminChannelSummary(channel.code, channel.priority)),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      tooltip: 'Editar canal',
+                      tooltip: AppLocalizations.of(context).adminEditChannel,
                       onPressed: () => _showChannelDialog(
                         context,
                         ref,
@@ -886,7 +888,7 @@ class _ChannelsAdminCard extends ConsumerWidget {
                       icon: const Icon(Icons.edit_outlined),
                     ),
                     IconButton(
-                      tooltip: 'Eliminar canal',
+                      tooltip: AppLocalizations.of(context).adminDeleteChannel,
                       onPressed: session.channels.length <= 1
                           ? null
                           : () => _confirmDeleteChannel(
@@ -926,37 +928,38 @@ class _ChannelsAdminCard extends ConsumerWidget {
       builder: (dialogContext) {
         return StatefulBuilder(
           builder: (context, setState) {
+            final l10n = AppLocalizations.of(context);
             return AlertDialog(
-              title: Text(channel == null ? 'Crear canal' : 'Editar canal'),
+              title: Text(channel == null ? l10n.adminCreateChannel : l10n.adminEditChannel),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextField(
                       controller: nameController,
-                      decoration: const InputDecoration(labelText: 'Nombre'),
+                      decoration: InputDecoration(labelText: l10n.adminDialogName),
                     ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: codeController,
-                      decoration: const InputDecoration(labelText: 'Codigo'),
+                      decoration: InputDecoration(labelText: l10n.adminChannelCode),
                     ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: descriptionController,
                       decoration:
-                          const InputDecoration(labelText: 'Descripcion'),
+                          InputDecoration(labelText: l10n.adminDialogDescription),
                     ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: priorityController,
                       keyboardType: TextInputType.number,
                       decoration:
-                          const InputDecoration(labelText: 'Prioridad 0-100'),
+                          InputDecoration(labelText: l10n.adminChannelPriority),
                     ),
                     SwitchListTile(
                       contentPadding: EdgeInsets.zero,
-                      title: const Text('Canal critico'),
+                      title: Text(l10n.adminChannelCritical),
                       value: isEmergency,
                       onChanged: (value) => setState(() => isEmergency = value),
                     ),
@@ -966,7 +969,7 @@ class _ChannelsAdminCard extends ConsumerWidget {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: const Text('Cancelar'),
+                  child: Text(l10n.adminDialogCancel),
                 ),
                 ElevatedButton(
                   onPressed: () async {
@@ -980,14 +983,14 @@ class _ChannelsAdminCard extends ConsumerWidget {
                     if (channelName.isEmpty) {
                       _showAdminError(
                         dialogContext,
-                        'Completá el nombre del canal.',
+                        l10n.adminErrorChannelName,
                       );
                       return;
                     }
                     if (channelCode.isEmpty) {
                       _showAdminError(
                         dialogContext,
-                        'Completá el código del canal.',
+                        l10n.adminErrorChannelCode,
                       );
                       return;
                     }
@@ -998,14 +1001,14 @@ class _ChannelsAdminCard extends ConsumerWidget {
                     if (codeAlreadyExists) {
                       _showAdminError(
                         dialogContext,
-                        'Ese código de canal ya existe.',
+                        l10n.adminErrorChannelCodeDuplicate,
                       );
                       return;
                     }
                     if (priority == null || priority < 0 || priority > 100) {
                       _showAdminError(
                         dialogContext,
-                        'La prioridad debe ser un número entre 0 y 100.',
+                        l10n.adminErrorChannelPriority,
                       );
                       return;
                     }
@@ -1036,7 +1039,7 @@ class _ChannelsAdminCard extends ConsumerWidget {
                       Navigator.of(dialogContext).pop();
                     }
                   },
-                  child: const Text('Guardar'),
+                  child: Text(l10n.adminDialogSave),
                 ),
               ],
             );
@@ -1059,23 +1062,24 @@ class _ChannelsAdminCard extends ConsumerWidget {
     EventSession session,
     EventChannel channel,
   ) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Eliminar canal'),
+          title: Text(l10n.adminDeleteChannel),
           content: Text(
-            'Se quitara "${channel.name}" de las asignaciones y del historial mock.',
+            l10n.adminDeleteChannelContent(channel.name),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Cancelar'),
+              child: Text(l10n.adminDialogCancel),
             ),
             ElevatedButton.icon(
               onPressed: () => Navigator.of(dialogContext).pop(true),
               icon: const Icon(Icons.delete_outline),
-              label: const Text('Eliminar'),
+              label: Text(l10n.adminDialogDelete),
             ),
           ],
         );
@@ -1090,7 +1094,7 @@ class _ChannelsAdminCard extends ConsumerWidget {
     ref.invalidate(eventLogsProvider(session.event.id));
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Canal eliminado: ${channel.name}.')),
+      SnackBar(content: Text(l10n.adminChannelDeleted(channel.name))),
     );
   }
 }
@@ -1102,6 +1106,7 @@ class _ParticipantsAdminCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -1112,17 +1117,17 @@ class _ParticipantsAdminCard extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Participantes',
+                    l10n.adminParticipantsCard,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
                 IconButton(
-                  tooltip: 'Copiar invitaciones',
+                  tooltip: l10n.adminCopyInvitations,
                   onPressed: () => _copyPilotInvitations(context, session),
                   icon: const Icon(Icons.copy_all_outlined),
                 ),
                 IconButton(
-                  tooltip: 'Invitar participante',
+                  tooltip: l10n.adminInviteParticipant,
                   onPressed: () =>
                       _showParticipantDialog(context, ref, session),
                   icon: const Icon(Icons.person_add_alt_1),
@@ -1144,13 +1149,17 @@ class _ParticipantsAdminCard extends ConsumerWidget {
                   leading: const Icon(Icons.badge_outlined),
                   title: Text(participant.displayName),
                   subtitle: Text(
-                    '${participant.role.value} · ${participant.inviteCode} · $assignedChannels canales',
+                    l10n.adminParticipantSummary(
+                      participant.role.value,
+                      participant.inviteCode,
+                      assignedChannels,
+                    ),
                   ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        tooltip: 'Ver invitacion de ${participant.displayName}',
+                        tooltip: l10n.adminViewInviteOf(participant.displayName),
                         onPressed: () => _showParticipantInviteDialog(
                           context,
                           session,
@@ -1159,7 +1168,7 @@ class _ParticipantsAdminCard extends ConsumerWidget {
                         icon: const Icon(Icons.qr_code_2),
                       ),
                       IconButton(
-                        tooltip: 'Editar canales de ${participant.displayName}',
+                        tooltip: l10n.adminEditChannelsOf(participant.displayName),
                         onPressed: () => _showParticipantChannelsDialog(
                           context,
                           ref,
@@ -1169,7 +1178,7 @@ class _ParticipantsAdminCard extends ConsumerWidget {
                         icon: const Icon(Icons.settings_input_antenna),
                       ),
                       IconButton(
-                        tooltip: 'Editar participante',
+                        tooltip: l10n.adminEditParticipant,
                         onPressed: () => _showParticipantDialog(
                           context,
                           ref,
@@ -1180,7 +1189,7 @@ class _ParticipantsAdminCard extends ConsumerWidget {
                       ),
                       IconButton(
                         tooltip:
-                            'Eliminar participante ${participant.displayName}',
+                            l10n.adminDeleteParticipantOf(participant.displayName),
                         onPressed: participant.id == session.participant.id
                             ? null
                             : () => _confirmDeleteParticipant(
@@ -1217,6 +1226,7 @@ class _ParticipantsAdminCard extends ConsumerWidget {
     );
     var role = participant?.role ?? ParticipantRole.participant;
 
+    final l10n = AppLocalizations.of(context);
     await showDialog<void>(
       context: context,
       builder: (dialogContext) {
@@ -1225,8 +1235,8 @@ class _ParticipantsAdminCard extends ConsumerWidget {
             return AlertDialog(
               title: Text(
                 participant == null
-                    ? 'Invitar participante'
-                    : 'Editar participante',
+                    ? l10n.adminInviteParticipant
+                    : l10n.adminEditParticipant,
               ),
               content: SingleChildScrollView(
                 child: Column(
@@ -1234,24 +1244,24 @@ class _ParticipantsAdminCard extends ConsumerWidget {
                   children: [
                     TextField(
                       controller: nameController,
-                      decoration: const InputDecoration(labelText: 'Nombre'),
+                      decoration: InputDecoration(labelText: l10n.adminDialogName),
                     ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: phoneController,
-                      decoration: const InputDecoration(labelText: 'Telefono'),
+                      decoration: InputDecoration(labelText: l10n.adminParticipantPhone),
                     ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: inviteController,
                       textCapitalization: TextCapitalization.characters,
                       decoration: InputDecoration(
-                        labelText: 'Codigo invitacion',
+                        labelText: l10n.adminParticipantInviteCode,
                         helperText: participant == null
-                            ? 'Generado automaticamente para evitar codigos cortos.'
-                            : 'Regeneralo solo si queres invalidar el codigo anterior.',
+                            ? l10n.adminParticipantInviteHelperNew
+                            : l10n.adminParticipantInviteHelperEdit,
                         suffixIcon: IconButton(
-                          tooltip: 'Generar codigo seguro',
+                          tooltip: l10n.adminGenerateSecureCode,
                           onPressed: () {
                             inviteController.text = _generateUniqueInviteCode(
                               session,
@@ -1265,7 +1275,7 @@ class _ParticipantsAdminCard extends ConsumerWidget {
                     const SizedBox(height: 12),
                     DropdownButtonFormField<ParticipantRole>(
                       initialValue: role,
-                      decoration: const InputDecoration(labelText: 'Rol'),
+                      decoration: InputDecoration(labelText: l10n.adminParticipantRole),
                       items: ParticipantRole.values
                           .map(
                             (item) => DropdownMenuItem(
@@ -1284,7 +1294,7 @@ class _ParticipantsAdminCard extends ConsumerWidget {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: const Text('Cancelar'),
+                  child: Text(l10n.adminDialogCancel),
                 ),
                 ElevatedButton(
                   onPressed: () async {
@@ -1295,14 +1305,14 @@ class _ParticipantsAdminCard extends ConsumerWidget {
                     if (displayName.isEmpty) {
                       _showAdminError(
                         dialogContext,
-                        'Completá el nombre del participante.',
+                        l10n.adminErrorParticipantName,
                       );
                       return;
                     }
                     if (inviteCode.isEmpty) {
                       _showAdminError(
                         dialogContext,
-                        'Completá el código de invitación.',
+                        l10n.adminErrorParticipantCode,
                       );
                       return;
                     }
@@ -1314,7 +1324,7 @@ class _ParticipantsAdminCard extends ConsumerWidget {
                     if (inviteAlreadyExists) {
                       _showAdminError(
                         dialogContext,
-                        'Ese código de invitación ya está en uso.',
+                        l10n.adminErrorParticipantCodeDuplicate,
                       );
                       return;
                     }
@@ -1343,7 +1353,7 @@ class _ParticipantsAdminCard extends ConsumerWidget {
                       Navigator.of(dialogContext).pop();
                     }
                   },
-                  child: const Text('Guardar'),
+                  child: Text(l10n.adminDialogSave),
                 ),
               ],
             );
@@ -1399,7 +1409,7 @@ class _ParticipantsAdminCard extends ConsumerWidget {
     await Clipboard.setData(ClipboardData(text: buffer.toString()));
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Invitaciones copiadas.')),
+      SnackBar(content: Text(AppLocalizations.of(context).adminInvitationsCopied)),
     );
   }
 
@@ -1410,11 +1420,12 @@ class _ParticipantsAdminCard extends ConsumerWidget {
   ) async {
     final qrValue = _inviteUri(participant.inviteCode);
 
+    final l10n = AppLocalizations.of(context);
     await showDialog<void>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: Text('Invitacion de ${participant.displayName}'),
+          title: Text(l10n.adminInvitationOf(participant.displayName)),
           content: SizedBox(
             width: 320,
             child: SingleChildScrollView(
@@ -1445,9 +1456,9 @@ class _ParticipantsAdminCard extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Codigo de ingreso',
-                    style: TextStyle(fontWeight: FontWeight.w800),
+                  Text(
+                    l10n.invitationsEntryCode,
+                    style: const TextStyle(fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 8),
                   SelectableText(
@@ -1466,7 +1477,7 @@ class _ParticipantsAdminCard extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Cerrar'),
+              child: Text(l10n.adminDialogClose),
             ),
             TextButton.icon(
               onPressed: () async {
@@ -1475,22 +1486,22 @@ class _ParticipantsAdminCard extends ConsumerWidget {
                 );
                 if (!context.mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Codigo copiado.')),
+                  SnackBar(content: Text(l10n.invitationsCodeCopied)),
                 );
               },
               icon: const Icon(Icons.pin_outlined),
-              label: const Text('Copiar codigo'),
+              label: Text(l10n.invitationsCopyCode),
             ),
             ElevatedButton.icon(
               onPressed: () async {
                 await Clipboard.setData(ClipboardData(text: qrValue));
                 if (!context.mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Invitacion copiada.')),
+                  SnackBar(content: Text(l10n.invitationsInviteCopied)),
                 );
               },
               icon: const Icon(Icons.copy),
-              label: const Text('Copiar invitacion'),
+              label: Text(l10n.invitationsCopyInvite),
             ),
           ],
         );
@@ -1504,23 +1515,27 @@ class _ParticipantsAdminCard extends ConsumerWidget {
     EventSession session,
     EventParticipant participant,
   ) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Eliminar participante'),
+          title: Text(l10n.adminDeleteParticipant),
           content: Text(
-            'Se quitara a ${participant.displayName} del evento mock. Su codigo ${participant.inviteCode} dejara de ingresar.',
+            l10n.adminDeleteParticipantContent(
+              participant.displayName,
+              participant.inviteCode,
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Cancelar'),
+              child: Text(l10n.adminDialogCancel),
             ),
             ElevatedButton.icon(
               onPressed: () => Navigator.of(dialogContext).pop(true),
               icon: const Icon(Icons.person_remove_outlined),
-              label: const Text('Eliminar'),
+              label: Text(l10n.adminDialogDelete),
             ),
           ],
         );
@@ -1536,7 +1551,7 @@ class _ParticipantsAdminCard extends ConsumerWidget {
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Participante eliminado: ${participant.displayName}.'),
+        content: Text(l10n.adminParticipantDeleted(participant.displayName)),
       ),
     );
   }
@@ -1557,13 +1572,14 @@ class _ParticipantsAdminCard extends ConsumerWidget {
         ),
     };
 
+    final l10n = AppLocalizations.of(context);
     await showDialog<void>(
       context: context,
       builder: (dialogContext) {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('Canales de ${participant.displayName}'),
+              title: Text(l10n.adminChannelsOf(participant.displayName)),
               content: SizedBox(
                 width: double.maxFinite,
                 child: SingleChildScrollView(
@@ -1585,7 +1601,7 @@ class _ParticipantsAdminCard extends ConsumerWidget {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: const Text('Cancelar'),
+                  child: Text(l10n.adminDialogCancel),
                 ),
                 ElevatedButton(
                   onPressed: () async {
@@ -1611,7 +1627,7 @@ class _ParticipantsAdminCard extends ConsumerWidget {
                       Navigator.of(dialogContext).pop();
                     }
                   },
-                  child: const Text('Guardar'),
+                  child: Text(l10n.adminDialogSave),
                 ),
               ],
             );
@@ -1686,15 +1702,16 @@ class _ChannelPermissionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return ListTile(
       contentPadding: EdgeInsets.zero,
       title: Text(channel.name),
       subtitle: Text(
         draft.canListen
             ? draft.canTalk
-                ? 'Escucha y puede hablar'
-                : 'Solo escucha'
-            : 'Sin acceso',
+                ? l10n.adminPermListenAndTalk
+                : l10n.adminPermListenOnly
+            : l10n.adminPermNoAccess,
       ),
       leading: Checkbox(
         value: draft.canListen,
@@ -1726,18 +1743,19 @@ class _LogsAdminCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final logsState = ref.watch(eventLogsProvider(eventId));
 
+    final l10n = AppLocalizations.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Bitacora', style: Theme.of(context).textTheme.titleMedium),
+            Text(l10n.adminLogsCard, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             logsState.when(
               data: (logs) {
                 if (logs.isEmpty) {
-                  return const Text('Sin registros todavia.');
+                  return Text(l10n.adminLogsEmpty);
                 }
 
                 return Column(
@@ -1756,7 +1774,7 @@ class _LogsAdminCard extends ConsumerWidget {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (_, __) => const Text('No pudimos cargar la bitacora.'),
+              error: (_, __) => Text(l10n.adminLogsError),
             ),
           ],
         ),
@@ -1803,7 +1821,7 @@ class _EventTemplatePicker extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Plantilla',
+          AppLocalizations.of(context).adminTemplate,
           style: Theme.of(context).textTheme.labelLarge,
         ),
         const SizedBox(height: 6),

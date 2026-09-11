@@ -1,3 +1,4 @@
+import 'package:event_radio_app/l10n/app_localizations.dart';
 import 'package:event_radio_app/src/core/config/app_bootstrap.dart';
 import 'package:event_radio_app/src/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ class BootstrapErrorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: Center(
@@ -27,7 +29,7 @@ class BootstrapErrorScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                'HANDY no puede iniciar',
+                l10n.bootstrapErrorTitle,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
@@ -63,10 +65,9 @@ class BootstrapErrorScreen extends StatelessWidget {
                 ),
               ],
               const SizedBox(height: 32),
-              const Text(
-                'Verifica tu conexion a internet y la configuracion del entorno. '
-                'Si el problema persiste, contacta al administrador del evento.',
-                style: TextStyle(color: Colors.white54, fontSize: 13),
+              Text(
+                l10n.bootstrapErrorHint,
+                style: const TextStyle(color: Colors.white54, fontSize: 13),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
@@ -85,7 +86,7 @@ class BootstrapErrorScreen extends StatelessWidget {
                   }
                 },
                 icon: const Icon(Icons.refresh),
-                label: const Text('Reintentar'),
+                label: Text(l10n.bootstrapErrorRetry),
               ),
             ],
           ),

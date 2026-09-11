@@ -1,3 +1,4 @@
+import 'package:event_radio_app/l10n/app_localizations.dart';
 import 'package:event_radio_app/src/core/theme/app_theme.dart';
 import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
 import 'package:event_radio_app/src/shared/domain/event_models.dart';
@@ -48,16 +49,17 @@ class _CreateEventDialogState extends ConsumerState<_CreateEventDialog> {
     final eventName = _eventNameController.text.trim();
     final hours = int.tryParse(_durationHoursController.text.trim());
 
+    final l10n = AppLocalizations.of(context);
     if (organizerName.isEmpty) {
-      setState(() => _error = 'Ingresa tu nombre.');
+      setState(() => _error = l10n.createEventErrorName);
       return;
     }
     if (eventName.isEmpty) {
-      setState(() => _error = 'Ingresa un nombre para el evento.');
+      setState(() => _error = l10n.createEventErrorEventName);
       return;
     }
     if (hours == null || hours < 1 || hours > 24) {
-      setState(() => _error = 'La duracion debe estar entre 1 y 24 horas.');
+      setState(() => _error = l10n.createEventErrorDuration);
       return;
     }
 
@@ -94,7 +96,7 @@ class _CreateEventDialogState extends ConsumerState<_CreateEventDialog> {
       await ref.read(currentSessionProvider.notifier).createEventFromTemplate(
             session: placeholder,
             name: eventName,
-            description: 'Evento creado desde Handy.',
+            description: l10n.createEventDefaultDescription,
             startsAt: startsAt,
             endsAt: endsAt,
             template: _template,
@@ -105,46 +107,46 @@ class _CreateEventDialogState extends ConsumerState<_CreateEventDialog> {
       if (!mounted) return;
       setState(() {
         _isSubmitting = false;
-        _error = 'No pudimos crear el evento. Intenta de nuevo.';
+        _error = l10n.createEventError;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AlertDialog(
-      title: const Text('Crear evento nuevo'),
+      title: Text(l10n.createEventTitle),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Sos el organizador: creas el evento y quedas como '
-              'coordinador. Despues invitas a tu equipo por codigo o QR.',
-              style: TextStyle(color: Colors.white70),
+            Text(
+              l10n.createEventDescription,
+              style: const TextStyle(color: Colors.white70),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _organizerController,
               autofocus: true,
               textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(labelText: 'Tu nombre'),
+              decoration: InputDecoration(labelText: l10n.createEventYourName),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _eventNameController,
               decoration:
-                  const InputDecoration(labelText: 'Nombre del evento'),
+                  InputDecoration(labelText: l10n.createEventName),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _durationHoursController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Duracion (horas)'),
+              decoration: InputDecoration(labelText: l10n.createEventDuration),
             ),
             const SizedBox(height: 16),
-            Text('Plantilla', style: Theme.of(context).textTheme.labelLarge),
+            Text(l10n.createEventTemplate, style: Theme.of(context).textTheme.labelLarge),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
@@ -174,7 +176,7 @@ class _CreateEventDialogState extends ConsumerState<_CreateEventDialog> {
       actions: [
         TextButton(
           onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
-          child: const Text('Cancelar'),
+          child: Text(l10n.createEventCancel),
         ),
         ElevatedButton(
           onPressed: _isSubmitting ? null : _submit,
@@ -183,7 +185,7 @@ class _CreateEventDialogState extends ConsumerState<_CreateEventDialog> {
                   dimension: 18,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('Crear'),
+              : Text(l10n.createEventCreate),
         ),
       ],
     );

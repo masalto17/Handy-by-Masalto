@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:event_radio_app/l10n/app_localizations.dart';
 import 'package:event_radio_app/src/core/config/env_config.dart';
 import 'package:event_radio_app/src/core/theme/app_theme.dart';
 import 'package:event_radio_app/src/features/channel/domain/ptt_state.dart';
@@ -97,9 +98,10 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
     } catch (e) {
       _ticker?.cancel();
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
       final message = e is AudioRoomConfigurationException
           ? e.message
-          : 'No pudimos iniciar el audio PTT.';
+          : l10n.pttAudioStartError;
       _setPtt(PttState(phase: PttPhase.error, errorMessage: message));
       // Volver a idle despues de mostrar el error brevemente.
       Future<void>.delayed(const Duration(seconds: 3), () {
@@ -162,21 +164,22 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
       ref.invalidate(eventLogsProvider(widget.session.event.id));
       _transcribeSavedMessages(sentMessages);
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             !audioWasSaved
-                ? 'PTT registrado en ${widget.destinationLabel}; no se pudo guardar audio.'
+                ? l10n.pttSavedNoAudio(widget.destinationLabel)
                 : textWasSaved
-                    ? 'Audio y texto guardados en ${widget.destinationLabel}.'
-                    : 'Audio guardado. Transcripcion automatica en proceso.',
+                    ? l10n.pttSavedAudioAndText(widget.destinationLabel)
+                    : l10n.pttSavedAudioOnly,
           ),
         ),
       );
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No pudimos guardar el PTT.')),
+        SnackBar(content: Text(AppLocalizations.of(context).pttSaveError)),
       );
     } finally {
       _startedAt = null;
@@ -222,6 +225,7 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final compact = MediaQuery.sizeOf(context).height < 720;
     final controlSize = compact ? 168.0 : 244.0;
     final iconSize = compact ? 58.0 : 82.0;
@@ -243,16 +247,16 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
             ? AppTheme.accent
             : Colors.white24;
     final statusLabel = _ptt.isError
-        ? _ptt.errorMessage ?? 'ERROR'
+        ? _ptt.errorMessage ?? l10n.pttError
         : _ptt.isFinalizing
-            ? 'GUARDANDO'
+            ? l10n.pttSaving
             : isActive
-                ? 'TRANSMITIENDO ${_ptt.elapsedSeconds}s'
+                ? l10n.pttTransmittingStatus(_ptt.elapsedSeconds)
                 : isRequesting
-                    ? 'CONECTANDO...'
+                    ? l10n.pttConnecting
                     : widget.canTalk
-                        ? 'MANTENER PARA HABLAR'
-                        : 'TRANSMISION BLOQUEADA';
+                        ? l10n.pttHold
+                        : l10n.pttBlocked;
 
     return Column(
       children: [
@@ -260,12 +264,12 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
           button: true,
           enabled: widget.canTalk && !isBusy,
           label: isActive
-              ? 'Transmitiendo. Solta para terminar.'
+              ? l10n.pttA11yTransmitting
               : isRequesting
-                  ? 'Conectando canal. Espera confirmacion.'
+                  ? l10n.pttA11yConnecting
                   : widget.canTalk
-                      ? 'Boton para hablar. Manten presionado mientras hablas.'
-                      : 'Transmision bloqueada en este canal.',
+                      ? l10n.pttA11yReady
+                      : l10n.pttA11yBlocked,
           child: GestureDetector(
             key: const Key('ptt-button'),
             onTapDown: (_) => _startTransmit(),
@@ -348,12 +352,12 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
                       const SizedBox(height: 14),
                       Text(
                         isActive
-                            ? 'AL AIRE'
+                            ? l10n.pttTransmitting
                             : isRequesting
-                                ? 'CONECTANDO'
+                                ? l10n.pttConnecting
                                 : _ptt.isError
-                                    ? 'ERROR'
-                                    : 'PUSH-TO-TALK',
+                                    ? l10n.pttError
+                                    : l10n.pttLabel,
                         style: TextStyle(
                           color: isActive
                               ? Colors.black
@@ -409,12 +413,12 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
           const SizedBox(height: 8),
           Text(
             _ptt.isError
-                ? _ptt.errorMessage ?? 'Error al conectar.'
+                ? _ptt.errorMessage ?? l10n.pttErrorConnecting
                 : widget.canTalk
                     ? EnvConfig.hasLiveKitConfig
-                        ? 'Destino: ${widget.destinationLabel}. Audio real LiveKit activo; se guarda audio en historial.'
-                        : 'Destino: ${widget.destinationLabel}. Audio simulado; LiveKit se activa al configurar credenciales.'
-                    : 'Tu permiso actual no permite transmitir en este canal.',
+                        ? l10n.pttDestinationLiveKit(widget.destinationLabel)
+                        : l10n.pttDestinationSimulated(widget.destinationLabel)
+                    : l10n.pttNoPermission,
             textAlign: TextAlign.center,
             style: const TextStyle(color: Colors.white60),
           ),

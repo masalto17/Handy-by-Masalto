@@ -11,10 +11,11 @@ void main() {
         child: EventRadioApp(),
       ),
     );
+    await tester.pumpAndSettle();
 
-    expect(find.text('Ingresar a un evento'), findsOneWidget);
+    expect(find.text('Join an event'), findsOneWidget);
     expect(find.text('MODO MOCK - datos locales para demo'), findsOneWidget);
-    await _tapVisible(tester, find.text('Ingresar'));
+    await _tapVisible(tester, find.text('Join'));
     await tester.pumpAndSettle();
 
     expect(find.text('CONGRESO OPERACIONES SATI-26'), findsOneWidget);
@@ -24,7 +25,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('PUSH-TO-TALK'), findsOneWidget);
-    expect(find.text('MANTENER PARA HABLAR'), findsOneWidget);
+    expect(find.text('HOLD TO TALK'), findsOneWidget);
   });
 
   testWidgets('invalid code shows validation message', (tester) async {
@@ -33,9 +34,10 @@ void main() {
         child: EventRadioApp(),
       ),
     );
+    await tester.pumpAndSettle();
 
     await tester.enterText(find.byType(TextField), 'MAL');
-    await _tapVisible(tester, find.text('Ingresar'));
+    await _tapVisible(tester, find.text('Join'));
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Codigo no encontrado'), findsOneWidget);
@@ -47,16 +49,17 @@ void main() {
         child: EventRadioApp(),
       ),
     );
+    await tester.pumpAndSettle();
 
-    expect(find.text('Cuenta opcional'), findsOneWidget);
+    expect(find.text('Optional account'), findsOneWidget);
 
-    await tester.tap(find.text('Continuar con Gmail'));
+    await tester.tap(find.text('Continue with Gmail'));
     await tester.pumpAndSettle();
 
     expect(find.text('Laura Sati'), findsOneWidget);
     expect(find.textContaining('laura.sati@example.com'), findsOneWidget);
 
-    await _tapVisible(tester, find.text('Ingresar'));
+    await _tapVisible(tester, find.text('Join'));
     await tester.pumpAndSettle();
 
     expect(find.text('CONGRESO OPERACIONES SATI-26'), findsOneWidget);
@@ -73,13 +76,14 @@ void main() {
         child: EventRadioApp(),
       ),
     );
-
-    await _tapVisible(tester, find.text('Escanear QR'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Apunta al QR del evento'), findsOneWidget);
+    await _tapVisible(tester, find.text('Scan QR'));
+    await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Probar QR demo SATI26'));
+    expect(find.text('Point at the event QR'), findsOneWidget);
+
+    await tester.tap(find.text('Try demo QR SATI26'));
     await tester.pumpAndSettle();
 
     expect(find.text('CONGRESO OPERACIONES SATI-26'), findsOneWidget);
@@ -92,29 +96,30 @@ void main() {
         child: EventRadioApp(),
       ),
     );
+    await tester.pumpAndSettle();
 
     await tester.enterText(find.byType(TextField), 'CERRADO');
-    await _tapVisible(tester, find.text('Ingresar'));
+    await _tapVisible(tester, find.text('Join'));
     await tester.pumpAndSettle();
 
-    expect(find.text('TRANSMISION BLOQUEADA'), findsOneWidget);
+    expect(find.text('TRANSMISSION BLOCKED'), findsOneWidget);
 
-    await tester.tap(find.text('Ver canales e historial'));
+    await tester.tap(find.text('View channels and history'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Canales e historial'), findsOneWidget);
+    expect(find.text('Channels and history'), findsOneWidget);
     expect(find.text('Produccion'), findsOneWidget);
-    expect(find.textContaining('PTT bloqueado'), findsOneWidget);
+    expect(find.textContaining('PTT blocked'), findsOneWidget);
 
     await tester.tap(find.text('Produccion'));
     await tester.pumpAndSettle();
 
     expect(find.text('PUSH-TO-TALK'), findsOneWidget);
-    expect(find.text('TRANSMISION BLOQUEADA'), findsOneWidget);
-    await tester.scrollUntilVisible(find.text('Historial'), 500);
+    expect(find.text('TRANSMISSION BLOCKED'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('History'), 500);
     await tester.pumpAndSettle();
-    expect(find.text('Historial'), findsOneWidget);
-    expect(find.text('SOS bloqueado'), findsOneWidget);
+    expect(find.text('History'), findsOneWidget);
+    expect(find.text('SOS blocked'), findsOneWidget);
   });
 
   testWidgets('ptt gesture saves simulated message', (tester) async {
@@ -123,8 +128,9 @@ void main() {
         child: EventRadioApp(),
       ),
     );
+    await tester.pumpAndSettle();
 
-    await _tapVisible(tester, find.text('Ingresar'));
+    await _tapVisible(tester, find.text('Join'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Produccion'));
     await tester.pumpAndSettle();
@@ -133,14 +139,14 @@ void main() {
       tester.getCenter(find.byKey(const Key('ptt-button'))),
     );
     await tester.pump(const Duration(milliseconds: 300));
-    expect(find.textContaining('TRANSMITIENDO'), findsOneWidget);
+    expect(find.textContaining('TRANSMITTING'), findsOneWidget);
 
     await gesture.up();
     await tester.pumpAndSettle();
 
     await tester.drag(find.byType(ListView), const Offset(0, -350));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Historial'));
+    await tester.tap(find.text('History'));
     await tester.pumpAndSettle();
 
     expect(
@@ -155,8 +161,9 @@ void main() {
         child: EventRadioApp(),
       ),
     );
+    await tester.pumpAndSettle();
 
-    await _tapVisible(tester, find.text('Ingresar'));
+    await _tapVisible(tester, find.text('Join'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Seguridad interna'));
     await tester.pumpAndSettle();
@@ -166,15 +173,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      find.textContaining('SOS activado en Seguridad interna'),
+      find.textContaining('SOS activated in Seguridad interna'),
       findsWidgets,
     );
 
-    await _tapVisible(tester, find.text('Historial'));
+    await _tapVisible(tester, find.text('History'));
     await tester.pumpAndSettle();
 
     expect(
-      find.textContaining('SOS activado en Seguridad interna'),
+      find.textContaining('SOS activated in Seguridad interna'),
       findsWidgets,
     );
     expect(find.byIcon(Icons.priority_high), findsWidgets);
@@ -192,28 +199,29 @@ void main() {
         child: EventRadioApp(),
       ),
     );
-
-    await _tapVisible(tester, find.text('Ingresar'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Bitacora'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Evento'), findsOneWidget);
-    expect(find.text('Puesta en marcha'), findsOneWidget);
-    expect(find.text('LISTO ENSAYO'), findsOneWidget);
+    await _tapVisible(tester, find.text('Join'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Activity log'));
+    await tester.pumpAndSettle();
 
-    await tester.tap(find.byTooltip('Editar evento'));
+    expect(find.text('Event'), findsOneWidget);
+    expect(find.text('Startup checklist'), findsOneWidget);
+    expect(find.text('READY FOR TEST'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Edit event'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField).at(0), 'Operativo admin');
-    await tester.tap(find.text('Guardar'));
+    await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
     expect(find.text('Operativo admin'), findsOneWidget);
 
-    final createChannelButton = find.byTooltip('Crear canal');
+    final createChannelButton = find.byTooltip('Create channel');
     await tester.ensureVisible(createChannelButton);
     await tester.pumpAndSettle();
-    expect(find.text('Canales'), findsOneWidget);
+    expect(find.text('Channels'), findsOneWidget);
 
     await tester.tap(createChannelButton);
     await tester.pumpAndSettle();
@@ -221,7 +229,7 @@ void main() {
     await tester.enterText(find.byType(TextField).at(1), 'Prensa VIP');
     await tester.enterText(find.byType(TextField).at(2), 'Equipo de prensa');
     await tester.enterText(find.byType(TextField).at(3), '35');
-    await tester.tap(find.text('Guardar'));
+    await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
     expect(find.text('Prensa'), findsOneWidget);
@@ -236,62 +244,62 @@ void main() {
     final generatedInviteCode =
         tester.widget<TextField>(find.byType(TextField).at(2)).controller!.text;
     expect(generatedInviteCode, matches(RegExp(r'^[A-HJ-NP-Z2-9]{12}$')));
-    await tester.tap(find.text('Guardar'));
+    await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
     expect(find.text('Sofia'), findsOneWidget);
     expect(find.textContaining(generatedInviteCode), findsWidgets);
     expect(
-      find.textContaining('$generatedInviteCode · 5 canales'),
+      find.textContaining('$generatedInviteCode · 5 channels'),
       findsOneWidget,
     );
 
-    await tester.tap(find.byTooltip('Ver invitacion de Sofia'));
+    await tester.tap(find.byTooltip('View invite of Sofia'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Invitacion de Sofia'), findsOneWidget);
-    expect(find.text('Codigo de ingreso'), findsOneWidget);
+    expect(find.text('Invitation of Sofia'), findsOneWidget);
+    expect(find.text('Entry code'), findsOneWidget);
     expect(
       find.text('event-radio://join?code=$generatedInviteCode'),
       findsOneWidget,
     );
 
-    await tester.tap(find.text('Cerrar'));
+    await tester.tap(find.text('Close'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byTooltip('Editar canales de Sofia'));
+    await tester.tap(find.byTooltip('Edit channels of Sofia'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Canales de Sofia'), findsOneWidget);
+    expect(find.text('Channels of Sofia'), findsOneWidget);
     expect(find.text('Prensa'), findsWidgets);
 
     await tester.tap(find.byType(Checkbox).last);
-    await tester.tap(find.text('Guardar'));
+    await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
     expect(
-      find.textContaining('$generatedInviteCode · 4 canales'),
+      find.textContaining('$generatedInviteCode · 4 channels'),
       findsOneWidget,
     );
 
-    await tester.tap(find.byTooltip('Eliminar participante Sofia'));
+    await tester.tap(find.byTooltip('Delete participant Sofia'));
     await tester.pumpAndSettle();
-    expect(find.text('Eliminar participante'), findsOneWidget);
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Eliminar'));
+    expect(find.text('Delete participant'), findsOneWidget);
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Delete'));
     await tester.pumpAndSettle();
     expect(find.text('Sofia'), findsNothing);
 
-    await tester.scrollUntilVisible(find.text('Cerrar ahora'), -500);
-    await tester.tap(find.text('Cerrar ahora'));
+    await tester.scrollUntilVisible(find.text('Close now'), -500);
+    await tester.tap(find.text('Close now'));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('Estado: closed'), findsOneWidget);
-    expect(find.text('Reactivar 8h'), findsOneWidget);
+    expect(find.textContaining('Status: closed'), findsOneWidget);
+    expect(find.text('Reactivate 8h'), findsOneWidget);
 
-    await tester.tap(find.text('Reactivar 8h'));
+    await tester.tap(find.text('Reactivate 8h'));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('Estado: active'), findsOneWidget);
+    expect(find.textContaining('Status: active'), findsOneWidget);
   });
 }
 

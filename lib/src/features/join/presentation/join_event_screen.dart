@@ -48,7 +48,7 @@ class _JoinEventScreenState extends ConsumerState<JoinEventScreen> {
       await ref.read(accountProvider.notifier).continueAsLocalAdminDemo();
       await _joinWithCode('PILOTOADMIN123');
     } catch (_) {
-      setState(() => _error = 'No pudimos ingresar como admin demo.');
+      setState(() => _error = AppLocalizations.of(context).joinAdminDemoError);
     }
   }
 
@@ -67,7 +67,7 @@ class _JoinEventScreenState extends ConsumerState<JoinEventScreen> {
     } on JoinEventException catch (error) {
       setState(() => _error = error.message);
     } catch (_) {
-      setState(() => _error = 'No pudimos ingresar al evento.');
+      setState(() => _error = AppLocalizations.of(context).joinError);
     }
   }
 
@@ -99,15 +99,18 @@ class _JoinEventScreenState extends ConsumerState<JoinEventScreen> {
                     const _JoinBrandHeader(),
                     SizedBox(height: compact ? 12 : 34),
                     Text(
-                      'Ingresar a un evento',
+                      AppLocalizations.of(context).joinTitle,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.headlineMedium,
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Usa el codigo de invitacion que te compartio el coordinador.',
+                    Text(
+                      AppLocalizations.of(context).joinSubtitle,
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white70, height: 1.35),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        height: 1.35,
+                      ),
                     ),
                     const SizedBox(height: 18),
                     const AccountIdentityCard(),
@@ -124,7 +127,7 @@ class _JoinEventScreenState extends ConsumerState<JoinEventScreen> {
                     OutlinedButton.icon(
                       onPressed: () => context.push('/scan'),
                       icon: const Icon(Icons.qr_code_scanner),
-                      label: const Text('Escanear QR'),
+                      label: Text(AppLocalizations.of(context).scanQr),
                     ),
                     const SizedBox(height: 4),
                     TextButton.icon(
@@ -139,14 +142,18 @@ class _JoinEventScreenState extends ConsumerState<JoinEventScreen> {
                       OutlinedButton.icon(
                         onPressed: isLoading ? null : _joinAsLocalAdminDemo,
                         icon: const Icon(Icons.admin_panel_settings_outlined),
-                        label: const Text('Ingresar como admin demo'),
+                        label: Text(
+                          AppLocalizations.of(context).joinAdminDemoButton,
+                        ),
                       ),
                       const SizedBox(height: 16),
                     ],
                     OutlinedButton.icon(
                       onPressed: isLoading ? null : _createEvent,
                       icon: const Icon(Icons.add_circle_outline),
-                      label: const Text('Sos organizador? Crea tu evento'),
+                      label: Text(
+                        AppLocalizations.of(context).joinCreateEventButton,
+                      ),
                     ),
                     if (EnvConfig.allowDemoShortcuts) ...[
                       const SizedBox(height: 24),
@@ -168,17 +175,17 @@ class _QrDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       children: [
-        Expanded(child: Divider(color: Colors.white24)),
+        const Expanded(child: Divider(color: Colors.white24)),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Text(
-            'o escanear codigo QR',
-            style: TextStyle(color: Colors.white54, fontSize: 12),
+            AppLocalizations.of(context).joinOrScanQr,
+            style: const TextStyle(color: Colors.white54, fontSize: 12),
           ),
         ),
-        Expanded(child: Divider(color: Colors.white24)),
+        const Expanded(child: Divider(color: Colors.white24)),
       ],
     );
   }
@@ -189,19 +196,23 @@ class _DemoCodesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Card(
+    final l10n = AppLocalizations.of(context);
+    return Card(
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Codigos demo', style: TextStyle(fontWeight: FontWeight.w800)),
-            SizedBox(height: 8),
-            Text('SATI26: evento activo'),
-            Text('MARCOS26: participante seguridad'),
-            Text('ANA26: participante produccion'),
-            Text('JULIA26: coordinadora tecnica'),
-            Text('CERRADO: evento finalizado'),
+            Text(
+              l10n.demoCodes,
+              style: const TextStyle(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 8),
+            Text(l10n.demoCodeActive),
+            Text(l10n.demoCodeSecurity),
+            Text(l10n.demoCodeProduction),
+            Text(l10n.demoCodeTechnical),
+            Text(l10n.demoCodeClosed),
           ],
         ),
       ),
@@ -265,7 +276,7 @@ class _InviteCodePanel extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Codigo de invitacion',
+              AppLocalizations.of(context).joinInviteCodeLabel,
               style: Theme.of(
                 context,
               ).textTheme.labelLarge?.copyWith(color: Colors.white70),
@@ -296,7 +307,11 @@ class _InviteCodePanel extends StatelessWidget {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.login),
-              label: Text(isLoading ? 'Validando...' : 'Ingresar'),
+              label: Text(
+                isLoading
+                    ? AppLocalizations.of(context).joinValidating
+                    : AppLocalizations.of(context).joinButton,
+              ),
             ),
           ],
         ),

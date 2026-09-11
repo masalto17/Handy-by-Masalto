@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:event_radio_app/l10n/app_localizations.dart';
 import 'package:event_radio_app/src/core/theme/app_theme.dart';
 import 'package:event_radio_app/src/features/channel/presentation/push_to_talk_button.dart';
 import 'package:event_radio_app/src/shared/audio/audio_room_service.dart';
@@ -47,22 +48,22 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
     // Escuchar fallos de reconexion para mostrar aviso visible al operador.
     _reconnectionSub = _audioService.reconnectionFailures.listen((failure) {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
       if (failure.channelId == widget.channelId) {
         setState(() {
           _audioReady = false;
-          _audioError =
-              'Conexion perdida con ${failure.channelName} despues de ${failure.attempts} intentos.';
+          _audioError = l10n.channelReconnectError(
+            failure.channelName,
+            failure.attempts,
+          );
         });
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           duration: const Duration(seconds: 8),
-          content: Text(
-            'Conexion perdida: ${failure.channelName}. '
-            'Intentar salir y volver a entrar al canal.',
-          ),
+          content: Text(l10n.channelReconnectSnack(failure.channelName)),
           action: SnackBarAction(
-            label: 'Reintentar',
+            label: l10n.channelReconnectRetry,
             onPressed: () {
               // Resetear el estado para que prepareListening intente de nuevo.
               setState(() {
@@ -115,7 +116,7 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
       setState(() {
         _isPreparingAudio = false;
         _audioReady = false;
-        _audioError = 'No pudimos conectar escucha LiveKit.';
+        _audioError = AppLocalizations.of(context).channelConnectError;
       });
     }
   }
@@ -134,8 +135,9 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
       ref.invalidate(voiceMessagesProvider(channel.id));
       ref.invalidate(eventLogsProvider(session.event.id));
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('SOS activado en ${channel.name}.')),
+        SnackBar(content: Text(l10n.sosActivated(channel.name))),
       );
     } on StateError catch (error) {
       if (!mounted) return;
@@ -144,9 +146,9 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
       ).showSnackBar(SnackBar(content: Text(error.message)));
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('No pudimos activar SOS.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context).sosError)),
+      );
     } finally {
       if (mounted) {
         setState(() => _isSendingSos = false);
@@ -159,14 +161,15 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
     // Mantiene viva la sincronizacion realtime tambien dentro del canal.
     ref.watch(sessionRealtimeProvider);
 
+    final l10n = AppLocalizations.of(context);
     return AppScaffold(
-      title: 'CANAL',
+      title: l10n.channelTitle,
       actions: const [LeaveEventAction()],
       child: SessionGuard(
         builder: (context, session) {
           final channel = session.channelById(widget.channelId);
           if (channel == null) {
-            return const Center(child: Text('Canal no asignado.'));
+            return Center(child: Text(l10n.channelNotAssigned));
           }
 
           final permission = session.permissionFor(channel.id);
@@ -177,7 +180,7 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
           final targetChannels =
               _broadcastAll && canBroadcast ? session.channels : [channel];
           final destinationLabel = _broadcastAll && canBroadcast
-              ? 'todos los canales'
+              ? l10n.channelAllChannels
               : channel.name;
           final canTalk = canOperate &&
               (_broadcastAll && canBroadcast
@@ -245,7 +248,7 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
                               onPressed: () =>
                                   context.push('/history/${channel.id}'),
                               icon: const Icon(Icons.history),
-                              label: const Text('Historial'),
+                              label: Text(l10n.history),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -272,7 +275,9 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
                                       ),
                                     )
                                   : const Icon(Icons.warning_amber_rounded),
-                              label: Text(canSendSos ? 'SOS' : 'SOS bloqueado'),
+                              label: Text(
+                                canSendSos ? l10n.sosLabel : l10n.sosBlocked,
+                              ),
                             ),
                           ),
                         ],
@@ -311,7 +316,8 @@ class _ChannelHeader extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                channel.description ?? 'Canal operativo del evento.',
+                channel.description ??
+                    AppLocalizations.of(context).channelDefaultDescription,
                 style: const TextStyle(color: Colors.white70),
               ),
             ],
@@ -344,20 +350,24 @@ class _BroadcastTargetSelector extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Destino de transmision',
+              AppLocalizations.of(context).channelBroadcastTarget,
               style: Theme.of(context).textTheme.labelLarge,
             ),
             const SizedBox(height: 10),
             SegmentedButton<bool>(
               segments: [
-                const ButtonSegment<bool>(
+                ButtonSegment<bool>(
                   value: false,
-                  label: Text('Canal actual'),
-                  icon: Icon(Icons.radio),
+                  label: Text(
+                    AppLocalizations.of(context).channelCurrentChannel,
+                  ),
+                  icon: const Icon(Icons.radio),
                 ),
                 ButtonSegment<bool>(
                   value: true,
-                  label: Text('Todos ($totalChannels)'),
+                  label: Text(
+                    AppLocalizations.of(context).channelAllCount(totalChannels),
+                  ),
                   icon: const Icon(Icons.campaign),
                 ),
               ],
@@ -394,18 +404,19 @@ class _AudioConnectionStatus extends StatelessWidget {
     late final Color color;
     late final String label;
 
+    final l10n = AppLocalizations.of(context);
     if (!canOperate) {
       icon = Icons.lock_outline;
       color = Colors.white54;
-      label = 'Audio bloqueado: evento no operativo';
+      label = l10n.channelAudioBlocked;
     } else if (!canListen) {
       icon = Icons.hearing_disabled_outlined;
       color = Colors.white54;
-      label = 'Sin permiso de escucha en este canal';
+      label = l10n.channelNoListenPermission;
     } else if (isPreparing) {
       icon = Icons.sync;
       color = Colors.orangeAccent;
-      label = 'Conectando escucha LiveKit...';
+      label = l10n.channelConnectingLiveKit;
     } else if (error != null) {
       icon = Icons.error_outline;
       color = Colors.redAccent;
@@ -413,11 +424,11 @@ class _AudioConnectionStatus extends StatelessWidget {
     } else if (isReady) {
       icon = Icons.hearing_outlined;
       color = Colors.greenAccent;
-      label = 'Escuchando canal';
+      label = l10n.channelListening;
     } else {
       icon = Icons.radio_outlined;
       color = Colors.white70;
-      label = 'Escucha lista para conectar';
+      label = l10n.channelReadyToConnect;
     }
 
     return DecoratedBox(
@@ -455,9 +466,9 @@ class _LatestMessages extends ConsumerWidget {
         if (messages.isEmpty) {
           return DecoratedBox(
             decoration: AppTheme.panelDecoration(),
-            child: const Padding(
-              padding: EdgeInsets.all(16),
-              child: Text('Todavia no hay mensajes en este canal.'),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(AppLocalizations.of(context).channelNoMessages),
             ),
           );
         }
@@ -470,7 +481,7 @@ class _LatestMessages extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Ultimos audios',
+                  AppLocalizations.of(context).channelLatestAudios,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 12),
@@ -504,7 +515,7 @@ class _LatestMessages extends ConsumerWidget {
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            '${message.senderName}: ${_messageSummary(message)}',
+                            '${message.senderName}: ${_messageSummary(context, message)}',
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -521,23 +532,22 @@ class _LatestMessages extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (_, __) => DecoratedBox(
         decoration: AppTheme.panelDecoration(),
-        child: const Padding(
-          padding: EdgeInsets.all(16),
-          child: Text('No pudimos cargar el historial.'),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(AppLocalizations.of(context).channelHistoryError),
         ),
       ),
     );
   }
 }
 
-String _messageSummary(VoiceMessage message) {
+String _messageSummary(BuildContext context, VoiceMessage message) {
   final transcription = message.transcription;
   if (transcription != null && transcription.trim().isNotEmpty) {
     return transcription;
   }
-  return message.isPriority
-      ? 'Alerta SOS registrada'
-      : 'Audio simulado guardado';
+  final l10n = AppLocalizations.of(context);
+  return message.isPriority ? l10n.historySosAlert : l10n.historyAudioSaved;
 }
 
 class _ChannelPresenceBar extends ConsumerWidget {
@@ -557,9 +567,10 @@ class _ChannelPresenceBar extends ConsumerWidget {
           return const SizedBox.shrink();
         }
 
+        final l10n = AppLocalizations.of(context);
         final speakingLabel = presence.someoneSpeaking
-            ? 'Hablando: ${presence.speakingNames.join(', ')}'
-            : 'Nadie esta hablando ahora';
+            ? l10n.channelSpeaking(presence.speakingNames.join(', '))
+            : l10n.channelNobodySpeaking;
 
         return Padding(
           padding: const EdgeInsets.only(top: 12),
@@ -584,7 +595,9 @@ class _ChannelPresenceBar extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '${presence.participantCount} en el canal',
+                          l10n.channelPresenceCount(
+                            presence.participantCount,
+                          ),
                           style: const TextStyle(fontWeight: FontWeight.w800),
                         ),
                         const SizedBox(height: 2),

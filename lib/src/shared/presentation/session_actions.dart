@@ -1,3 +1,4 @@
+import 'package:event_radio_app/l10n/app_localizations.dart';
 import 'package:event_radio_app/src/features/auth/data/account_providers.dart';
 import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,7 @@ class LeaveEventAction extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return IconButton(
-      tooltip: 'Salir / cambiar usuario',
+      tooltip: AppLocalizations.of(context).leaveEventTooltip,
       onPressed: () => leaveEventAndAccount(context, ref),
       icon: const Icon(Icons.logout),
     );

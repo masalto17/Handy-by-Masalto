@@ -1,3 +1,4 @@
+import 'package:event_radio_app/l10n/app_localizations.dart';
 import 'package:event_radio_app/src/core/config/env_config.dart';
 import 'package:event_radio_app/src/core/theme/app_theme.dart';
 import 'package:event_radio_app/src/features/auth/data/account_providers.dart';
@@ -30,9 +31,9 @@ class AccountIdentityCard extends ConsumerWidget {
             );
           },
           loading: () => const _LoadingContent(),
-          error: (_, __) => const Text(
-            'No pudimos cargar la cuenta.',
-            style: TextStyle(color: Colors.white70),
+          error: (_, __) => Text(
+            AppLocalizations.of(context).accountLoadError,
+            style: const TextStyle(color: Colors.white70),
           ),
         ),
       ),
@@ -48,6 +49,7 @@ class _UnsignedContent extends ConsumerWidget {
     final isLocalSupabase = EnvConfig.isSupabaseAvailable &&
         EnvConfig.isLocalSupabase;
 
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -57,16 +59,16 @@ class _UnsignedContent extends ConsumerWidget {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                'Cuenta opcional',
+                l10n.accountOptional,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
           ],
         ),
         const SizedBox(height: 8),
-        const Text(
-          'Para el MVP podes entrar solo con codigo. Luego la cuenta servira para recuperar invitaciones y permisos.',
-          style: TextStyle(color: Colors.white70),
+        Text(
+          l10n.accountMvpInfo,
+          style: const TextStyle(color: Colors.white70),
         ),
         const SizedBox(height: 12),
         OutlinedButton.icon(
@@ -76,8 +78,8 @@ class _UnsignedContent extends ConsumerWidget {
           icon: const Icon(Icons.mail_outline),
           label: Text(
             isLocalSupabase
-                ? 'Gmail disponible en staging'
-                : 'Continuar con Gmail',
+                ? l10n.accountGmailStaging
+                : l10n.accountContinueGmail,
           ),
         ),
         OutlinedButton.icon(
@@ -87,13 +89,13 @@ class _UnsignedContent extends ConsumerWidget {
           icon: const Icon(Icons.alternate_email),
           label: Text(
             isLocalSupabase
-                ? 'Email disponible en staging'
-                : 'Recibir link por email',
+                ? l10n.accountEmailStaging
+                : l10n.accountReceiveEmailLink,
           ),
         ),
         TextButton(
           onPressed: () => ref.read(accountProvider.notifier).continueAsGuest(),
-          child: const Text('Usar como invitado'),
+          child: Text(l10n.accountUseAsGuest),
         ),
       ],
     );
@@ -104,26 +106,27 @@ class _UnsignedContent extends ConsumerWidget {
     final email = await showDialog<String>(
       context: context,
       builder: (context) {
+        final l10n = AppLocalizations.of(context);
         return AlertDialog(
-          title: const Text('Ingresar con email'),
+          title: Text(l10n.accountEnterWithEmail),
           content: TextField(
             controller: controller,
             autofocus: true,
             keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-              labelText: 'Email',
-              prefixIcon: Icon(Icons.alternate_email),
+            decoration: InputDecoration(
+              labelText: l10n.accountEmailLabel,
+              prefixIcon: const Icon(Icons.alternate_email),
             ),
             onSubmitted: (value) => Navigator.of(context).pop(value),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancelar'),
+              child: Text(l10n.accountCancel),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(controller.text),
-              child: const Text('Enviar link'),
+              child: Text(l10n.accountSendLink),
             ),
           ],
         );
@@ -153,9 +156,10 @@ class _SignedContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final subtitle = isGuest
-        ? 'Modo invitado'
-        : '${provider.toUpperCase()} · ${email ?? 'sin email'}';
+        ? l10n.accountGuestMode
+        : '${provider.toUpperCase()} · ${email ?? l10n.accountNoEmail}';
 
     return Row(
       children: [
@@ -182,7 +186,7 @@ class _SignedContent extends StatelessWidget {
         ),
         TextButton(
           onPressed: onClear,
-          child: const Text('Cambiar'),
+          child: Text(l10n.accountChange),
         ),
       ],
     );
@@ -194,14 +198,14 @@ class _LoadingContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       children: [
-        SizedBox.square(
+        const SizedBox.square(
           dimension: 18,
           child: CircularProgressIndicator(strokeWidth: 2),
         ),
-        SizedBox(width: 12),
-        Text('Preparando cuenta...'),
+        const SizedBox(width: 12),
+        Text(AppLocalizations.of(context).accountPreparing),
       ],
     );
   }

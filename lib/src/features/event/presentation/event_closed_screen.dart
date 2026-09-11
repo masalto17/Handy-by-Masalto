@@ -1,3 +1,4 @@
+import 'package:event_radio_app/l10n/app_localizations.dart';
 import 'package:event_radio_app/src/core/theme/app_theme.dart';
 import 'package:event_radio_app/src/shared/presentation/app_scaffold.dart';
 import 'package:event_radio_app/src/shared/presentation/session_actions.dart';
@@ -13,8 +14,9 @@ class EventClosedScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     return AppScaffold(
-      title: 'Evento finalizado',
+      title: l10n.eventClosedTitle,
       actions: const [LeaveEventAction()],
       child: SessionGuard(
         builder: (context, session) {
@@ -29,9 +31,9 @@ class EventClosedScreen extends ConsumerWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
-              const Center(
+              Center(
                 child: StatusPill(
-                  label: 'TRANSMISION BLOQUEADA',
+                  label: l10n.pttBlocked,
                   color: AppTheme.warning,
                   icon: Icons.lock,
                 ),
@@ -44,18 +46,20 @@ class EventClosedScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'El evento ya no permite operar canales ni usar PTT.',
+                        l10n.eventClosedTransmissionBlocked,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Cierre programado: ${DateFormat('dd/MM HH:mm').format(session.event.endsAt)}',
+                        l10n.eventClosedSchedule(
+                          DateFormat('dd/MM HH:mm').format(session.event.endsAt),
+                        ),
                         style: const TextStyle(color: Colors.white70),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        'El historial y la bitacora siguen disponibles segun permisos.',
-                        style: TextStyle(color: Colors.white70),
+                      Text(
+                        l10n.eventClosedHistoryAvailable,
+                        style: const TextStyle(color: Colors.white70),
                       ),
                     ],
                   ),
@@ -65,13 +69,13 @@ class EventClosedScreen extends ConsumerWidget {
               ElevatedButton.icon(
                 onPressed: () => context.go('/event'),
                 icon: const Icon(Icons.history),
-                label: const Text('Ver canales e historial'),
+                label: Text(l10n.eventClosedViewHistory),
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
                 onPressed: () => leaveEventAndAccount(context, ref),
                 icon: const Icon(Icons.logout),
-                label: const Text('Salir del evento'),
+                label: Text(l10n.eventClosedLeave),
               ),
             ],
           );
