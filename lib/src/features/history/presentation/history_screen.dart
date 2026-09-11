@@ -4,8 +4,10 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:event_radio_app/l10n/app_localizations.dart';
 import 'package:event_radio_app/src/core/theme/app_theme.dart';
 import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
+import 'package:event_radio_app/src/shared/domain/app_exceptions.dart';
 import 'package:event_radio_app/src/shared/domain/event_models.dart';
 import 'package:event_radio_app/src/shared/presentation/app_scaffold.dart';
+import 'package:event_radio_app/src/shared/presentation/error_localizer.dart';
 import 'package:event_radio_app/src/shared/presentation/session_actions.dart';
 import 'package:event_radio_app/src/shared/presentation/session_guard.dart';
 import 'package:flutter/material.dart';
@@ -120,14 +122,12 @@ class _TranscriptionActionState extends ConsumerState<_TranscriptionAction> {
       );
     } catch (error) {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
+      final detail = error is EventOperationException
+          ? ErrorLocalizer.operationError(l10n, error)
+          : _cleanError(error);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(context).historyTranscribeError(
-              _cleanError(error),
-            ),
-          ),
-        ),
+        SnackBar(content: Text(l10n.historyTranscribeError(detail))),
       );
     } finally {
       if (mounted) {
@@ -229,7 +229,9 @@ class _VoiceMessageTileState extends ConsumerState<_VoiceMessageTile> {
           .getVoiceMessageAudioUrl(widget.message);
 
       if (url == null || url.trim().isEmpty) {
-        throw StateError('Audio no disponible.');
+        throw const EventOperationException(
+          EventOperationErrorCode.audioUnavailable,
+        );
       }
 
       await _player.play(UrlSource(url, mimeType: 'audio/wav'));

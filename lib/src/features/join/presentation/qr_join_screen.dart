@@ -5,6 +5,7 @@ import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
 import 'package:event_radio_app/src/shared/domain/event_radio_repository.dart';
 import 'package:event_radio_app/src/shared/domain/invite_code_parser.dart';
 import 'package:event_radio_app/src/shared/presentation/app_scaffold.dart';
+import 'package:event_radio_app/src/shared/presentation/error_localizer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -66,7 +67,10 @@ class _QrJoinScreenState extends ConsumerState<QrJoinScreen> {
         context.go('/closed');
       }
     } on JoinEventException catch (error) {
-      if (mounted) setState(() => _error = error.message);
+      if (mounted) {
+        final l10n = AppLocalizations.of(context);
+        setState(() => _error = ErrorLocalizer.joinError(l10n, error));
+      }
     } catch (_) {
       if (mounted) setState(() => _error = AppLocalizations.of(context).scanQrReadError);
     } finally {

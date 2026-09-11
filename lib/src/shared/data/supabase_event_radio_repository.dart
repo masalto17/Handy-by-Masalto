@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:event_radio_app/src/shared/domain/app_exceptions.dart';
 import 'package:event_radio_app/src/shared/domain/event_models.dart';
 import 'package:event_radio_app/src/shared/domain/event_radio_repository.dart';
 import 'package:event_radio_app/src/shared/domain/invite_code_generator.dart';
@@ -16,7 +17,7 @@ class SupabaseEventRadioRepository implements EventRadioRepository {
   Future<EventSession> joinByCode(String code) async {
     final normalized = InviteCodeParser.fromQrValue(code);
     if (normalized.isEmpty) {
-      throw const JoinEventException('El codigo esta vacio.');
+      throw const JoinEventException(JoinErrorCode.emptyCode);
     }
 
     await _ensureAuthenticatedUser();
@@ -30,9 +31,7 @@ class SupabaseEventRadioRepository implements EventRadioRepository {
 
     final eventData = participantData['events'] as Map<String, dynamic>?;
     if (eventData == null) {
-      throw const JoinEventException(
-        'Codigo no encontrado. Revisalo o pedile uno nuevo al coordinador.',
-      );
+      throw const JoinEventException(JoinErrorCode.codeNotFound);
     }
 
     final event = EventRadioEvent.fromMap(eventData);
@@ -49,7 +48,7 @@ class SupabaseEventRadioRepository implements EventRadioRepository {
         .single();
     final eventData = participantRow['events'] as Map<String, dynamic>?;
     if (eventData == null) {
-      throw const JoinEventException('La sesion ya no existe en el evento.');
+      throw const JoinEventException(JoinErrorCode.sessionExpired);
     }
     final event = EventRadioEvent.fromMap(eventData);
     final participant = EventParticipant.fromMap(participantRow);
@@ -62,9 +61,7 @@ class SupabaseEventRadioRepository implements EventRadioRepository {
     try {
       await _client.auth.signInAnonymously();
     } on AuthException {
-      throw const JoinEventException(
-        'Inicia sesion para vincular esta invitacion.',
-      );
+      throw const JoinEventException(JoinErrorCode.authRequired);
     }
   }
 
@@ -76,22 +73,22 @@ class SupabaseEventRadioRepository implements EventRadioRepository {
       );
       final errorMessage = _rpcString(response, 'error');
       if (errorMessage != null && errorMessage.isNotEmpty) {
-        throw JoinEventException(errorMessage);
+        throw JoinEventException(
+          JoinErrorCode.unknown,
+          serverMessage: errorMessage,
+        );
       }
       final participantId = _participantIdFromRpc(response);
       if (participantId == null || participantId.isEmpty) {
-        throw const JoinEventException(
-          'Codigo no encontrado. Revisalo o pedile uno nuevo al coordinador.',
-        );
+        throw const JoinEventException(JoinErrorCode.codeNotFound);
       }
       return participantId;
     } on JoinEventException {
       rethrow;
     } on PostgrestException catch (error) {
       throw JoinEventException(
-        error.message.isEmpty
-            ? 'No pudimos vincular esa invitacion.'
-            : error.message,
+        JoinErrorCode.inviteFailed,
+        serverMessage: error.message.isEmpty ? null : error.message,
       );
     }
   }
@@ -173,8 +170,9 @@ class SupabaseEventRadioRepository implements EventRadioRepository {
       final transcribedCount = data['transcribed_count'] as int? ?? 0;
       final failedCount = data['failed_count'] as int? ?? 0;
       if (transcribedCount == 0 && failedCount > 0) {
-        throw StateError(
-          data['error'] as String? ?? 'No pudimos transcribir los audios.',
+        throw EventOperationException(
+          EventOperationErrorCode.transcriptionFailed,
+          serverMessage: data['error'] as String?,
         );
       }
       return transcribedCount;
@@ -183,8 +181,9 @@ class SupabaseEventRadioRepository implements EventRadioRepository {
       final transcribedCount = data['transcribed_count'] as int? ?? 0;
       final failedCount = data['failed_count'] as int? ?? 0;
       if (transcribedCount == 0 && failedCount > 0) {
-        throw StateError(
-          data['error'] as String? ?? 'No pudimos transcribir los audios.',
+        throw EventOperationException(
+          EventOperationErrorCode.transcriptionFailed,
+          serverMessage: data['error'] as String?,
         );
       }
       return transcribedCount;
@@ -354,11 +353,15 @@ class SupabaseEventRadioRepository implements EventRadioRepository {
     required EventChannel channel,
   }) {
     if (!session.event.isOperational(DateTime.now())) {
-      throw StateError('El evento no permite activar SOS.');
+      throw const EventOperationException(
+        EventOperationErrorCode.eventNotOperational,
+      );
     }
     final permission = session.permissionFor(channel.id);
     if (permission == null || !permission.canListen || !permission.canTalk) {
-      throw StateError('El permiso actual no permite activar SOS.');
+      throw const EventOperationException(
+        EventOperationErrorCode.insufficientPermission,
+      );
     }
   }
 
@@ -418,7 +421,9 @@ class SupabaseEventRadioRepository implements EventRadioRepository {
 
     final participantId = _rpcString(response, 'participant_id');
     if (participantId == null || participantId.isEmpty) {
-      throw StateError('No pudimos crear el evento en Supabase.');
+      throw const EventOperationException(
+        EventOperationErrorCode.eventCreateFailed,
+      );
     }
 
     final participantRow = await _client

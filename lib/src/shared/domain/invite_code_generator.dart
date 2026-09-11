@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:event_radio_app/src/shared/domain/app_exceptions.dart';
+
 class InviteCodeGenerator {
   InviteCodeGenerator({Random? random}) : _random = random ?? Random.secure();
 
@@ -24,6 +26,8 @@ class InviteCodeGenerator {
       if (!existingCodes.contains(code)) return code;
     }
 
-    throw StateError('No pudimos generar un codigo unico.');
+    throw const EventOperationException(
+      EventOperationErrorCode.codeGenerationFailed,
+    );
   }
 }

@@ -289,5 +289,18 @@
   "a11ySosEmergency": "SOS de emergencia. Envia alerta inmediata a coordinadores.",
   "a11ySosButtonSending": "Enviando alerta SOS...",
 
+  "errorEmptyCode": "El codigo esta vacio.",
+  "errorCodeNotFound": "Codigo no encontrado. Revisalo o pedile uno nuevo al coordinador.",
+  "errorSessionExpired": "La sesion ya no existe en el evento.",
+  "errorAuthRequired": "Inicia sesion para vincular esta invitacion.",
+  "errorInviteFailed": "No pudimos vincular esa invitacion.",
+  "errorInvalidTokenResponse": "Respuesta invalida del token LiveKit.",
+  "errorTokenFetchFailed": "No pudimos obtener token LiveKit.",
+  "errorMicrophoneDenied": "Permiso de microfono denegado.",
+  "errorEventNotOperational": "El evento no permite esta accion ahora.",
+  "errorInsufficientPermission": "Tu permiso actual no permite esta accion.",
+  "errorTranscriptionFailed": "No pudimos transcribir los audios.",
+  "errorCodeGenerationFailed": "No pudimos generar un codigo unico.",
+
   "retry": "Reintentar"
 }

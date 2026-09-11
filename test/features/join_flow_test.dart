@@ -40,7 +40,7 @@ void main() {
     await _tapVisible(tester, find.text('Join'));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('Codigo no encontrado'), findsOneWidget);
+    expect(find.textContaining('Code not found'), findsOneWidget);
   });
 
   testWidgets('mock account can be selected before joining', (tester) async {

@@ -401,5 +401,18 @@
   "a11ySosEmergency": "Emergency SOS. Sends immediate alert to coordinators.",
   "a11ySosButtonSending": "Sending SOS alert...",
 
+  "errorEmptyCode": "The code is empty.",
+  "errorCodeNotFound": "Code not found. Check it or ask the coordinator for a new one.",
+  "errorSessionExpired": "The session no longer exists in this event.",
+  "errorAuthRequired": "Sign in to link this invitation.",
+  "errorInviteFailed": "Could not link that invitation.",
+  "errorInvalidTokenResponse": "Invalid LiveKit token response.",
+  "errorTokenFetchFailed": "Could not obtain the LiveKit token.",
+  "errorMicrophoneDenied": "Microphone permission denied.",
+  "errorEventNotOperational": "The event does not allow this action right now.",
+  "errorInsufficientPermission": "Your current permission does not allow this action.",
+  "errorTranscriptionFailed": "Could not transcribe the audios.",
+  "errorCodeGenerationFailed": "Could not generate a unique code.",
+
   "retry": "Retry"
 }

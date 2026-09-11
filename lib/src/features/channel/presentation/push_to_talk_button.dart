@@ -9,6 +9,7 @@ import 'package:event_radio_app/src/shared/audio/live_speech_transcriber.dart';
 import 'package:event_radio_app/src/shared/audio/ptt_audio_recorder.dart';
 import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
 import 'package:event_radio_app/src/shared/domain/event_models.dart';
+import 'package:event_radio_app/src/shared/presentation/error_localizer.dart';
 import 'package:event_radio_app/src/shared/presentation/status_pill.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
@@ -100,7 +101,7 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
       if (!mounted) return;
       final l10n = AppLocalizations.of(context);
       final message = e is AudioRoomConfigurationException
-          ? e.message
+          ? ErrorLocalizer.audioError(l10n, e)
           : l10n.pttAudioStartError;
       _setPtt(PttState(phase: PttPhase.error, errorMessage: message));
       // Volver a idle despues de mostrar el error brevemente.

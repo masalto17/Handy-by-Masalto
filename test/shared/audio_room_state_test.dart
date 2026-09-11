@@ -120,11 +120,22 @@ void main() {
   });
 
   group('AudioRoomConfigurationException', () {
-    test('toString returns message', () {
+    test('toString returns code name when no serverMessage', () {
       const exception =
-          AudioRoomConfigurationException('Permiso de microfono denegado.');
-      expect(exception.toString(), 'Permiso de microfono denegado.');
-      expect(exception.message, 'Permiso de microfono denegado.');
+          AudioRoomConfigurationException(AudioRoomErrorCode.microphoneDenied);
+      expect(exception.toString(), 'microphoneDenied');
+      expect(exception.message, 'microphoneDenied');
+      expect(exception.code, AudioRoomErrorCode.microphoneDenied);
+    });
+
+    test('toString returns serverMessage when provided', () {
+      const exception = AudioRoomConfigurationException(
+        AudioRoomErrorCode.tokenFetchFailed,
+        serverMessage: 'Custom server error',
+      );
+      expect(exception.toString(), 'Custom server error');
+      expect(exception.message, 'Custom server error');
+      expect(exception.code, AudioRoomErrorCode.tokenFetchFailed);
     });
   });
 

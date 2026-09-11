@@ -6,8 +6,10 @@ import 'package:event_radio_app/src/features/channel/presentation/push_to_talk_b
 import 'package:event_radio_app/src/shared/audio/audio_room_service.dart';
 import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
 import 'package:event_radio_app/src/shared/data/session_realtime.dart';
+import 'package:event_radio_app/src/shared/domain/app_exceptions.dart';
 import 'package:event_radio_app/src/shared/domain/event_models.dart';
 import 'package:event_radio_app/src/shared/presentation/app_scaffold.dart';
+import 'package:event_radio_app/src/shared/presentation/error_localizer.dart';
 import 'package:event_radio_app/src/shared/presentation/session_actions.dart';
 import 'package:event_radio_app/src/shared/presentation/session_guard.dart';
 import 'package:event_radio_app/src/shared/presentation/status_pill.dart';
@@ -139,11 +141,12 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.sosActivated(channel.name))),
       );
-    } on StateError catch (error) {
+    } on EventOperationException catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(error.message)));
+      final l10n = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(ErrorLocalizer.operationError(l10n, error))),
+      );
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
