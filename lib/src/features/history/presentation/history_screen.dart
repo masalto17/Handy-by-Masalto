@@ -342,22 +342,25 @@ class _WaveformPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     const heights = <double>[8, 14, 18, 10, 16, 22, 12, 20, 15, 24, 12, 18];
 
-    return SizedBox(
-      height: 24,
-      child: Row(
-        children: [
-          for (final height in heights) ...[
-            Container(
-              width: 2,
-              height: height,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.82),
-                borderRadius: BorderRadius.circular(2),
+    // Puramente decorativa: la informacion util esta en el texto del mensaje.
+    return ExcludeSemantics(
+      child: SizedBox(
+        height: 24,
+        child: Row(
+          children: [
+            for (final height in heights) ...[
+              Container(
+                width: 2,
+                height: height,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.82),
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
-            ),
-            const SizedBox(width: 3),
+              const SizedBox(width: 3),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

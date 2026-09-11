@@ -229,10 +229,13 @@ class _ChannelTile extends StatelessWidget {
               const SizedBox(height: 5),
               Row(
                 children: [
-                  Icon(
-                    Icons.circle,
-                    size: 8,
-                    color: canOperate ? AppTheme.success : AppTheme.warning,
+                  // Decorativo: el texto adyacente ya describe el estado.
+                  ExcludeSemantics(
+                    child: Icon(
+                      Icons.circle,
+                      size: 8,
+                      color: canOperate ? AppTheme.success : AppTheme.warning,
+                    ),
                   ),
                   const SizedBox(width: 6),
                   Text(

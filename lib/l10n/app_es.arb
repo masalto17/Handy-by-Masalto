@@ -281,5 +281,13 @@
   "adminLogsError": "No pudimos cargar la bitacora.",
   "adminTemplate": "Plantilla",
 
+  "a11yPriorityCritical": "CRITICO",
+  "a11yPriorityOperational": "OPERATIVO",
+  "a11yWaveformDecoration": "Forma de onda de audio",
+  "a11yTemplateSelected": "Plantilla {name}, seleccionada",
+  "a11yTemplateUnselected": "Plantilla {name}",
+  "a11ySosEmergency": "SOS de emergencia. Envia alerta inmediata a coordinadores.",
+  "a11ySosButtonSending": "Enviando alerta SOS...",
+
   "retry": "Reintentar"
 }

@@ -515,56 +515,64 @@ class _EventTemplatePicker extends StatelessWidget {
             itemBuilder: (context, index) {
               final template = EventTemplate.all[index];
               final isSelected = template.id == selected.id;
-              return InkWell(
-                onTap: () => onChanged(template),
-                borderRadius: BorderRadius.circular(10),
-                child: Container(
-                  width: 150,
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
+              final l10n = AppLocalizations.of(context);
+              return Semantics(
+                selected: isSelected,
+                label: isSelected
+                    ? l10n.a11yTemplateSelected(template.name)
+                    : l10n.a11yTemplateUnselected(template.name),
+                child: InkWell(
+                  onTap: () => onChanged(template),
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    width: 150,
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: isSelected
+                            ? AppTheme.brandGold
+                            : AppTheme.surfaceBorder,
+                        width: isSelected ? 2 : 1,
+                      ),
                       color: isSelected
-                          ? AppTheme.brandGold
-                          : AppTheme.surfaceBorder,
-                      width: isSelected ? 2 : 1,
+                          ? AppTheme.brandGold.withValues(alpha: 0.10)
+                          : AppTheme.surface,
                     ),
-                    color: isSelected
-                        ? AppTheme.brandGold.withValues(alpha: 0.10)
-                        : AppTheme.surface,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        _icons[template.icon] ?? Icons.tune,
-                        color: isSelected ? AppTheme.brandGold : Colors.white70,
-                        size: 22,
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        template.name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 13,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          _icons[template.icon] ?? Icons.tune,
+                          color:
+                              isSelected ? AppTheme.brandGold : Colors.white70,
+                          size: 22,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 2),
-                      Expanded(
-                        child: Text(
-                          template.tagline,
+                        const SizedBox(height: 6),
+                        Text(
+                          template.name,
                           style: const TextStyle(
-                            color: Colors.white60,
-                            fontSize: 10.5,
-                            height: 1.2,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 13,
                           ),
-                          maxLines: 3,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 2),
+                        Expanded(
+                          child: Text(
+                            template.tagline,
+                            style: const TextStyle(
+                              color: Colors.white60,
+                              fontSize: 10.5,
+                              height: 1.2,
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );

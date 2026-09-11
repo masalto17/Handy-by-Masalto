@@ -253,30 +253,38 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
                           ),
                           const SizedBox(width: 12),
                           Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: canSendSos && !_isSendingSos
-                                  ? () => _sendSos(
-                                        session: session,
-                                        channel: channel,
-                                      )
-                                  : null,
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.white,
-                                backgroundColor: AppTheme.danger.withValues(
-                                  alpha: 0.92,
+                            child: Semantics(
+                              button: true,
+                              enabled: canSendSos && !_isSendingSos,
+                              label: _isSendingSos
+                                  ? l10n.a11ySosButtonSending
+                                  : l10n.a11ySosEmergency,
+                              child: OutlinedButton.icon(
+                                onPressed: canSendSos && !_isSendingSos
+                                    ? () => _sendSos(
+                                          session: session,
+                                          channel: channel,
+                                        )
+                                    : null,
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.white,
+                                  backgroundColor: AppTheme.danger.withValues(
+                                    alpha: 0.92,
+                                  ),
+                                  side:
+                                      const BorderSide(color: AppTheme.danger),
                                 ),
-                                side: const BorderSide(color: AppTheme.danger),
-                              ),
-                              icon: _isSendingSos
-                                  ? const SizedBox.square(
-                                      dimension: 18,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    )
-                                  : const Icon(Icons.warning_amber_rounded),
-                              label: Text(
-                                canSendSos ? l10n.sosLabel : l10n.sosBlocked,
+                                icon: _isSendingSos
+                                    ? const SizedBox.square(
+                                        dimension: 18,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : const Icon(Icons.warning_amber_rounded),
+                                label: Text(
+                                  canSendSos ? l10n.sosLabel : l10n.sosBlocked,
+                                ),
                               ),
                             ),
                           ),
@@ -431,21 +439,27 @@ class _AudioConnectionStatus extends StatelessWidget {
       label = l10n.channelReadyToConnect;
     }
 
-    return DecoratedBox(
-      decoration: AppTheme.panelDecoration(),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            Icon(icon, color: color),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                label,
-                style: TextStyle(color: color, fontWeight: FontWeight.w700),
-              ),
+    // El icono es decorativo: el texto ya describe el estado de conexion.
+    return Semantics(
+      label: label,
+      child: ExcludeSemantics(
+        child: DecoratedBox(
+          decoration: AppTheme.panelDecoration(),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                Icon(icon, color: color),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: TextStyle(color: color, fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -572,48 +586,59 @@ class _ChannelPresenceBar extends ConsumerWidget {
             ? l10n.channelSpeaking(presence.speakingNames.join(', '))
             : l10n.channelNobodySpeaking;
 
+        // Se agrupa icono + textos en un nodo semantico unico con la
+        // informacion de presencia completa.
+        final semanticLabel =
+            '${l10n.channelPresenceCount(presence.participantCount)}. $speakingLabel';
+
         return Padding(
           padding: const EdgeInsets.only(top: 12),
-          child: DecoratedBox(
-            decoration: AppTheme.panelDecoration(),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  Icon(
-                    presence.someoneSpeaking
-                        ? Icons.record_voice_over
-                        : Icons.headset_mic_outlined,
-                    size: 20,
-                    color: presence.someoneSpeaking
-                        ? Colors.redAccent
-                        : Colors.white70,
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.channelPresenceCount(
-                            presence.participantCount,
-                          ),
-                          style: const TextStyle(fontWeight: FontWeight.w800),
+          child: Semantics(
+            label: semanticLabel,
+            child: ExcludeSemantics(
+              child: DecoratedBox(
+                decoration: AppTheme.panelDecoration(),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    children: [
+                      Icon(
+                        presence.someoneSpeaking
+                            ? Icons.record_voice_over
+                            : Icons.headset_mic_outlined,
+                        size: 20,
+                        color: presence.someoneSpeaking
+                            ? Colors.redAccent
+                            : Colors.white70,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.channelPresenceCount(
+                                presence.participantCount,
+                              ),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w800),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              speakingLabel,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          speakingLabel,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),

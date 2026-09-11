@@ -387,5 +387,19 @@
   "adminLogsError": "Could not load the activity log.",
   "adminTemplate": "Template",
 
+  "a11yPriorityCritical": "CRITICAL",
+  "a11yPriorityOperational": "OPERATIONAL",
+  "a11yWaveformDecoration": "Audio waveform",
+  "a11yTemplateSelected": "{name} template, selected",
+  "@a11yTemplateSelected": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "a11yTemplateUnselected": "{name} template",
+  "@a11yTemplateUnselected": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "a11ySosEmergency": "Emergency SOS. Sends immediate alert to coordinators.",
+  "a11ySosButtonSending": "Sending SOS alert...",
+
   "retry": "Retry"
 }
