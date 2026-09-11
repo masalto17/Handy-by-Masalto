@@ -2,7 +2,6 @@ import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
 import 'package:event_radio_app/src/shared/data/mock_event_radio_repository.dart';
 import 'package:event_radio_app/src/shared/domain/app_exceptions.dart';
 import 'package:event_radio_app/src/shared/domain/event_models.dart';
-import 'package:event_radio_app/src/shared/domain/event_radio_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
