@@ -4,6 +4,7 @@ import 'package:event_radio_app/src/features/admin/presentation/admin_helpers.da
 import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
 import 'package:event_radio_app/src/shared/domain/event_models.dart';
 import 'package:event_radio_app/src/shared/domain/event_template.dart';
+import 'package:event_radio_app/src/shared/presentation/error_localizer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -292,43 +293,58 @@ class AdminEventCard extends ConsumerWidget {
                       return;
                     }
                     final endsAt = startsAt.add(duration);
-                    final controller =
-                        ref.read(currentSessionProvider.notifier);
-                    var templateFailures = <String>[];
-                    if (createNew) {
-                      templateFailures =
-                          await controller.createEventFromTemplate(
-                        session: session,
-                        name: eventName,
-                        description: descriptionController.text.trim(),
-                        startsAt: startsAt,
-                        endsAt: endsAt,
-                        template: selectedTemplate,
-                      );
-                    } else {
-                      await controller.updateEventDetails(
-                        session: session,
-                        name: eventName,
-                        description: descriptionController.text.trim(),
-                        status: status,
-                        startsAt: startsAt,
-                        endsAt: endsAt,
-                      );
-                    }
-                    ref.invalidate(eventLogsProvider(session.event.id));
-                    if (dialogContext.mounted) {
-                      Navigator.of(dialogContext).pop();
-                    }
-                    if (context.mounted) {
-                      final createdMessage = templateFailures.isEmpty
-                          ? l10n.adminEventCreated
-                          : l10n.adminEventCreatedWithFailures(
-                              templateFailures.join(', '));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            createNew ? createdMessage : l10n.adminEventUpdated,
+                    try {
+                      final controller =
+                          ref.read(currentSessionProvider.notifier);
+                      var templateFailures = <String>[];
+                      if (createNew) {
+                        templateFailures =
+                            await controller.createEventFromTemplate(
+                          session: session,
+                          name: eventName,
+                          description: descriptionController.text.trim(),
+                          startsAt: startsAt,
+                          endsAt: endsAt,
+                          template: selectedTemplate,
+                        );
+                      } else {
+                        await controller.updateEventDetails(
+                          session: session,
+                          name: eventName,
+                          description: descriptionController.text.trim(),
+                          status: status,
+                          startsAt: startsAt,
+                          endsAt: endsAt,
+                        );
+                      }
+                      ref.invalidate(eventLogsProvider(session.event.id));
+                      if (dialogContext.mounted) {
+                        Navigator.of(dialogContext).pop();
+                      }
+                      if (context.mounted) {
+                        final createdMessage = templateFailures.isEmpty
+                            ? l10n.adminEventCreated
+                            : l10n.adminEventCreatedWithFailures(
+                                templateFailures.join(', '));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              createNew
+                                  ? createdMessage
+                                  : l10n.adminEventUpdated,
+                            ),
                           ),
+                        );
+                      }
+                    } catch (error) {
+                      if (!dialogContext.mounted) return;
+                      showAdminError(
+                        dialogContext,
+                        ErrorLocalizer.localize(
+                          AppLocalizations.of(dialogContext),
+                          error,
+                          AppLocalizations.of(dialogContext)
+                              .adminOperationError,
                         ),
                       );
                     }
@@ -373,38 +389,61 @@ class AdminEventCard extends ConsumerWidget {
 
   Future<void> _closeEventNow(BuildContext context, WidgetRef ref) async {
     final now = DateTime.now();
-    await ref.read(currentSessionProvider.notifier).updateEventDetails(
-          session: session,
-          name: session.event.name,
-          description: session.event.description ?? '',
-          status: EventStatus.closed,
-          startsAt: session.event.startsAt,
-          endsAt: now,
-        );
-    ref.invalidate(eventLogsProvider(session.event.id));
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppLocalizations.of(context).adminEventClosed)),
-    );
+    try {
+      await ref.read(currentSessionProvider.notifier).updateEventDetails(
+            session: session,
+            name: session.event.name,
+            description: session.event.description ?? '',
+            status: EventStatus.closed,
+            startsAt: session.event.startsAt,
+            endsAt: now,
+          );
+      ref.invalidate(eventLogsProvider(session.event.id));
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context).adminEventClosed)),
+      );
+    } catch (error) {
+      if (!context.mounted) return;
+      final l10n = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            ErrorLocalizer.localize(l10n, error, l10n.adminOperationError),
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> _reactivateEvent(BuildContext context, WidgetRef ref) async {
     final now = DateTime.now();
-
-    await ref.read(currentSessionProvider.notifier).updateEventDetails(
-          session: session,
-          name: session.event.name,
-          description: session.event.description ?? '',
-          status: EventStatus.active,
-          startsAt: now.subtract(const Duration(minutes: 5)),
-          endsAt: now.add(const Duration(hours: 8)),
-        );
-    ref.invalidate(eventLogsProvider(session.event.id));
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          content: Text(AppLocalizations.of(context).adminEventReactivated)),
-    );
+    try {
+      await ref.read(currentSessionProvider.notifier).updateEventDetails(
+            session: session,
+            name: session.event.name,
+            description: session.event.description ?? '',
+            status: EventStatus.active,
+            startsAt: now.subtract(const Duration(minutes: 5)),
+            endsAt: now.add(const Duration(hours: 8)),
+          );
+      ref.invalidate(eventLogsProvider(session.event.id));
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(AppLocalizations.of(context).adminEventReactivated)),
+      );
+    } catch (error) {
+      if (!context.mounted) return;
+      final l10n = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            ErrorLocalizer.localize(l10n, error, l10n.adminOperationError),
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> _extendEvent(BuildContext context, WidgetRef ref) async {
@@ -412,20 +451,32 @@ class AdminEventCard extends ConsumerWidget {
     final startsAt = session.event.startsAt.isAfter(now)
         ? session.event.startsAt
         : now.subtract(const Duration(minutes: 5));
-
-    await ref.read(currentSessionProvider.notifier).updateEventDetails(
-          session: session,
-          name: session.event.name,
-          description: session.event.description ?? '',
-          status: EventStatus.active,
-          startsAt: startsAt,
-          endsAt: now.add(const Duration(hours: 8)),
-        );
-    ref.invalidate(eventLogsProvider(session.event.id));
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppLocalizations.of(context).adminEventExtended)),
-    );
+    try {
+      await ref.read(currentSessionProvider.notifier).updateEventDetails(
+            session: session,
+            name: session.event.name,
+            description: session.event.description ?? '',
+            status: EventStatus.active,
+            startsAt: startsAt,
+            endsAt: now.add(const Duration(hours: 8)),
+          );
+      ref.invalidate(eventLogsProvider(session.event.id));
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(AppLocalizations.of(context).adminEventExtended)),
+      );
+    } catch (error) {
+      if (!context.mounted) return;
+      final l10n = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            ErrorLocalizer.localize(l10n, error, l10n.adminOperationError),
+          ),
+        ),
+      );
+    }
   }
 }
 

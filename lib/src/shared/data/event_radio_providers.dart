@@ -58,16 +58,22 @@ class CurrentSessionController
     required DateTime startsAt,
     required DateTime endsAt,
   }) async {
-    state = AsyncValue.data(
-      await _repository.updateEventDetails(
-        session: session,
-        name: name,
-        description: description,
-        status: status,
-        startsAt: startsAt,
-        endsAt: endsAt,
-      ),
-    );
+    final previous = state;
+    try {
+      state = AsyncValue.data(
+        await _repository.updateEventDetails(
+          session: session,
+          name: name,
+          description: description,
+          status: status,
+          startsAt: startsAt,
+          endsAt: endsAt,
+        ),
+      );
+    } catch (_) {
+      state = previous;
+      rethrow;
+    }
   }
 
   Future<void> createEvent({
@@ -77,15 +83,21 @@ class CurrentSessionController
     required DateTime startsAt,
     required DateTime endsAt,
   }) async {
-    state = AsyncValue.data(
-      await _repository.createEvent(
-        session: session,
-        name: name,
-        description: description,
-        startsAt: startsAt,
-        endsAt: endsAt,
-      ),
-    );
+    final previous = state;
+    try {
+      state = AsyncValue.data(
+        await _repository.createEvent(
+          session: session,
+          name: name,
+          description: description,
+          startsAt: startsAt,
+          endsAt: endsAt,
+        ),
+      );
+    } catch (_) {
+      state = previous;
+      rethrow;
+    }
   }
 
   Future<void> createChannel({
@@ -96,16 +108,22 @@ class CurrentSessionController
     required int priority,
     required bool isEmergency,
   }) async {
-    state = AsyncValue.data(
-      await _repository.createChannel(
-        session: session,
-        name: name,
-        code: code,
-        description: description,
-        priority: priority,
-        isEmergency: isEmergency,
-      ),
-    );
+    final previous = state;
+    try {
+      state = AsyncValue.data(
+        await _repository.createChannel(
+          session: session,
+          name: name,
+          code: code,
+          description: description,
+          priority: priority,
+          isEmergency: isEmergency,
+        ),
+      );
+    } catch (_) {
+      state = previous;
+      rethrow;
+    }
   }
 
   /// Crea un evento y le aplica los canales de una plantilla. El evento nuevo
@@ -156,29 +174,41 @@ class CurrentSessionController
     required int priority,
     required bool isEmergency,
   }) async {
-    state = AsyncValue.data(
-      await _repository.updateChannel(
-        session: session,
-        channel: channel,
-        name: name,
-        code: code,
-        description: description,
-        priority: priority,
-        isEmergency: isEmergency,
-      ),
-    );
+    final previous = state;
+    try {
+      state = AsyncValue.data(
+        await _repository.updateChannel(
+          session: session,
+          channel: channel,
+          name: name,
+          code: code,
+          description: description,
+          priority: priority,
+          isEmergency: isEmergency,
+        ),
+      );
+    } catch (_) {
+      state = previous;
+      rethrow;
+    }
   }
 
   Future<void> deleteChannel({
     required EventSession session,
     required EventChannel channel,
   }) async {
-    state = AsyncValue.data(
-      await _repository.deleteChannel(
-        session: session,
-        channel: channel,
-      ),
-    );
+    final previous = state;
+    try {
+      state = AsyncValue.data(
+        await _repository.deleteChannel(
+          session: session,
+          channel: channel,
+        ),
+      );
+    } catch (_) {
+      state = previous;
+      rethrow;
+    }
   }
 
   Future<void> createParticipant({
@@ -188,15 +218,21 @@ class CurrentSessionController
     required ParticipantRole role,
     required String inviteCode,
   }) async {
-    state = AsyncValue.data(
-      await _repository.createParticipant(
-        session: session,
-        displayName: displayName,
-        phone: phone,
-        role: role,
-        inviteCode: inviteCode,
-      ),
-    );
+    final previous = state;
+    try {
+      state = AsyncValue.data(
+        await _repository.createParticipant(
+          session: session,
+          displayName: displayName,
+          phone: phone,
+          role: role,
+          inviteCode: inviteCode,
+        ),
+      );
+    } catch (_) {
+      state = previous;
+      rethrow;
+    }
   }
 
   Future<void> updateParticipant({
@@ -207,28 +243,40 @@ class CurrentSessionController
     required ParticipantRole role,
     required String inviteCode,
   }) async {
-    state = AsyncValue.data(
-      await _repository.updateParticipant(
-        session: session,
-        participant: participant,
-        displayName: displayName,
-        phone: phone,
-        role: role,
-        inviteCode: inviteCode,
-      ),
-    );
+    final previous = state;
+    try {
+      state = AsyncValue.data(
+        await _repository.updateParticipant(
+          session: session,
+          participant: participant,
+          displayName: displayName,
+          phone: phone,
+          role: role,
+          inviteCode: inviteCode,
+        ),
+      );
+    } catch (_) {
+      state = previous;
+      rethrow;
+    }
   }
 
   Future<void> deleteParticipant({
     required EventSession session,
     required EventParticipant participant,
   }) async {
-    state = AsyncValue.data(
-      await _repository.deleteParticipant(
-        session: session,
-        participant: participant,
-      ),
-    );
+    final previous = state;
+    try {
+      state = AsyncValue.data(
+        await _repository.deleteParticipant(
+          session: session,
+          participant: participant,
+        ),
+      );
+    } catch (_) {
+      state = previous;
+      rethrow;
+    }
   }
 
   Future<void> updateParticipantChannels({
@@ -236,13 +284,19 @@ class CurrentSessionController
     required EventParticipant participant,
     required List<ChannelPermission> permissions,
   }) async {
-    state = AsyncValue.data(
-      await _repository.updateParticipantChannels(
-        session: session,
-        participant: participant,
-        permissions: permissions,
-      ),
-    );
+    final previous = state;
+    try {
+      state = AsyncValue.data(
+        await _repository.updateParticipantChannels(
+          session: session,
+          participant: participant,
+          permissions: permissions,
+        ),
+      );
+    } catch (_) {
+      state = previous;
+      rethrow;
+    }
   }
 
   void clear() {

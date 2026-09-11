@@ -302,5 +302,10 @@
   "errorTranscriptionFailed": "No pudimos transcribir los audios.",
   "errorCodeGenerationFailed": "No pudimos generar un codigo unico.",
 
+  "errorGoogleSignInFailed": "No pudimos iniciar sesion con Google.",
+  "errorInvalidEmail": "Ingresa un email valido.",
+  "errorDemoUnavailable": "El acceso demo no esta disponible en esta version.",
+  "adminOperationError": "No se pudo completar la operacion.",
+
   "retry": "Reintentar"
 }

@@ -4,6 +4,7 @@ import 'package:event_radio_app/src/core/config/env_config.dart';
 import 'package:event_radio_app/src/features/admin/presentation/admin_helpers.dart';
 import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
 import 'package:event_radio_app/src/shared/domain/event_models.dart';
+import 'package:event_radio_app/src/shared/presentation/error_localizer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -240,20 +241,32 @@ class AdminPilotReadinessCard extends ConsumerWidget {
         ? session.event.startsAt
         : now.subtract(const Duration(minutes: 5));
 
-    await ref.read(currentSessionProvider.notifier).updateEventDetails(
-          session: session,
-          name: session.event.name,
-          description: session.event.description ?? '',
-          status: EventStatus.active,
-          startsAt: startsAt,
-          endsAt: now.add(const Duration(hours: 8)),
-        );
-    ref.invalidate(eventLogsProvider(session.event.id));
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          content: Text(AppLocalizations.of(context).adminEventReady8h)),
-    );
+    try {
+      await ref.read(currentSessionProvider.notifier).updateEventDetails(
+            session: session,
+            name: session.event.name,
+            description: session.event.description ?? '',
+            status: EventStatus.active,
+            startsAt: startsAt,
+            endsAt: now.add(const Duration(hours: 8)),
+          );
+      ref.invalidate(eventLogsProvider(session.event.id));
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(AppLocalizations.of(context).adminEventReady8h)),
+      );
+    } catch (error) {
+      if (!context.mounted) return;
+      final l10n = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            ErrorLocalizer.localize(l10n, error, l10n.adminOperationError),
+          ),
+        ),
+      );
+    }
   }
 }
 

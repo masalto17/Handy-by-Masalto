@@ -2,6 +2,7 @@ import 'package:event_radio_app/l10n/app_localizations.dart';
 import 'package:event_radio_app/src/features/admin/presentation/admin_helpers.dart';
 import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
 import 'package:event_radio_app/src/shared/domain/event_models.dart';
+import 'package:event_radio_app/src/shared/presentation/error_localizer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -188,31 +189,44 @@ class AdminChannelsCard extends ConsumerWidget {
                       );
                       return;
                     }
-                    final controller =
-                        ref.read(currentSessionProvider.notifier);
-                    if (channel == null) {
-                      await controller.createChannel(
-                        session: session,
-                        name: channelName,
-                        code: channelCode,
-                        description: descriptionController.text.trim(),
-                        priority: priority,
-                        isEmergency: isEmergency,
+                    try {
+                      final controller =
+                          ref.read(currentSessionProvider.notifier);
+                      if (channel == null) {
+                        await controller.createChannel(
+                          session: session,
+                          name: channelName,
+                          code: channelCode,
+                          description: descriptionController.text.trim(),
+                          priority: priority,
+                          isEmergency: isEmergency,
+                        );
+                      } else {
+                        await controller.updateChannel(
+                          session: session,
+                          channel: channel,
+                          name: channelName,
+                          code: channelCode,
+                          description: descriptionController.text.trim(),
+                          priority: priority,
+                          isEmergency: isEmergency,
+                        );
+                      }
+                      ref.invalidate(eventLogsProvider(session.event.id));
+                      if (dialogContext.mounted) {
+                        Navigator.of(dialogContext).pop();
+                      }
+                    } catch (error) {
+                      if (!dialogContext.mounted) return;
+                      showAdminError(
+                        dialogContext,
+                        ErrorLocalizer.localize(
+                          AppLocalizations.of(dialogContext),
+                          error,
+                          AppLocalizations.of(dialogContext)
+                              .adminOperationError,
+                        ),
                       );
-                    } else {
-                      await controller.updateChannel(
-                        session: session,
-                        channel: channel,
-                        name: channelName,
-                        code: channelCode,
-                        description: descriptionController.text.trim(),
-                        priority: priority,
-                        isEmergency: isEmergency,
-                      );
-                    }
-                    ref.invalidate(eventLogsProvider(session.event.id));
-                    if (dialogContext.mounted) {
-                      Navigator.of(dialogContext).pop();
                     }
                   },
                   child: Text(l10n.adminDialogSave),
@@ -263,14 +277,22 @@ class AdminChannelsCard extends ConsumerWidget {
     );
 
     if (confirmed != true) return;
-    await ref.read(currentSessionProvider.notifier).deleteChannel(
-          session: session,
-          channel: channel,
-        );
-    ref.invalidate(eventLogsProvider(session.event.id));
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.adminChannelDeleted(channel.name))),
-    );
+    try {
+      await ref.read(currentSessionProvider.notifier).deleteChannel(
+            session: session,
+            channel: channel,
+          );
+      ref.invalidate(eventLogsProvider(session.event.id));
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.adminChannelDeleted(channel.name))),
+      );
+    } catch (error) {
+      if (!context.mounted) return;
+      showAdminError(
+        context,
+        ErrorLocalizer.localize(l10n, error, l10n.adminOperationError),
+      );
+    }
   }
 }

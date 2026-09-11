@@ -414,5 +414,10 @@
   "errorTranscriptionFailed": "Could not transcribe the audios.",
   "errorCodeGenerationFailed": "Could not generate a unique code.",
 
+  "errorGoogleSignInFailed": "Could not start Google sign-in.",
+  "errorInvalidEmail": "Enter a valid email address.",
+  "errorDemoUnavailable": "Demo access is not available in this version.",
+  "adminOperationError": "The operation could not be completed.",
+
   "retry": "Retry"
 }

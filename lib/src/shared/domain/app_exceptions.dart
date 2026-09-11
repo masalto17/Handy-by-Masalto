@@ -1,3 +1,31 @@
+/// Codigos tipados para errores de autenticacion.
+enum AuthErrorCode {
+  /// No se pudo iniciar el flujo OAuth de Google.
+  googleSignInFailed,
+
+  /// El email proporcionado es invalido o esta vacio.
+  invalidEmail,
+
+  /// El acceso demo no esta habilitado en esta build.
+  demoUnavailable,
+}
+
+/// Excepcion para errores de autenticacion de la app.
+///
+/// Nombrada [AppAuthException] para evitar colision con el [AuthException]
+/// de Supabase/GoTrue.
+class AppAuthException implements Exception {
+  const AppAuthException(this.code, {this.serverMessage});
+
+  final AuthErrorCode code;
+  final String? serverMessage;
+
+  String get message => serverMessage ?? code.name;
+
+  @override
+  String toString() => message;
+}
+
 /// Codigos tipados para errores de operaciones sobre eventos.
 ///
 /// Cubren los casos que antes usaban [StateError] con mensajes en español

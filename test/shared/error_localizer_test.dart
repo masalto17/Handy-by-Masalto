@@ -177,6 +177,32 @@ void main() {
     });
   });
 
+  group('ErrorLocalizer.authError', () {
+    testWidgets('maps googleSignInFailed', (tester) async {
+      final l10n = await _pumpL10n(tester);
+      const error = AppAuthException(AuthErrorCode.googleSignInFailed);
+      expect(
+        ErrorLocalizer.authError(l10n, error),
+        l10n.errorGoogleSignInFailed,
+      );
+    });
+
+    testWidgets('maps invalidEmail', (tester) async {
+      final l10n = await _pumpL10n(tester);
+      const error = AppAuthException(AuthErrorCode.invalidEmail);
+      expect(ErrorLocalizer.authError(l10n, error), l10n.errorInvalidEmail);
+    });
+
+    testWidgets('maps demoUnavailable', (tester) async {
+      final l10n = await _pumpL10n(tester);
+      const error = AppAuthException(AuthErrorCode.demoUnavailable);
+      expect(
+        ErrorLocalizer.authError(l10n, error),
+        l10n.errorDemoUnavailable,
+      );
+    });
+  });
+
   group('ErrorLocalizer.localize', () {
     testWidgets('resolves JoinEventException', (tester) async {
       final l10n = await _pumpL10n(tester);
@@ -206,6 +232,15 @@ void main() {
       expect(
         ErrorLocalizer.localize(l10n, error, 'fallback'),
         l10n.errorEventNotOperational,
+      );
+    });
+
+    testWidgets('resolves AppAuthException', (tester) async {
+      final l10n = await _pumpL10n(tester);
+      const error = AppAuthException(AuthErrorCode.googleSignInFailed);
+      expect(
+        ErrorLocalizer.localize(l10n, error, 'fallback'),
+        l10n.errorGoogleSignInFailed,
       );
     });
 

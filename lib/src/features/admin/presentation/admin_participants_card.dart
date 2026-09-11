@@ -3,6 +3,7 @@ import 'package:event_radio_app/l10n/app_localizations.dart';
 import 'package:event_radio_app/src/features/admin/presentation/admin_helpers.dart';
 import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
 import 'package:event_radio_app/src/shared/domain/event_models.dart';
+import 'package:event_radio_app/src/shared/presentation/error_localizer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -244,29 +245,42 @@ class AdminParticipantsCard extends ConsumerWidget {
                       );
                       return;
                     }
-                    final controller =
-                        ref.read(currentSessionProvider.notifier);
-                    if (participant == null) {
-                      await controller.createParticipant(
-                        session: session,
-                        displayName: displayName,
-                        phone: phoneController.text.trim(),
-                        role: role,
-                        inviteCode: inviteCode,
+                    try {
+                      final controller =
+                          ref.read(currentSessionProvider.notifier);
+                      if (participant == null) {
+                        await controller.createParticipant(
+                          session: session,
+                          displayName: displayName,
+                          phone: phoneController.text.trim(),
+                          role: role,
+                          inviteCode: inviteCode,
+                        );
+                      } else {
+                        await controller.updateParticipant(
+                          session: session,
+                          participant: participant,
+                          displayName: displayName,
+                          phone: phoneController.text.trim(),
+                          role: role,
+                          inviteCode: inviteCode,
+                        );
+                      }
+                      ref.invalidate(eventLogsProvider(session.event.id));
+                      if (dialogContext.mounted) {
+                        Navigator.of(dialogContext).pop();
+                      }
+                    } catch (error) {
+                      if (!dialogContext.mounted) return;
+                      showAdminError(
+                        dialogContext,
+                        ErrorLocalizer.localize(
+                          AppLocalizations.of(dialogContext),
+                          error,
+                          AppLocalizations.of(dialogContext)
+                              .adminOperationError,
+                        ),
                       );
-                    } else {
-                      await controller.updateParticipant(
-                        session: session,
-                        participant: participant,
-                        displayName: displayName,
-                        phone: phoneController.text.trim(),
-                        role: role,
-                        inviteCode: inviteCode,
-                      );
-                    }
-                    ref.invalidate(eventLogsProvider(session.event.id));
-                    if (dialogContext.mounted) {
-                      Navigator.of(dialogContext).pop();
                     }
                   },
                   child: Text(l10n.adminDialogSave),
@@ -461,17 +475,25 @@ class AdminParticipantsCard extends ConsumerWidget {
     );
 
     if (confirmed != true) return;
-    await ref.read(currentSessionProvider.notifier).deleteParticipant(
-          session: session,
-          participant: participant,
-        );
-    ref.invalidate(eventLogsProvider(session.event.id));
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(l10n.adminParticipantDeleted(participant.displayName)),
-      ),
-    );
+    try {
+      await ref.read(currentSessionProvider.notifier).deleteParticipant(
+            session: session,
+            participant: participant,
+          );
+      ref.invalidate(eventLogsProvider(session.event.id));
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.adminParticipantDeleted(participant.displayName)),
+        ),
+      );
+    } catch (error) {
+      if (!context.mounted) return;
+      showAdminError(
+        context,
+        ErrorLocalizer.localize(l10n, error, l10n.adminOperationError),
+      );
+    }
   }
 
   Future<void> _showParticipantChannelsDialog(
@@ -533,16 +555,29 @@ class AdminParticipantsCard extends ConsumerWidget {
                           ),
                         )
                         .toList();
-                    await ref
-                        .read(currentSessionProvider.notifier)
-                        .updateParticipantChannels(
-                          session: session,
-                          participant: participant,
-                          permissions: permissions,
-                        );
-                    ref.invalidate(eventLogsProvider(session.event.id));
-                    if (dialogContext.mounted) {
-                      Navigator.of(dialogContext).pop();
+                    try {
+                      await ref
+                          .read(currentSessionProvider.notifier)
+                          .updateParticipantChannels(
+                            session: session,
+                            participant: participant,
+                            permissions: permissions,
+                          );
+                      ref.invalidate(eventLogsProvider(session.event.id));
+                      if (dialogContext.mounted) {
+                        Navigator.of(dialogContext).pop();
+                      }
+                    } catch (error) {
+                      if (!dialogContext.mounted) return;
+                      showAdminError(
+                        dialogContext,
+                        ErrorLocalizer.localize(
+                          AppLocalizations.of(dialogContext),
+                          error,
+                          AppLocalizations.of(dialogContext)
+                              .adminOperationError,
+                        ),
+                      );
                     }
                   },
                   child: Text(l10n.adminDialogSave),

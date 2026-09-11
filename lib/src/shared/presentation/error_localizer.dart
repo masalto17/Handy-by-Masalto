@@ -70,6 +70,18 @@ class ErrorLocalizer {
     }
   }
 
+  /// Devuelve el mensaje i18n para una [AppAuthException].
+  static String authError(AppLocalizations l10n, AppAuthException e) {
+    switch (e.code) {
+      case AuthErrorCode.googleSignInFailed:
+        return l10n.errorGoogleSignInFailed;
+      case AuthErrorCode.invalidEmail:
+        return l10n.errorInvalidEmail;
+      case AuthErrorCode.demoUnavailable:
+        return l10n.errorDemoUnavailable;
+    }
+  }
+
   /// Resuelve cualquier excepcion tipada del dominio.
   ///
   /// Para excepciones no tipadas, devuelve [fallback].
@@ -81,6 +93,7 @@ class ErrorLocalizer {
     if (error is EventOperationException) {
       return operationError(l10n, error);
     }
+    if (error is AppAuthException) return authError(l10n, error);
     return fallback;
   }
 }
