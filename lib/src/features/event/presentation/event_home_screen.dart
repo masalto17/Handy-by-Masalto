@@ -1,3 +1,4 @@
+import 'package:event_radio_app/l10n/app_localizations.dart';
 import 'package:event_radio_app/src/core/theme/app_theme.dart';
 import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
 import 'package:event_radio_app/src/shared/data/session_realtime.dart';
@@ -26,23 +27,25 @@ class EventHomeScreen extends ConsumerWidget {
       final channelName =
           session?.channelById(alert.channelId)?.name ?? 'un canal';
       HapticFeedback.vibrate();
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: AppTheme.danger,
           duration: const Duration(seconds: 6),
           content: Text(
-            'SOS recibido en $channelName',
+            l10n.sosReceived(channelName),
             style: const TextStyle(fontWeight: FontWeight.w800),
           ),
         ),
       );
     });
 
+    final l10n = AppLocalizations.of(context);
     return AppScaffold(
-      title: 'EVENTO ACTIVO',
+      title: l10n.eventActiveTitle,
       actions: [
         IconButton(
-          tooltip: 'Bitacora',
+          tooltip: l10n.eventLogButton,
           onPressed: () => context.push('/admin'),
           icon: const Icon(Icons.assignment_outlined),
         ),
@@ -52,37 +55,41 @@ class EventHomeScreen extends ConsumerWidget {
         builder: (context, session) {
           final canOperate = session.event.isOperational(DateTime.now());
 
-          return ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            children: [
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 560),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _EventHeader(session: session),
-                      if (!canOperate) ...[
-                        const SizedBox(height: 12),
-                        const _EventNoLongerActiveBanner(),
+          return RefreshIndicator(
+            onRefresh: () =>
+                ref.read(currentSessionProvider.notifier).refresh(),
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              children: [
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 560),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _EventHeader(session: session),
+                        if (!canOperate) ...[
+                          const SizedBox(height: 12),
+                          const _EventNoLongerActiveBanner(),
+                        ],
+                        const SizedBox(height: 22),
+                        Text(
+                          canOperate
+                              ? l10n.eventAssignedChannels
+                              : l10n.eventChannelsAndHistory,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 10),
+                        ...session.orderedChannels.map(
+                          (channel) =>
+                              _ChannelTile(session: session, channel: channel),
+                        ),
                       ],
-                      const SizedBox(height: 22),
-                      Text(
-                        canOperate
-                            ? 'Canales asignados'
-                            : 'Canales e historial',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 10),
-                      ...session.orderedChannels.map(
-                        (channel) =>
-                            _ChannelTile(session: session, channel: channel),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         },
       ),
@@ -97,13 +104,17 @@ class _EventHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final formatter = DateFormat('HH:mm');
     final canOperate = session.event.isOperational(DateTime.now());
     final remaining = session.event.endsAt.difference(DateTime.now());
     final remainingText = remaining.isNegative
-        ? 'Finalizado'
-        : '${remaining.inHours}h ${remaining.inMinutes.remainder(60)}m restantes';
-    final statusLabel = canOperate ? 'EN CURSO' : 'BLOQUEADO';
+        ? l10n.eventFinished
+        : l10n.eventTimeRemaining(
+            remaining.inHours,
+            remaining.inMinutes.remainder(60),
+          );
+    final statusLabel = canOperate ? l10n.eventOngoing : l10n.eventBlocked;
     final statusColor = canOperate ? AppTheme.success : AppTheme.warning;
     final statusIcon = canOperate ? Icons.circle : Icons.lock;
 
@@ -127,8 +138,8 @@ class _EventHeader extends StatelessWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Operador: ${session.participant.displayName}',
-                        style: const TextStyle(color: Colors.white70),
+                        l10n.eventOperator(session.participant.displayName),
+                        style: const TextStyle(color: AppTheme.textSecondary),
                       ),
                     ],
                   ),
@@ -143,7 +154,7 @@ class _EventHeader extends StatelessWidget {
             const SizedBox(height: 18),
             Row(
               children: [
-                const Icon(Icons.schedule, color: Colors.white54, size: 18),
+                const Icon(Icons.schedule, color: AppTheme.textTertiary, size: 18),
                 const SizedBox(width: 8),
                 Text(
                   remainingText,
@@ -157,7 +168,7 @@ class _EventHeader extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               '${formatter.format(session.event.startsAt)} - ${formatter.format(session.event.endsAt)}',
-              style: const TextStyle(color: Colors.white54),
+              style: const TextStyle(color: AppTheme.textTertiary),
             ),
           ],
         ),
@@ -174,6 +185,7 @@ class _ChannelTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final permission = session.permissionFor(channel.id);
     final canOperate = session.event.isOperational(DateTime.now());
 
@@ -213,26 +225,29 @@ class _ChannelTile extends StatelessWidget {
               Text(
                 channel.description ??
                     (channel.isEmergency
-                        ? 'Solo emergencias'
-                        : 'Coordinacion general'),
+                        ? l10n.eventEmergencyOnly
+                        : l10n.eventGeneralCoordination),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 5),
               Row(
                 children: [
-                  Icon(
-                    Icons.circle,
-                    size: 8,
-                    color: canOperate ? AppTheme.success : AppTheme.warning,
+                  // Decorativo: el texto adyacente ya describe el estado.
+                  ExcludeSemantics(
+                    child: Icon(
+                      Icons.circle,
+                      size: 8,
+                      color: canOperate ? AppTheme.success : AppTheme.warning,
+                    ),
                   ),
                   const SizedBox(width: 6),
                   Text(
                     !canOperate
-                        ? 'PTT bloqueado'
+                        ? l10n.eventPttBlocked
                         : permission?.canTalk == true
-                            ? 'Operativo'
-                            : 'Solo escucha',
+                            ? l10n.eventOperational
+                            : l10n.eventListenOnly,
                     style: TextStyle(
                       color: canOperate ? AppTheme.success : AppTheme.warning,
                       fontSize: 12,
@@ -278,16 +293,16 @@ class _EventNoLongerActiveBanner extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'El evento ya no esta operativo.',
+                    AppLocalizations.of(context).eventNoLongerActive,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            const Text(
-              'La transmision queda bloqueada, pero podés entrar a cada canal para consultar historial.',
-              style: TextStyle(color: Colors.white70),
+            Text(
+              AppLocalizations.of(context).eventNoLongerActiveDetail,
+              style: const TextStyle(color: AppTheme.textSecondary),
             ),
           ],
         ),

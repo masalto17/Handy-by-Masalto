@@ -53,6 +53,14 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="eventradio" android:host="login-callback"/>
             </intent-filter>
+            <!-- Deep link para invitaciones por QR / link compartido:
+                 event-radio://join?code=CODIGO -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="event-radio" android:host="join"/>
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
