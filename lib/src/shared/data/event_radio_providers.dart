@@ -19,13 +19,26 @@ final currentSessionProvider =
   return CurrentSessionController(ref.watch(eventRadioRepositoryProvider));
 });
 
+/// Controlador de la sesion activa del usuario.
+///
+/// Envuelve las operaciones del [EventRadioRepository] con manejo de estado
+/// [AsyncValue]: loading mientras opera, data con el resultado, y restauracion
+/// del estado anterior si una mutacion falla (patron state-preservation).
+///
+/// Cada metodo de mutacion guarda `state` antes de operar y lo restaura
+/// en el `catch`, de modo que un error de red nunca deja la UI sin sesion.
 class CurrentSessionController
     extends StateNotifier<AsyncValue<EventSession?>> {
+  /// Crea el controlador con el repositorio inyectado.
   CurrentSessionController(this._repository)
       : super(const AsyncValue.data(null));
 
   final EventRadioRepository _repository;
 
+  /// Ingresa a un evento usando un codigo de invitacion.
+  ///
+  /// Pone el estado en loading, luego en data con la sesion resultante.
+  /// Si falla, pone el error en el estado y relanza la excepcion.
   Future<EventSession> joinByCode(String code) async {
     state = const AsyncValue.loading();
     try {

@@ -419,5 +419,24 @@
   "errorDemoUnavailable": "Demo access is not available in this version.",
   "adminOperationError": "The operation could not be completed.",
 
+  "leaveEventConfirmTitle": "Leave event?",
+  "leaveEventConfirmBody": "You will return to the join screen. If you are a guest, you will need the invite code again.",
+  "leaveEventConfirmButton": "Leave",
+  "cancelButton": "Cancel",
+  "deleteChannelConfirmTitle": "Delete channel?",
+  "deleteChannelConfirmBody": "The channel \"{name}\" and its history will be removed.",
+  "@deleteChannelConfirmBody": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "deleteParticipantConfirmTitle": "Remove participant?",
+  "deleteParticipantConfirmBody": "\"{name}\" will lose access to the event.",
+  "@deleteParticipantConfirmBody": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+
   "retry": "Retry"
 }

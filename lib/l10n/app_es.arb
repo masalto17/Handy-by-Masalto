@@ -307,5 +307,14 @@
   "errorDemoUnavailable": "El acceso demo no esta disponible en esta version.",
   "adminOperationError": "No se pudo completar la operacion.",
 
+  "leaveEventConfirmTitle": "Salir del evento?",
+  "leaveEventConfirmBody": "Volveras a la pantalla de ingreso. Si eres invitado, necesitaras el codigo de invitacion nuevamente.",
+  "leaveEventConfirmButton": "Salir",
+  "cancelButton": "Cancelar",
+  "deleteChannelConfirmTitle": "Eliminar canal?",
+  "deleteChannelConfirmBody": "El canal \"{name}\" y su historial seran eliminados.",
+  "deleteParticipantConfirmTitle": "Eliminar participante?",
+  "deleteParticipantConfirmBody": "\"{name}\" perdera acceso al evento.",
+
   "retry": "Reintentar"
 }

@@ -55,37 +55,41 @@ class EventHomeScreen extends ConsumerWidget {
         builder: (context, session) {
           final canOperate = session.event.isOperational(DateTime.now());
 
-          return ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            children: [
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 560),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _EventHeader(session: session),
-                      if (!canOperate) ...[
-                        const SizedBox(height: 12),
-                        const _EventNoLongerActiveBanner(),
+          return RefreshIndicator(
+            onRefresh: () =>
+                ref.read(currentSessionProvider.notifier).refresh(),
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              children: [
+                Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 560),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _EventHeader(session: session),
+                        if (!canOperate) ...[
+                          const SizedBox(height: 12),
+                          const _EventNoLongerActiveBanner(),
+                        ],
+                        const SizedBox(height: 22),
+                        Text(
+                          canOperate
+                              ? l10n.eventAssignedChannels
+                              : l10n.eventChannelsAndHistory,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 10),
+                        ...session.orderedChannels.map(
+                          (channel) =>
+                              _ChannelTile(session: session, channel: channel),
+                        ),
                       ],
-                      const SizedBox(height: 22),
-                      Text(
-                        canOperate
-                            ? l10n.eventAssignedChannels
-                            : l10n.eventChannelsAndHistory,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 10),
-                      ...session.orderedChannels.map(
-                        (channel) =>
-                            _ChannelTile(session: session, channel: channel),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         },
       ),
