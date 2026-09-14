@@ -149,13 +149,34 @@ class AudioRoomTarget {
 typedef LiveKitTokenProvider = FutureOr<String> Function(
     AudioRoomTarget target);
 
+/// Codigos tipados para errores de configuracion de audio.
+enum AudioRoomErrorCode {
+  /// La respuesta del servidor de tokens no tiene el formato esperado.
+  invalidTokenResponse,
+
+  /// No se pudo obtener el token LiveKit.
+  tokenFetchFailed,
+
+  /// El usuario denego el permiso de microfono.
+  microphoneDenied,
+
+  /// No se pudo iniciar la transmision PTT.
+  pttStartFailed,
+}
+
 /// Excepcion de configuracion de audio (permiso denegado, token invalido, etc.).
 class AudioRoomConfigurationException implements Exception {
-  /// Crea la excepcion con un [message] descriptivo.
-  const AudioRoomConfigurationException(this.message);
+  /// Crea la excepcion con un [code] tipado y un [serverMessage] opcional.
+  const AudioRoomConfigurationException(this.code, {this.serverMessage});
 
-  /// Descripcion legible del error.
-  final String message;
+  /// Codigo tipado del error.
+  final AudioRoomErrorCode code;
+
+  /// Mensaje original del servidor (diagnostico/fallback).
+  final String? serverMessage;
+
+  /// Descripcion legible — preferir [code] para mapeo i18n.
+  String get message => serverMessage ?? code.name;
 
   @override
   String toString() => message;
@@ -223,14 +244,15 @@ class SupabaseLiveKitTokenProvider {
     final data = response.data;
     if (data is! Map) {
       throw const AudioRoomConfigurationException(
-        'Respuesta invalida del token LiveKit.',
+        AudioRoomErrorCode.invalidTokenResponse,
       );
     }
     final token = data['participant_token'] as String?;
     if (token == null || token.isEmpty) {
       final error = data['error'] as String?;
       throw AudioRoomConfigurationException(
-        error ?? 'No pudimos obtener token LiveKit.',
+        AudioRoomErrorCode.tokenFetchFailed,
+        serverMessage: error,
       );
     }
     return token;
@@ -328,7 +350,7 @@ class LiveKitAudioRoomService implements AudioRoomService {
     final permission = await Permission.microphone.request();
     if (!permission.isGranted) {
       throw const AudioRoomConfigurationException(
-        'Permiso de microfono denegado.',
+        AudioRoomErrorCode.microphoneDenied,
       );
     }
 
@@ -352,11 +374,11 @@ class LiveKitAudioRoomService implements AudioRoomService {
     }
 
     if (publishedCount == 0 && firstError != null) {
-      throw AudioRoomConfigurationException(
-        firstError is AudioRoomConfigurationException
-            ? firstError.message
-            : 'No pudimos iniciar el audio PTT.',
-      );
+      throw firstError is AudioRoomConfigurationException
+          ? firstError
+          : const AudioRoomConfigurationException(
+              AudioRoomErrorCode.pttStartFailed,
+            );
     }
   }
 

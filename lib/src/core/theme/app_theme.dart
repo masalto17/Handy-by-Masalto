@@ -5,24 +5,47 @@ class AppTheme {
 
   static const String logoAsset = 'assets/handy_logo.png';
 
+  // ── Superficies ──────────────────────────────────────────────────────────
   static const Color background = Color(0xFF030404);
   static const Color backgroundRaised = Color(0xFF080A0A);
   static const Color surface = Color(0xFF101313);
   static const Color surfaceRaised = Color(0xFF171B1B);
   static const Color surfaceBorder = Color(0xFF2B3030);
+
+  // ── Marca ────────────────────────────────────────────────────────────────
   static const Color accent = Color(0xFFE0B233);
-  static const Color brandGold = Color(0xFFE0B233);
+
+  /// Alias semántico de [accent] para contextos de branding.
+  static const Color brandGold = accent;
   static const Color accentSoft = Color(0xFF3B2A08);
+
+  // ── Estado ───────────────────────────────────────────────────────────────
   static const Color success = Color(0xFF36D66B);
   static const Color warning = Color(0xFFFFB020);
   static const Color danger = Color(0xFFE63838);
+
+  // ── Texto ────────────────────────────────────────────────────────────────
+  static const Color textPrimary = Colors.white;
+  static const Color textSecondary = Colors.white70;
+  static const Color textTertiary = Colors.white54;
+  static const Color textHint = Colors.white38;
+  static const Color textSubtle = Colors.white60;
+
+  // ── Decoración ───────────────────────────────────────────────────────────
+  static const Color borderSubtle = Colors.white24;
+  static const Color iconMuted = Colors.white12;
+  static const Color warningSurface = Color(0xFF2A2115);
+
+  // ── Gradiente de fondo ────────────────────────────────────────────────────
+  static const Color _gradientTop = Color(0xFF050606);
+  static const Color _gradientBottom = Color(0xFF000000);
 
   static BoxDecoration screenDecoration() {
     return const BoxDecoration(
       gradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [Color(0xFF050606), background, Color(0xFF000000)],
+        colors: [_gradientTop, background, _gradientBottom],
         stops: [0, 0.54, 1],
       ),
     );
@@ -64,7 +87,7 @@ class AppTheme {
       scaffoldBackgroundColor: background,
       colorScheme: colorScheme,
       appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFF030404),
+        backgroundColor: background,
         foregroundColor: Colors.white,
         centerTitle: true,
         elevation: 0,
@@ -90,8 +113,8 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: surfaceRaised,
-        labelStyle: const TextStyle(color: Colors.white70),
-        hintStyle: const TextStyle(color: Colors.white38),
+        labelStyle: const TextStyle(color: textSecondary),
+        hintStyle: const TextStyle(color: textHint),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: const BorderSide(color: surfaceBorder),
@@ -138,7 +161,7 @@ class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: Colors.white70,
+          foregroundColor: textSecondary,
           textStyle: const TextStyle(fontWeight: FontWeight.w800),
         ),
       ),

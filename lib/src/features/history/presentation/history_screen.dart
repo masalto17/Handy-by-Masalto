@@ -1,10 +1,13 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:event_radio_app/l10n/app_localizations.dart';
 import 'package:event_radio_app/src/core/theme/app_theme.dart';
 import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
+import 'package:event_radio_app/src/shared/domain/app_exceptions.dart';
 import 'package:event_radio_app/src/shared/domain/event_models.dart';
 import 'package:event_radio_app/src/shared/presentation/app_scaffold.dart';
+import 'package:event_radio_app/src/shared/presentation/error_localizer.dart';
 import 'package:event_radio_app/src/shared/presentation/session_actions.dart';
 import 'package:event_radio_app/src/shared/presentation/session_guard.dart';
 import 'package:flutter/material.dart';
@@ -18,21 +21,20 @@ class HistoryScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     return AppScaffold(
-      title: 'HISTORIAL',
+      title: l10n.history,
       actions: const [LeaveEventAction()],
       child: SessionGuard(
         builder: (context, session) {
           final channel = session.channelById(channelId);
           if (channel == null) {
-            return const Center(child: Text('Canal no asignado.'));
+            return Center(child: Text(l10n.channelNotAssigned));
           }
 
           final permission = session.permissionFor(channel.id);
           if (permission?.canViewHistory == false) {
-            return const Center(
-              child: Text('No tenes permiso para ver este historial.'),
-            );
+            return Center(child: Text(l10n.historyNoPermission));
           }
 
           final messagesState = ref.watch(voiceMessagesProvider(channel.id));
@@ -45,7 +47,7 @@ class HistoryScreen extends ConsumerWidget {
                     decoration: AppTheme.panelDecoration(),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
-                      child: Text('Sin mensajes en ${channel.name}.'),
+                      child: Text(l10n.historyNoMessages(channel.name)),
                     ),
                   ),
                 );
@@ -77,7 +79,7 @@ class HistoryScreen extends ConsumerWidget {
             },
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (_, __) =>
-                const Center(child: Text('No pudimos cargar el historial.')),
+                Center(child: Text(l10n.historyLoadError)),
           );
         },
       ),
@@ -108,21 +110,24 @@ class _TranscriptionActionState extends ConsumerState<_TranscriptionAction> {
           .transcribePendingMessages(widget.channelId);
       ref.invalidate(voiceMessagesProvider(widget.channelId));
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             count == 0
-                ? 'No habia audios pendientes para transcribir.'
-                : 'Transcripciones actualizadas: $count.',
+                ? l10n.historyNoPending
+                : l10n.historyTranscriptionUpdated(count),
           ),
         ),
       );
     } catch (error) {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
+      final detail = error is EventOperationException
+          ? ErrorLocalizer.operationError(l10n, error)
+          : _cleanError(error);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('No pudimos transcribir: ${_cleanError(error)}'),
-        ),
+        SnackBar(content: Text(l10n.historyTranscribeError(detail))),
       );
     } finally {
       if (mounted) {
@@ -145,10 +150,10 @@ class _TranscriptionActionState extends ConsumerState<_TranscriptionAction> {
             children: [
               const Icon(Icons.text_snippet_outlined, color: AppTheme.accent),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Hay audios pendientes de transcripcion.',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                  AppLocalizations.of(context).historyPendingTranscriptions,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
               ),
               FilledButton.icon(
@@ -160,7 +165,11 @@ class _TranscriptionActionState extends ConsumerState<_TranscriptionAction> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.auto_awesome),
-                label: Text(_isProcessing ? 'Procesando' : 'Transcribir'),
+                label: Text(
+                  _isProcessing
+                      ? AppLocalizations.of(context).historyProcessing
+                      : AppLocalizations.of(context).historyTranscribeButton,
+                ),
               ),
             ],
           ),
@@ -220,7 +229,9 @@ class _VoiceMessageTileState extends ConsumerState<_VoiceMessageTile> {
           .getVoiceMessageAudioUrl(widget.message);
 
       if (url == null || url.trim().isEmpty) {
-        throw StateError('Audio no disponible.');
+        throw const EventOperationException(
+          EventOperationErrorCode.audioUnavailable,
+        );
       }
 
       await _player.play(UrlSource(url, mimeType: 'audio/wav'));
@@ -231,7 +242,9 @@ class _VoiceMessageTileState extends ConsumerState<_VoiceMessageTile> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No pudimos reproducir este audio.')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).historyPlaybackError),
+        ),
       );
     } finally {
       if (mounted) {
@@ -280,13 +293,13 @@ class _VoiceMessageTileState extends ConsumerState<_VoiceMessageTile> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                _messageSummary(message),
+                _messageSummary(context, message),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 8),
               _WaveformPreview(
-                color: message.isPriority ? AppTheme.danger : Colors.white70,
+                color: message.isPriority ? AppTheme.danger : AppTheme.textSecondary,
               ),
             ],
           ),
@@ -295,12 +308,14 @@ class _VoiceMessageTileState extends ConsumerState<_VoiceMessageTile> {
             children: [
               Text(
                 DateFormat('HH:mm').format(message.createdAt),
-                style: const TextStyle(color: Colors.white54),
+                style: const TextStyle(color: AppTheme.textTertiary),
               ),
               if (message.hasAudio) ...[
                 const SizedBox(width: 10),
                 IconButton(
-                  tooltip: _isPlaying ? 'Detener audio' : 'Reproducir audio',
+                  tooltip: _isPlaying
+                      ? AppLocalizations.of(context).historyStopAudio
+                      : AppLocalizations.of(context).historyPlayAudio,
                   onPressed: _togglePlayback,
                   color: _isPlaying ? AppTheme.accent : Colors.white,
                   icon: _isLoading
@@ -329,45 +344,49 @@ class _WaveformPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     const heights = <double>[8, 14, 18, 10, 16, 22, 12, 20, 15, 24, 12, 18];
 
-    return SizedBox(
-      height: 24,
-      child: Row(
-        children: [
-          for (final height in heights) ...[
-            Container(
-              width: 2,
-              height: height,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.82),
-                borderRadius: BorderRadius.circular(2),
+    // Puramente decorativa: la informacion util esta en el texto del mensaje.
+    return ExcludeSemantics(
+      child: SizedBox(
+        height: 24,
+        child: Row(
+          children: [
+            for (final height in heights) ...[
+              Container(
+                width: 2,
+                height: height,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.82),
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
-            ),
-            const SizedBox(width: 3),
+              const SizedBox(width: 3),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
 }
 
-String _messageSummary(VoiceMessage message) {
+String _messageSummary(BuildContext context, VoiceMessage message) {
   final transcription = message.transcription;
   if (transcription != null && transcription.trim().isNotEmpty) {
     return transcription;
   }
+  final l10n = AppLocalizations.of(context);
   if (message.transcriptionStatus == TranscriptionStatus.pending) {
-    return 'Transcripcion pendiente';
+    return l10n.historyTranscriptionPending;
   }
   if (message.transcriptionStatus == TranscriptionStatus.queued) {
-    return 'Transcripcion en cola';
+    return l10n.historyTranscriptionQueued;
   }
   if (message.transcriptionStatus == TranscriptionStatus.processing) {
-    return 'Transcripcion en proceso';
+    return l10n.historyTranscriptionProcessing;
   }
   if (message.transcriptionStatus == TranscriptionStatus.failed) {
-    return 'Transcripcion fallida. Revisar configuracion.';
+    return l10n.historyTranscriptionFailed;
   }
-  return message.isPriority ? 'Alerta SOS registrada' : 'Audio guardado';
+  return message.isPriority ? l10n.historySosAlert : l10n.historyAudioSaved;
 }
 
 String _cleanError(Object error) {

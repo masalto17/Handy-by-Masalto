@@ -1,10 +1,30 @@
 {
   "@@locale": "en",
   "appName": "Handy",
+
   "joinTitle": "Join an event",
-  "joinSubtitle": "Use the code or QR the coordinator shared with you.",
+  "joinSubtitle": "Use the invite code the coordinator shared with you.",
   "joinButton": "Join",
+  "joinValidating": "Validating...",
+  "joinError": "Could not join the event.",
+  "joinAdminDemoError": "Could not join as demo admin.",
+  "joinAdminDemoButton": "Join as demo admin",
+  "joinCreateEventButton": "Are you organizing? Create your event",
+  "joinInviteCodeLabel": "Invite code",
+  "joinOrScanQr": "or scan a QR code",
+
   "scanQr": "Scan QR",
+  "scanQrTitle": "Point at the event QR",
+  "scanQrHint": "Point the camera at your invite QR. If the camera does not open (due to permissions or browser), type the code below.",
+  "scanQrDemoButton": "Try demo QR SATI26",
+  "scanQrActivateCamera": "Activate camera",
+  "scanQrCodeOrQrLabel": "Code or QR content",
+  "scanQrUseCode": "Use code",
+  "scanQrCameraPaused": "Camera paused",
+  "scanQrEmptyCode": "The code is empty.",
+  "scanQrReadError": "Could not read that QR.",
+  "scanQrCameraError": "Could not open the camera. Use manual code entry for now.",
+
   "howItWorks": "How Handy works",
   "howItWorksTitle": "How Handy works",
   "howStep1Title": "1. Join with your QR",
@@ -14,9 +34,409 @@
   "howStep3Title": "3. SOS if you need help",
   "howStep3Detail": "The SOS button instantly alerts coordinators with your name and channel.",
   "understood": "Got it",
+
+  "demoCodes": "Demo codes",
+  "demoCodeActive": "SATI26: active event",
+  "demoCodeSecurity": "MARCOS26: security participant",
+  "demoCodeProduction": "ANA26: production participant",
+  "demoCodeTechnical": "JULIA26: technical coordinator",
+  "demoCodeClosed": "CERRADO: ended event",
+
+  "pttLabel": "PUSH-TO-TALK",
   "pttHold": "HOLD TO TALK",
   "pttTransmitting": "ON AIR",
+  "pttTransmittingStatus": "TRANSMITTING {seconds}s",
+  "@pttTransmittingStatus": {
+    "placeholders": { "seconds": { "type": "int" } }
+  },
+  "pttConnecting": "CONNECTING...",
+  "pttSaving": "SAVING",
+  "pttError": "ERROR",
   "pttBlocked": "TRANSMISSION BLOCKED",
+  "pttErrorConnecting": "Error connecting.",
+  "pttAudioStartError": "Could not start PTT audio.",
+  "pttSaveError": "Could not save the PTT.",
+  "pttSavedNoAudio": "PTT logged in {destination}; could not save audio.",
+  "@pttSavedNoAudio": {
+    "placeholders": { "destination": { "type": "String" } }
+  },
+  "pttSavedAudioAndText": "Audio and text saved in {destination}.",
+  "@pttSavedAudioAndText": {
+    "placeholders": { "destination": { "type": "String" } }
+  },
+  "pttSavedAudioOnly": "Audio saved. Automatic transcription in progress.",
+  "pttA11yTransmitting": "Transmitting. Release to finish.",
+  "pttA11yConnecting": "Connecting channel. Wait for confirmation.",
+  "pttA11yReady": "Talk button. Hold while you speak.",
+  "pttA11yBlocked": "Transmission blocked on this channel.",
+  "pttDestinationLiveKit": "Destination: {destination}. Real LiveKit audio active; audio saved in history.",
+  "@pttDestinationLiveKit": {
+    "placeholders": { "destination": { "type": "String" } }
+  },
+  "pttDestinationSimulated": "Destination: {destination}. Simulated audio; LiveKit activates when credentials are configured.",
+  "@pttDestinationSimulated": {
+    "placeholders": { "destination": { "type": "String" } }
+  },
+  "pttNoPermission": "Your current permission does not allow transmitting in this channel.",
+
+  "channelTitle": "CHANNEL",
+  "channelNotAssigned": "Channel not assigned.",
+  "channelDefaultDescription": "Operational event channel.",
+  "channelAllChannels": "all channels",
+  "channelBroadcastTarget": "Transmission destination",
+  "channelCurrentChannel": "Current channel",
+  "channelAllCount": "All ({count})",
+  "@channelAllCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "channelAudioBlocked": "Audio blocked: event not operational",
+  "channelNoListenPermission": "No listen permission in this channel",
+  "channelConnectingLiveKit": "Connecting LiveKit listening...",
+  "channelConnectError": "Could not connect LiveKit listening.",
+  "channelListening": "Listening to channel",
+  "channelReadyToConnect": "Listening ready to connect",
+  "channelNoMessages": "No messages in this channel yet.",
+  "channelLatestAudios": "Latest audios",
+  "channelHistoryError": "Could not load history.",
+  "channelPresenceCount": "{count} in the channel",
+  "@channelPresenceCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "channelSpeaking": "Speaking: {names}",
+  "@channelSpeaking": {
+    "placeholders": { "names": { "type": "String" } }
+  },
+  "channelNobodySpeaking": "Nobody is speaking now",
+  "channelReconnectError": "Connection lost with {name} after {attempts} attempts.",
+  "@channelReconnectError": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "attempts": { "type": "int" }
+    }
+  },
+  "channelReconnectSnack": "Connection lost: {name}. Try leaving and re-entering the channel.",
+  "@channelReconnectSnack": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "channelReconnectRetry": "Retry",
+
   "sosLabel": "SOS",
-  "history": "History"
+  "sosBlocked": "SOS blocked",
+  "sosActivated": "SOS activated in {channel}.",
+  "@sosActivated": {
+    "placeholders": { "channel": { "type": "String" } }
+  },
+  "sosError": "Could not activate SOS.",
+  "sosReceived": "SOS received in {channel}",
+  "@sosReceived": {
+    "placeholders": { "channel": { "type": "String" } }
+  },
+
+  "history": "History",
+  "historyNoPermission": "You do not have permission to view this history.",
+  "historyNoMessages": "No messages in {channel}.",
+  "@historyNoMessages": {
+    "placeholders": { "channel": { "type": "String" } }
+  },
+  "historyLoadError": "Could not load history.",
+  "historyPlaybackError": "Could not play this audio.",
+  "historyTranscriptionPending": "Transcription pending",
+  "historyTranscriptionQueued": "Transcription queued",
+  "historyTranscriptionProcessing": "Transcription in progress",
+  "historyTranscriptionFailed": "Transcription failed. Check configuration.",
+  "historyTranscriptionNone": "No transcription available",
+  "historyAudioSaved": "Audio saved",
+  "historySosAlert": "SOS alert logged",
+  "historyPendingTranscriptions": "There are audios pending transcription.",
+  "historyTranscribeButton": "Transcribe",
+  "historyProcessing": "Processing",
+  "historyTranscriptionUpdated": "Transcriptions updated: {count}.",
+  "@historyTranscriptionUpdated": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "historyNoPending": "There were no audios pending transcription.",
+  "historyTranscribeError": "Could not transcribe: {error}",
+  "@historyTranscribeError": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+  "historyStopAudio": "Stop audio",
+  "historyPlayAudio": "Play audio",
+
+  "eventActiveTitle": "ACTIVE EVENT",
+  "eventLogButton": "Activity log",
+  "eventAssignedChannels": "Assigned channels",
+  "eventChannelsAndHistory": "Channels and history",
+  "eventOperator": "Operator: {name}",
+  "@eventOperator": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "eventOngoing": "ONGOING",
+  "eventBlocked": "BLOCKED",
+  "eventFinished": "Finished",
+  "eventTimeRemaining": "{hours}h {minutes}m remaining",
+  "@eventTimeRemaining": {
+    "placeholders": {
+      "hours": { "type": "int" },
+      "minutes": { "type": "int" }
+    }
+  },
+  "eventNoLongerActive": "The event is no longer operational.",
+  "eventNoLongerActiveDetail": "Transmission is blocked, but you can enter each channel to check history.",
+  "eventEmergencyOnly": "Emergencies only",
+  "eventGeneralCoordination": "General coordination",
+  "eventPttBlocked": "PTT blocked",
+  "eventOperational": "Operational",
+  "eventListenOnly": "Listen only",
+
+  "eventClosedTitle": "Event ended",
+  "eventClosedTransmissionBlocked": "The event no longer allows operating channels or using PTT.",
+  "eventClosedSchedule": "Scheduled end: {date}",
+  "@eventClosedSchedule": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "eventClosedHistoryAvailable": "History and activity log remain available according to permissions.",
+  "eventClosedViewHistory": "View channels and history",
+  "eventClosedLeave": "Leave the event",
+
+  "adminTitle": "Admin",
+  "adminOnlyAdmins": "Only admins and coordinators can view the activity log.",
+  "adminInviteQrTooltip": "Invite QR",
+  "adminExtend8h": "Extend 8h",
+  "adminActivate8h": "Activate 8h",
+  "adminViewInvitations": "View invitations",
+  "adminCopyTestPackage": "Copy test package",
+  "adminTestPackageCopied": "Test package copied.",
+  "adminEventReady8h": "Event ready for 8 hours.",
+  "adminCreateEvent": "Create event",
+  "adminEditEvent": "Edit event",
+  "adminCloseNow": "Close now",
+  "adminReactivate8h": "Reactivate 8h",
+  "adminReadyTest": "READY FOR TEST",
+  "adminReview": "REVIEW",
+
+  "accountOptional": "Optional account",
+  "accountMvpInfo": "For the MVP you can enter with just a code. Later, the account will help recover invitations and permissions.",
+  "accountContinueGmail": "Continue with Gmail",
+  "accountGmailStaging": "Gmail available in staging",
+  "accountReceiveEmailLink": "Receive link by email",
+  "accountEmailStaging": "Email available in staging",
+  "accountUseAsGuest": "Use as guest",
+  "accountEnterWithEmail": "Enter with email",
+  "accountEmailLabel": "Email",
+  "accountCancel": "Cancel",
+  "accountSendLink": "Send link",
+  "accountChange": "Change",
+  "accountLoadError": "Could not load the account.",
+  "accountPreparing": "Preparing account...",
+  "accountGuestMode": "Guest mode",
+  "accountNoEmail": "no email",
+
+  "invitationsTitle": "Invitations",
+  "invitationsEventTitle": "Event invitations",
+  "invitationsCopyAll": "Copy all invitations",
+  "invitationsUsageNote": "To test with another person: share their code or QR. Each participant must enter with their own code to see only their channels.",
+  "invitationsEntryCode": "Entry code",
+  "invitationsCopyCode": "Copy code",
+  "invitationsCopyInvite": "Copy invite",
+  "invitationsCodeCopied": "Code copied.",
+  "invitationsInviteCopied": "Invite copied.",
+  "invitationsCopiedAll": "Invitations copied.",
+  "invitationsNoChannels": "no channels",
+  "invitationsNotAssigned": "not assigned",
+  "invitationsInstructions1": "1. Open Handy.",
+  "invitationsInstructions2": "2. Enter the assigned code.",
+  "invitationsInstructions3": "3. Enter the corresponding channel.",
+
+  "createEventTitle": "Create new event",
+  "createEventDescription": "You are the organizer: you create the event and become the coordinator. Then invite your team by code or QR.",
+  "createEventYourName": "Your name",
+  "createEventName": "Event name",
+  "createEventDuration": "Duration (hours)",
+  "createEventTemplate": "Template",
+  "createEventCancel": "Cancel",
+  "createEventCreate": "Create",
+  "createEventErrorName": "Enter your name.",
+  "createEventErrorEventName": "Enter a name for the event.",
+  "createEventErrorDuration": "Duration must be between 1 and 24 hours.",
+  "createEventError": "Could not create the event. Try again.",
+  "createEventDefaultDescription": "Event created from Handy.",
+
+  "bootstrapErrorTitle": "HANDY cannot start",
+  "bootstrapErrorHint": "Check your internet connection and environment configuration. If the problem persists, contact the event administrator.",
+  "bootstrapErrorRetry": "Retry",
+
+  "leaveEventTooltip": "Leave / switch user",
+
+  "adminPilotReadiness": "Startup checklist",
+  "adminPilotReadinessHint": "Quick check to validate if the event is ready for a multi-person test.",
+  "adminPilotActionBanner": "The event is not operational right now. Activating it avoids entry errors during the test.",
+  "adminEventCard": "Event",
+  "adminNoDescription": "No description",
+  "adminMetaStatus": "Status",
+  "adminMetaStart": "Start",
+  "adminMetaEnd": "End",
+  "adminMetaDuration": "Duration",
+  "adminMetaChannels": "Channels",
+  "adminMetaParticipants": "Participants",
+  "adminEventCreated": "Event created. You are now operating the new event.",
+  "adminEventCreatedWithFailures": "Event created. Could not create some channels: {failures}.",
+  "@adminEventCreatedWithFailures": {
+    "placeholders": { "failures": { "type": "String" } }
+  },
+  "adminEventUpdated": "Event updated.",
+  "adminEventClosed": "Event closed. PTT blocked.",
+  "adminEventReactivated": "Event reactivated for 8 hours.",
+  "adminEventExtended": "Event extended for 8 hours.",
+  "adminNewOperative": "New operative",
+  "adminDialogName": "Name",
+  "adminDialogDescription": "Description",
+  "adminDialogHours": "Hours",
+  "adminDialogMinutes": "Minutes",
+  "adminDialogStatus": "Status",
+  "adminDialogCancel": "Cancel",
+  "adminDialogSave": "Save",
+  "adminDialogClose": "Close",
+  "adminDialogDelete": "Delete",
+  "adminErrorEventName": "Complete the event name.",
+  "adminErrorDuration": "Duration must be between 15 minutes and 24 hours.",
+  "adminChannelsCard": "Channels",
+  "adminCreateChannel": "Create channel",
+  "adminEditChannel": "Edit channel",
+  "adminChannelCode": "Code",
+  "adminChannelPriority": "Priority 0-100",
+  "adminChannelCritical": "Critical channel",
+  "adminErrorChannelName": "Complete the channel name.",
+  "adminErrorChannelCode": "Complete the channel code.",
+  "adminErrorChannelCodeDuplicate": "That channel code already exists.",
+  "adminErrorChannelPriority": "Priority must be a number between 0 and 100.",
+  "adminDeleteChannel": "Delete channel",
+  "adminDeleteChannelContent": "This will remove \"{name}\" from assignments and message history.",
+  "@adminDeleteChannelContent": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "adminChannelDeleted": "Channel deleted: {name}.",
+  "@adminChannelDeleted": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "adminChannelSummary": "{code} · priority {priority}",
+  "@adminChannelSummary": {
+    "placeholders": {
+      "code": { "type": "String" },
+      "priority": { "type": "int" }
+    }
+  },
+  "adminParticipantsCard": "Participants",
+  "adminCopyInvitations": "Copy invitations",
+  "adminInviteParticipant": "Invite participant",
+  "adminEditParticipant": "Edit participant",
+  "adminViewInviteOf": "View invite of {name}",
+  "@adminViewInviteOf": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "adminEditChannelsOf": "Edit channels of {name}",
+  "@adminEditChannelsOf": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "adminDeleteParticipantOf": "Delete participant {name}",
+  "@adminDeleteParticipantOf": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "adminParticipantSummary": "{role} · {code} · {count} channels",
+  "@adminParticipantSummary": {
+    "placeholders": {
+      "role": { "type": "String" },
+      "code": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "adminParticipantPhone": "Phone",
+  "adminParticipantInviteCode": "Invite code",
+  "adminParticipantInviteHelperNew": "Generated automatically to avoid short codes.",
+  "adminParticipantInviteHelperEdit": "Regenerate only if you want to invalidate the previous code.",
+  "adminGenerateSecureCode": "Generate secure code",
+  "adminParticipantRole": "Role",
+  "adminErrorParticipantName": "Complete the participant name.",
+  "adminErrorParticipantCode": "Complete the invite code.",
+  "adminErrorParticipantCodeDuplicate": "That invite code is already in use.",
+  "adminDeleteParticipant": "Delete participant",
+  "adminDeleteParticipantContent": "This will remove {name} from this event. Code {code} will no longer work.",
+  "@adminDeleteParticipantContent": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "code": { "type": "String" }
+    }
+  },
+  "adminParticipantDeleted": "Participant deleted: {name}.",
+  "@adminParticipantDeleted": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "adminInvitationOf": "Invitation of {name}",
+  "@adminInvitationOf": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "adminInvitationsCopied": "Invitations copied.",
+  "adminChannelsOf": "Channels of {name}",
+  "@adminChannelsOf": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "adminPermListenAndTalk": "Listen and can talk",
+  "adminPermListenOnly": "Listen only",
+  "adminPermNoAccess": "No access",
+  "adminLogsCard": "Activity log",
+  "adminLogsEmpty": "No records yet.",
+  "adminLogsError": "Could not load the activity log.",
+  "adminTemplate": "Template",
+
+  "a11yPriorityCritical": "CRITICAL",
+  "a11yPriorityOperational": "OPERATIONAL",
+  "a11yWaveformDecoration": "Audio waveform",
+  "a11yTemplateSelected": "{name} template, selected",
+  "@a11yTemplateSelected": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "a11yTemplateUnselected": "{name} template",
+  "@a11yTemplateUnselected": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "a11ySosEmergency": "Emergency SOS. Sends immediate alert to coordinators.",
+  "a11ySosButtonSending": "Sending SOS alert...",
+
+  "errorEmptyCode": "The code is empty.",
+  "errorCodeNotFound": "Code not found. Check it or ask the coordinator for a new one.",
+  "errorSessionExpired": "The session no longer exists in this event.",
+  "errorAuthRequired": "Sign in to link this invitation.",
+  "errorInviteFailed": "Could not link that invitation.",
+  "errorInvalidTokenResponse": "Invalid LiveKit token response.",
+  "errorTokenFetchFailed": "Could not obtain the LiveKit token.",
+  "errorMicrophoneDenied": "Microphone permission denied.",
+  "errorEventNotOperational": "The event does not allow this action right now.",
+  "errorInsufficientPermission": "Your current permission does not allow this action.",
+  "errorTranscriptionFailed": "Could not transcribe the audios.",
+  "errorCodeGenerationFailed": "Could not generate a unique code.",
+
+  "errorGoogleSignInFailed": "Could not start Google sign-in.",
+  "errorInvalidEmail": "Enter a valid email address.",
+  "errorDemoUnavailable": "Demo access is not available in this version.",
+  "adminOperationError": "The operation could not be completed.",
+
+  "leaveEventConfirmTitle": "Leave event?",
+  "leaveEventConfirmBody": "You will return to the join screen. If you are a guest, you will need the invite code again.",
+  "leaveEventConfirmButton": "Leave",
+  "cancelButton": "Cancel",
+  "deleteChannelConfirmTitle": "Delete channel?",
+  "deleteChannelConfirmBody": "The channel \"{name}\" and its history will be removed.",
+  "@deleteChannelConfirmBody": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "deleteParticipantConfirmTitle": "Remove participant?",
+  "deleteParticipantConfirmBody": "\"{name}\" will lose access to the event.",
+  "@deleteParticipantConfirmBody": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+
+  "retry": "Retry"
 }

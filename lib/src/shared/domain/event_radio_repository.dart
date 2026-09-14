@@ -136,15 +136,48 @@ abstract class EventRadioRepository {
   });
 }
 
+/// Codigos tipados para errores de ingreso a eventos.
+///
+/// Permiten que la capa de presentacion mapee cada caso a una cadena i18n
+/// sin acoplar el repositorio al idioma de la UI.
+enum JoinErrorCode {
+  /// El codigo de invitacion esta vacio.
+  emptyCode,
+
+  /// El codigo no corresponde a ningun evento activo.
+  codeNotFound,
+
+  /// La sesion ya no existe en el backend.
+  sessionExpired,
+
+  /// Se requiere autenticacion para vincular la invitacion.
+  authRequired,
+
+  /// La vinculacion con el backend fallo (error generico de RPC/DB).
+  inviteFailed,
+
+  /// Error inesperado o mensaje provisto por el servidor.
+  unknown,
+}
+
 /// Excepcion lanzada cuando el ingreso a un evento falla.
 ///
 /// Causas comunes: codigo invalido, expirado, o participante ya registrado.
 class JoinEventException implements Exception {
-  /// Crea una excepcion de ingreso con el [message] descriptivo.
-  const JoinEventException(this.message);
+  /// Crea una excepcion de ingreso con un [code] tipado.
+  ///
+  /// [serverMessage] es opcional y contiene el mensaje original del servidor,
+  /// util para diagnostico o como fallback cuando no hay cadena i18n.
+  const JoinEventException(this.code, {this.serverMessage});
 
-  /// Descripcion legible del error.
-  final String message;
+  /// Codigo tipado del error.
+  final JoinErrorCode code;
+
+  /// Mensaje original del servidor (diagnostico/fallback).
+  final String? serverMessage;
+
+  /// Descripcion legible del error — preferir [code] para mapeo i18n.
+  String get message => serverMessage ?? code.name;
 
   @override
   String toString() => message;

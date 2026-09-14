@@ -27,10 +27,14 @@ jobs:
         run: flutter gen-l10n
 
       - name: Analyze
-        run: flutter analyze
+        run: flutter analyze --fatal-infos
 
       - name: Test
         run: flutter test
+
+      - name: Dependency health check
+        run: flutter pub outdated
+        continue-on-error: true
 
       - name: Build web (smoke build)
         run: flutter build web

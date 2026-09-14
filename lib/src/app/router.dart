@@ -12,11 +12,27 @@ import 'package:go_router/go_router.dart';
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/',
+    // Maneja deep links event-radio://join?code=XXX redirigiendo al flujo
+    // de ingreso con el codigo pre-cargado como query parameter.
+    redirect: (context, state) {
+      final uri = state.uri;
+      if (uri.scheme == 'event-radio' && uri.host == 'join') {
+        final code = uri.queryParameters['code'];
+        if (code != null && code.isNotEmpty) {
+          return '/?code=$code';
+        }
+        return '/';
+      }
+      return null;
+    },
     routes: [
       GoRoute(
         path: '/',
         name: 'join',
-        builder: (context, state) => const JoinEventScreen(),
+        builder: (context, state) {
+          final code = state.uri.queryParameters['code'];
+          return JoinEventScreen(initialCode: code);
+        },
       ),
       GoRoute(
         path: '/scan',

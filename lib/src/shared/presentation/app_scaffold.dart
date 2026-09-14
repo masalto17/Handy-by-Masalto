@@ -53,7 +53,7 @@ class _RuntimeModeBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isRealMode = EnvConfig.isSupabaseAvailable;
-    final color = isRealMode ? AppTheme.success : Colors.amberAccent;
+    final color = isRealMode ? AppTheme.success : AppTheme.warning;
     final label = isRealMode
         ? 'MODO REAL - Supabase configurado'
         : 'MODO MOCK - datos locales para demo';

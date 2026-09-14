@@ -1,9 +1,11 @@
+import 'package:event_radio_app/l10n/app_localizations.dart';
 import 'package:event_radio_app/src/core/config/env_config.dart';
 import 'package:event_radio_app/src/core/theme/app_theme.dart';
 import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
 import 'package:event_radio_app/src/shared/domain/event_radio_repository.dart';
 import 'package:event_radio_app/src/shared/domain/invite_code_parser.dart';
 import 'package:event_radio_app/src/shared/presentation/app_scaffold.dart';
+import 'package:event_radio_app/src/shared/presentation/error_localizer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -46,7 +48,7 @@ class _QrJoinScreenState extends ConsumerState<QrJoinScreen> {
     if (_isSubmitting) return;
     final code = InviteCodeParser.fromQrValue(rawCode);
     if (code.isEmpty) {
-      setState(() => _error = 'El codigo esta vacio.');
+      setState(() => _error = AppLocalizations.of(context).scanQrEmptyCode);
       return;
     }
 
@@ -65,9 +67,12 @@ class _QrJoinScreenState extends ConsumerState<QrJoinScreen> {
         context.go('/closed');
       }
     } on JoinEventException catch (error) {
-      if (mounted) setState(() => _error = error.message);
+      if (mounted) {
+        final l10n = AppLocalizations.of(context);
+        setState(() => _error = ErrorLocalizer.joinError(l10n, error));
+      }
     } catch (_) {
-      if (mounted) setState(() => _error = 'No pudimos leer ese QR.');
+      if (mounted) setState(() => _error = AppLocalizations.of(context).scanQrReadError);
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -84,28 +89,27 @@ class _QrJoinScreenState extends ConsumerState<QrJoinScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(
-        () => _error =
-            'No pudimos abrir la camara. Usa el codigo manual por ahora.',
+        () => _error = AppLocalizations.of(context).scanQrCameraError,
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AppScaffold(
-      title: 'Escanear QR',
+      title: l10n.scanQr,
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           Text(
-            'Apunta al QR del evento',
+            l10n.scanQrTitle,
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Apunta la camara al QR de tu invitacion. Si no se abre la camara '
-            '(por permisos o navegador), escribi el codigo mas abajo.',
-            style: TextStyle(color: Colors.white70),
+          Text(
+            l10n.scanQrHint,
+            style: const TextStyle(color: AppTheme.textSecondary),
           ),
           if (EnvConfig.allowDemoShortcuts) ...[
             const SizedBox(height: 16),
@@ -114,7 +118,7 @@ class _QrJoinScreenState extends ConsumerState<QrJoinScreen> {
                   ? null
                   : () => _submit('event-radio://join?code=SATI26'),
               icon: const Icon(Icons.bolt),
-              label: const Text('Probar QR demo SATI26'),
+              label: Text(l10n.scanQrDemoButton),
             ),
           ],
           const SizedBox(height: 20),
@@ -125,7 +129,7 @@ class _QrJoinScreenState extends ConsumerState<QrJoinScreen> {
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   color: AppTheme.surface,
-                  border: Border.all(color: Colors.white24),
+                  border: Border.all(color: AppTheme.borderSubtle),
                 ),
                 child: _cameraRequested
                     ? MobileScanner(
@@ -150,14 +154,14 @@ class _QrJoinScreenState extends ConsumerState<QrJoinScreen> {
           ElevatedButton.icon(
             onPressed: _isSubmitting ? null : _startCamera,
             icon: const Icon(Icons.photo_camera_outlined),
-            label: const Text('Activar camara'),
+            label: Text(l10n.scanQrActivateCamera),
           ),
           const SizedBox(height: 24),
           TextField(
             controller: _manualController,
             textCapitalization: TextCapitalization.characters,
             decoration: InputDecoration(
-              labelText: 'Codigo o contenido del QR',
+              labelText: l10n.scanQrCodeOrQrLabel,
               errorText: _error,
               prefixIcon: const Icon(Icons.qr_code_2),
             ),
@@ -173,7 +177,7 @@ class _QrJoinScreenState extends ConsumerState<QrJoinScreen> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.login),
-            label: Text(_isSubmitting ? 'Validando...' : 'Usar codigo'),
+            label: Text(_isSubmitting ? l10n.joinValidating : l10n.scanQrUseCode),
           ),
         ],
       ),
@@ -189,7 +193,7 @@ class _ScannerPlaceholder extends StatelessWidget {
     return Stack(
       alignment: Alignment.center,
       children: [
-        const Icon(Icons.qr_code_scanner, size: 96, color: Colors.white24),
+        const Icon(Icons.qr_code_scanner, size: 96, color: AppTheme.borderSubtle),
         Positioned.fill(
           child: Padding(
             padding: const EdgeInsets.all(32),
@@ -204,9 +208,9 @@ class _ScannerPlaceholder extends StatelessWidget {
         Positioned(
           bottom: 24,
           child: Text(
-            'Camara pausada',
+            AppLocalizations.of(context).scanQrCameraPaused,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: Colors.white70,
+                  color: AppTheme.textSecondary,
                 ),
           ),
         ),

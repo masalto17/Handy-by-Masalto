@@ -1,3 +1,4 @@
+import 'package:event_radio_app/l10n/app_localizations.dart';
 import 'package:event_radio_app/src/core/theme/app_theme.dart';
 import 'package:event_radio_app/src/shared/domain/event_models.dart';
 import 'package:event_radio_app/src/shared/presentation/app_scaffold.dart';
@@ -13,8 +14,9 @@ class InviteQrScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AppScaffold(
-      title: 'Invitaciones',
+      title: l10n.invitationsTitle,
       actions: const [LeaveEventAction()],
       child: SessionGuard(
         builder: (context, session) {
@@ -26,25 +28,25 @@ class InviteQrScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             children: [
               Text(
-                'Invitaciones del evento',
+                l10n.invitationsEventTitle,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 8),
               Text(
                 session.event.name,
-                style: const TextStyle(color: Colors.white70),
+                style: const TextStyle(color: AppTheme.textSecondary),
               ),
               const SizedBox(height: 6),
               Text(
                 '${DateFormat('dd/MM HH:mm').format(session.event.startsAt)} - ${DateFormat('HH:mm').format(session.event.endsAt)}',
-                style: const TextStyle(color: Colors.white54),
+                style: const TextStyle(color: AppTheme.textTertiary),
               ),
               const SizedBox(height: 16),
               if (session.participant.canAccessAdmin)
                 ElevatedButton.icon(
                   onPressed: () => _copyAllInvitations(context, session),
                   icon: const Icon(Icons.copy_all_outlined),
-                  label: const Text('Copiar todas las invitaciones'),
+                  label: Text(l10n.invitationsCopyAll),
                 ),
               if (session.participant.canAccessAdmin)
                 const SizedBox(height: 12),
@@ -69,12 +71,12 @@ class _InviteUsageNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Card(
+    return Card(
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Text(
-          'Para probar con otra persona: compartile su codigo o QR. Cada participante debe entrar con su propio codigo para ver solo sus canales.',
-          style: TextStyle(color: Colors.white70),
+          AppLocalizations.of(context).invitationsUsageNote,
+          style: const TextStyle(color: AppTheme.textSecondary),
         ),
       ),
     );
@@ -93,7 +95,7 @@ class _ParticipantInviteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final qrValue = _inviteUri(participant.inviteCode);
-    final channels = _assignedChannels(session, participant);
+    final channels = _assignedChannels(context, session, participant);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -126,8 +128,8 @@ class _ParticipantInviteCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${participant.role.value} · ${channels.isEmpty ? 'sin canales' : channels}',
-                        style: const TextStyle(color: Colors.white70),
+                        '${participant.role.value} · ${channels.isEmpty ? AppLocalizations.of(context).invitationsNoChannels : channels}',
+                        style: const TextStyle(color: AppTheme.textSecondary),
                       ),
                     ],
                   ),
@@ -151,9 +153,9 @@ class _ParticipantInviteCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Codigo de ingreso',
-              style: TextStyle(fontWeight: FontWeight.w800),
+            Text(
+              AppLocalizations.of(context).invitationsEntryCode,
+              style: const TextStyle(fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 6),
             SelectableText(
@@ -163,7 +165,7 @@ class _ParticipantInviteCard extends StatelessWidget {
             const SizedBox(height: 8),
             SelectableText(
               qrValue,
-              style: const TextStyle(color: Colors.white60),
+              style: const TextStyle(color: AppTheme.textSubtle),
             ),
             const SizedBox(height: 12),
             Wrap(
@@ -174,19 +176,19 @@ class _ParticipantInviteCard extends StatelessWidget {
                   onPressed: () => _copyText(
                     context,
                     participant.inviteCode,
-                    'Codigo copiado.',
+                    AppLocalizations.of(context).invitationsCodeCopied,
                   ),
                   icon: const Icon(Icons.pin_outlined),
-                  label: const Text('Copiar codigo'),
+                  label: Text(AppLocalizations.of(context).invitationsCopyCode),
                 ),
                 ElevatedButton.icon(
                   onPressed: () => _copyText(
                     context,
                     qrValue,
-                    'Invitacion copiada.',
+                    AppLocalizations.of(context).invitationsInviteCopied,
                   ),
                   icon: const Icon(Icons.copy),
-                  label: const Text('Copiar invitacion'),
+                  label: Text(AppLocalizations.of(context).invitationsCopyInvite),
                 ),
               ],
             ),
@@ -201,31 +203,30 @@ Future<void> _copyAllInvitations(
   BuildContext context,
   EventSession session,
 ) async {
+  final l10n = AppLocalizations.of(context);
   final buffer = StringBuffer()
-    ..writeln('Handy - invitaciones')
-    ..writeln('Evento: ${session.event.name}')
+    ..writeln('Handy - ${l10n.invitationsTitle.toLowerCase()}')
+    ..writeln('${l10n.createEventName}: ${session.event.name}')
     ..writeln(
-      'Horario: ${DateFormat('dd/MM HH:mm').format(session.event.startsAt)} - ${DateFormat('HH:mm').format(session.event.endsAt)}',
+      '${DateFormat('dd/MM HH:mm').format(session.event.startsAt)} - ${DateFormat('HH:mm').format(session.event.endsAt)}',
     )
     ..writeln('')
-    ..writeln('Instrucciones:')
-    ..writeln('1. Abrir Handy.')
-    ..writeln('2. Ingresar el codigo asignado.')
-    ..writeln('3. Entrar al canal correspondiente.')
-    ..writeln('')
-    ..writeln('Participantes:');
+    ..writeln(l10n.invitationsInstructions1)
+    ..writeln(l10n.invitationsInstructions2)
+    ..writeln(l10n.invitationsInstructions3)
+    ..writeln('');
 
   for (final participant in session.participants) {
     buffer
       ..writeln('- ${participant.displayName}')
-      ..writeln('  Rol: ${participant.role.value}')
-      ..writeln('  Codigo: ${participant.inviteCode}')
-      ..writeln('  Link/QR: ${_inviteUri(participant.inviteCode)}')
-      ..writeln('  Canales: ${_assignedChannels(session, participant)}')
+      ..writeln('  ${participant.role.value}')
+      ..writeln('  ${participant.inviteCode}')
+      ..writeln('  ${_inviteUri(participant.inviteCode)}')
+      ..writeln('  ${_assignedChannels(context, session, participant)}')
       ..writeln('');
   }
 
-  await _copyText(context, buffer.toString(), 'Invitaciones copiadas.');
+  await _copyText(context, buffer.toString(), l10n.invitationsCopiedAll);
 }
 
 Future<void> _copyText(
@@ -240,7 +241,7 @@ Future<void> _copyText(
   );
 }
 
-String _assignedChannels(EventSession session, EventParticipant participant) {
+String _assignedChannels(BuildContext context, EventSession session, EventParticipant participant) {
   final channels = session.orderedChannels
       .where(
         (channel) =>
@@ -254,7 +255,7 @@ String _assignedChannels(EventSession session, EventParticipant participant) {
       )
       .map((channel) => channel.name)
       .join(', ');
-  return channels.isEmpty ? 'sin asignar' : channels;
+  return channels.isEmpty ? AppLocalizations.of(context).invitationsNotAssigned : channels;
 }
 
 String _inviteUri(String inviteCode) => 'event-radio://join?code=$inviteCode';

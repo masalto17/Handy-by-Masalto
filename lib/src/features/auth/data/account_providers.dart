@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:event_radio_app/src/core/config/env_config.dart';
 import 'package:event_radio_app/src/features/auth/domain/app_account.dart';
+import 'package:event_radio_app/src/shared/domain/app_exceptions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -119,7 +120,7 @@ class SupabaseAccountController extends AccountController {
       );
       if (!started) {
         state = const AsyncValue.error(
-          'No pudimos iniciar Google.',
+          AppAuthException(AuthErrorCode.googleSignInFailed),
           StackTrace.empty,
         );
       }
@@ -133,7 +134,7 @@ class SupabaseAccountController extends AccountController {
     final normalizedEmail = email.trim().toLowerCase();
     if (normalizedEmail.isEmpty) {
       state = const AsyncValue.error(
-        'Ingresa un email valido.',
+        AppAuthException(AuthErrorCode.invalidEmail),
         StackTrace.empty,
       );
       return;
@@ -176,7 +177,7 @@ class SupabaseAccountController extends AccountController {
     // un build de release salvo que DEMO este activado explicitamente.
     if (!EnvConfig.allowDemoShortcuts) {
       state = const AsyncValue.error(
-        'El acceso demo no esta disponible en esta version.',
+        AppAuthException(AuthErrorCode.demoUnavailable),
         StackTrace.empty,
       );
       return;

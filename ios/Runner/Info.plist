@@ -49,6 +49,14 @@
 				<string>eventradio</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>app.eventradio.invite</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>event-radio</string>
+			</array>
+		</dict>
 	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>

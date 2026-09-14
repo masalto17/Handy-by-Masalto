@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:event_radio_app/src/shared/domain/app_exceptions.dart';
 import 'package:event_radio_app/src/shared/domain/event_models.dart';
 import 'package:event_radio_app/src/shared/domain/event_radio_repository.dart';
 import 'package:event_radio_app/src/shared/domain/invite_code_parser.dart';
@@ -247,9 +248,7 @@ class MockEventRadioRepository implements EventRadioRepository {
       );
     }
 
-    throw const JoinEventException(
-      'Codigo no encontrado. Revisalo o pedile uno nuevo al coordinador.',
-    );
+    throw const JoinEventException(JoinErrorCode.codeNotFound);
   }
 
   @override
@@ -524,11 +523,15 @@ class MockEventRadioRepository implements EventRadioRepository {
     required EventChannel channel,
   }) {
     if (!session.event.isOperational(_now)) {
-      throw StateError('El evento no permite activar SOS.');
+      throw const EventOperationException(
+        EventOperationErrorCode.eventNotOperational,
+      );
     }
     final permission = session.permissionFor(channel.id);
     if (permission == null || !permission.canListen || !permission.canTalk) {
-      throw StateError('El permiso actual no permite activar SOS.');
+      throw const EventOperationException(
+        EventOperationErrorCode.insufficientPermission,
+      );
     }
   }
 

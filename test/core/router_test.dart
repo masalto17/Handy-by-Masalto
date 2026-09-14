@@ -80,6 +80,19 @@ void main() {
     });
   });
 
+  group('deep link redirect', () {
+    test('router has a top-level redirect configured', () {
+      expect(router.configuration.topRedirect, isNotNull);
+    });
+
+    test('invite URI has expected scheme and host', () {
+      final uri = Uri.parse('event-radio://join?code=ABC123');
+      expect(uri.scheme, 'event-radio');
+      expect(uri.host, 'join');
+      expect(uri.queryParameters['code'], 'ABC123');
+    });
+  });
+
   group('route names', () {
     List<String?> extractNames(List<RouteBase> routes) {
       final names = <String?>[];
