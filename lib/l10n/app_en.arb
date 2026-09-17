@@ -12,6 +12,20 @@
   "joinCreateEventButton": "Are you organizing? Create your event",
   "joinInviteCodeLabel": "Invite code",
   "joinOrScanQr": "or scan a QR code",
+  "pttQueuedForRetry": "No connection: the message is queued and will be sent on its own.",
+  "pttOutboxPending": "{count, plural, =1{1 message pending delivery} other{{count} messages pending delivery}}",
+  "@pttOutboxPending": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "pttOutboxFailed": "{count, plural, =1{1 message could not be saved} other{{count} messages could not be saved}}",
+  "@pttOutboxFailed": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "pttOutboxRetry": "Retry",
   "joinScanPrimary": "Scan event QR",
   "joinScanPrimaryHint": "Fastest way in. Point at the QR your coordinator shared.",
   "joinManualTitle": "Or type the code",

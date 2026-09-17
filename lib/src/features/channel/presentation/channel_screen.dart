@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:event_radio_app/l10n/app_localizations.dart';
 import 'package:event_radio_app/src/core/theme/app_theme.dart';
+import 'package:event_radio_app/src/features/channel/presentation/ptt_outbox_banner.dart';
 import 'package:event_radio_app/src/features/channel/presentation/push_to_talk_button.dart';
 import 'package:event_radio_app/src/shared/audio/audio_room_service.dart';
+import 'package:event_radio_app/src/shared/audio/ptt_outbox.dart';
 import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
 import 'package:event_radio_app/src/shared/data/session_realtime.dart';
 import 'package:event_radio_app/src/shared/domain/app_exceptions.dart';
@@ -205,6 +207,10 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
             );
           });
 
+          // Mantiene vivo el refresco de historial cuando la cola de reenvio
+          // logra entregar un mensaje que habia quedado pendiente.
+          ref.watch(pttOutboxSyncProvider);
+
           return ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             children: [
@@ -237,6 +243,7 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
                       ],
                       _ChannelPresenceBar(channelId: channel.id),
                       SizedBox(height: compactLayout ? 12 : 28),
+                      const PttOutboxBanner(),
                       PushToTalkButton(
                         session: session,
                         channels: targetChannels,
