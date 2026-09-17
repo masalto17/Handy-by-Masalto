@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:event_radio_app/l10n/app_localizations.dart';
 import 'package:event_radio_app/src/core/theme/app_theme.dart';
+import 'package:event_radio_app/src/features/channel/domain/sos_delivery.dart';
 import 'package:event_radio_app/src/features/channel/presentation/audio_mode_banner.dart';
 import 'package:event_radio_app/src/features/channel/presentation/microphone_permission_card.dart';
 import 'package:event_radio_app/src/features/channel/presentation/ptt_outbox_banner.dart';
@@ -146,8 +147,33 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
       ref.invalidate(eventLogsProvider(session.event.id));
       if (!mounted) return;
       final l10n = AppLocalizations.of(context);
+
+      // Decirle al operador a cuantos alcanzo, no solo que se guardo: un
+      // SOS a un canal vacio es justo lo que no puede pasar inadvertido.
+      final delivery = SosDelivery.evaluate(
+        mode: ref.read(audioModeProvider),
+        presence:
+            ref.read(audioRoomServiceProvider).state.forChannel(channel.id),
+      );
+      final (message, background) = switch (delivery.outcome) {
+        SosDeliveryOutcome.nobodyConnected => (
+            l10n.sosNobodyConnected(channel.name),
+            AppTheme.danger,
+          ),
+        SosDeliveryOutcome.reachedOthers => (
+            l10n.sosDeliveredTo(channel.name, delivery.otherParticipants),
+            null,
+          ),
+        SosDeliveryOutcome.recorded => (l10n.sosActivated(channel.name), null),
+      };
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.sosActivated(channel.name))),
+        SnackBar(
+          content: Text(message),
+          backgroundColor: background,
+          duration: delivery.outcome == SosDeliveryOutcome.nobodyConnected
+              ? const Duration(seconds: 8)
+              : const Duration(seconds: 4),
+        ),
       );
     } on EventOperationException catch (error) {
       if (!mounted) return;

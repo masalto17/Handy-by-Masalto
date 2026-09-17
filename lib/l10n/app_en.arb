@@ -12,7 +12,20 @@
   "joinCreateEventButton": "Are you organizing? Create your event",
   "joinInviteCodeLabel": "Invite code",
   "joinOrScanQr": "or scan a QR code",
-  "micPermissionTitle": "Microphone not authorized",
+  "sosDeliveredTo": "{count, plural, =1{SOS sent in {channel} — 1 operator connected} other{SOS sent in {channel} — {count} operators connected}}",
+  "@sosDeliveredTo": {
+    "placeholders": {
+      "channel": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "sosNobodyConnected": "SOS recorded in {channel}, but NOBODY is connected to this channel right now",
+  "@sosNobodyConnected": {
+    "placeholders": {
+      "channel": { "type": "String" }
+    }
+  },
+  "micPermissionTitle":"Microphone not authorized",
   "micPermissionDetail": "Grant it now so you do not have to deal with the system prompt when you need to talk.",
   "micPermissionBlockedDetail": "The permission was permanently denied. Enable the microphone from system settings so PTT can work.",
   "micPermissionGrant": "Allow microphone",
