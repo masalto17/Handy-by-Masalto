@@ -78,7 +78,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await _tapVisible(tester, find.text('Scan QR'));
+    await _tapVisible(tester, find.text('Scan event QR'));
     await tester.pumpAndSettle();
 
     expect(find.text('Point at the event QR'), findsOneWidget);

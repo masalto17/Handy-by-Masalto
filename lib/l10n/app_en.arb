@@ -12,6 +12,9 @@
   "joinCreateEventButton": "Are you organizing? Create your event",
   "joinInviteCodeLabel": "Invite code",
   "joinOrScanQr": "or scan a QR code",
+  "joinScanPrimary": "Scan event QR",
+  "joinScanPrimaryHint": "Fastest way in. Point at the QR your coordinator shared.",
+  "joinManualTitle": "Or type the code",
 
   "scanQr": "Scan QR",
   "scanQrTitle": "Point at the event QR",
@@ -253,6 +256,16 @@
   "createEventName": "Event name",
   "createEventDuration": "Duration (hours)",
   "createEventTemplate": "Template",
+  "createEventChannelsPreview": "Channels you will get",
+  "createEventProductionChannel": "Production",
+  "createEventDurationPreset": "{hours} h",
+  "@createEventDurationPreset": {
+    "placeholders": {
+      "hours": { "type": "int" }
+    }
+  },
+  "createEventDurationOther": "Other",
+  "createEventDurationCustomLabel": "Hours (1-24)",
   "createEventCancel": "Cancel",
   "createEventCreate": "Create",
   "createEventErrorName": "Enter your name.",

@@ -2,8 +2,14 @@ name: Build APK
 
 # Genera un APK de Android descargable desde la pestaña "Actions".
 # - Se dispara a mano (workflow_dispatch) o al publicar un tag v*.
-# - Sin secrets de firma, usa la firma de debug: instalable para probar,
-#   NO apto para Play Store (para eso, ver docs/RELEASE.md).
+# - Con los secrets de firma cargados (ANDROID_KEYSTORE_BASE64,
+#   ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD)
+#   el APK sale firmado con la clave de release: instalable, actualizable
+#   sobre instalaciones previas y apto para tiendas.
+# - Sin esos secrets cae a la firma de debug: sirve para probar, pero NO se
+#   puede actualizar encima ni subir a Play. Ver docs/RELEASE.md.
+# El paso "Verify APK signature" deja asentado en el resumen con que clave
+# quedo firmado cada build, para no tener que adivinarlo despues.
 #
 # Dos modos:
 # - demo (default en el boton): compila en MODO MOCK, sin backend. Sirve para
@@ -58,6 +64,30 @@ jobs:
             } > .env
           fi
 
+      - name: Configure release signing
+        id: signing
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -z "${KEYSTORE_BASE64}" ]; then
+            echo "Sin ANDROID_KEYSTORE_BASE64: el APK saldra firmado con debug."
+            echo "mode=debug" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # storeFile se resuelve relativo a android/ (rootProject en Gradle).
+          echo "${KEYSTORE_BASE64}" | base64 -d > android/upload-keystore.jks
+          cat > android/key.properties <<PROPS
+          storeFile=upload-keystore.jks
+          storePassword=${KEYSTORE_PASSWORD}
+          keyAlias=${KEY_ALIAS}
+          keyPassword=${KEY_PASSWORD}
+          PROPS
+          echo "Keystore de release configurado."
+          echo "mode=release" >> "$GITHUB_OUTPUT"
+
       - name: Install dependencies
         run: flutter pub get
 
@@ -76,6 +106,55 @@ jobs:
         run: |
           mkdir -p dist
           cp build/app/outputs/flutter-apk/app-release.apk dist/handy.apk
+
+      - name: Verify APK signature
+        env:
+          EXPECTED_MODE: ${{ steps.signing.outputs.mode }}
+        run: |
+          APKSIGNER="$(find "${ANDROID_HOME}/build-tools" -name apksigner 2>/dev/null | sort -V | tail -1)"
+          if [ -z "${APKSIGNER}" ]; then
+            # Falta la herramienta, no el APK: avisamos sin romper el build.
+            echo "::warning::apksigner no encontrado; no se pudo verificar la firma."
+            echo "### Firma del APK" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "No se pudo verificar (apksigner no disponible en el runner)." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          SIGNER_INFO="$("${APKSIGNER}" verify --print-certs dist/handy.apk)"
+          echo "${SIGNER_INFO}"
+
+          # La firma de debug de Android usa siempre este DN conocido.
+          if echo "${SIGNER_INFO}" | grep -q "CN=Android Debug"; then
+            ACTUAL_MODE=debug
+          else
+            ACTUAL_MODE=release
+          fi
+
+          echo "Firma esperada: ${EXPECTED_MODE} / obtenida: ${ACTUAL_MODE}"
+          {
+            echo "### Firma del APK"
+            echo ""
+            if [ "${ACTUAL_MODE}" = "release" ]; then
+              echo "APK firmado con la **clave de release**: actualizable e instalable sin advertencias."
+            else
+              echo "APK firmado con la **clave de debug**: sirve para probar, pero NO se puede"
+              echo "actualizar sobre una instalacion de release ni subir a Play."
+              echo ""
+              echo "Para firmar de verdad, cargar los secrets ANDROID_KEYSTORE_BASE64,"
+              echo "ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS y ANDROID_KEY_PASSWORD."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # Si habia keystore configurado, un APK con firma de debug es un fallo
+          # silencioso que no debe pasar desapercibido.
+          if [ "${EXPECTED_MODE}" = "release" ] && [ "${ACTUAL_MODE}" != "release" ]; then
+            echo "::error::Se configuro el keystore de release pero el APK quedo firmado con debug."
+            exit 1
+          fi
+
+      - name: Clean up signing material
+        if: always()
+        run: rm -f android/key.properties android/upload-keystore.jks
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4

@@ -30,4 +30,19 @@ class InviteCodeParser {
 
     return trimmed.toUpperCase();
   }
+
+  /// Normaliza un codigo tipeado a mano por el operador.
+  ///
+  /// La gente copia los codigos desde un papel, un chat o una credencial, y
+  /// los escribe con separadores ("SATI-26", "sati 26"). Esta funcion deja
+  /// solo caracteres alfanumericos en mayusculas para que esas variantes
+  /// ingresen igual.
+  ///
+  /// Deliberadamente NO corrige caracteres ambiguos (`0`/`O`, `1`/`I`): los
+  /// codigos generados por [InviteCodeGenerator] los excluyen, pero un admin
+  /// puede fijar un codigo manual que si los use, y adivinar cambiaria un
+  /// codigo valido por uno inexistente.
+  static String normalizeManualEntry(String value) {
+    return value.replaceAll(RegExp('[^a-zA-Z0-9]'), '').toUpperCase();
+  }
 }
