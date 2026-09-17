@@ -54,6 +54,47 @@ Sin `key.properties`, el build de release cae a la firma de debug para que
 `flutter run --release` siga funcionando en desarrollo. **Nunca subir a Play
 un build firmado con debug.**
 
+### 4. Firmar los APK que genera el CI
+
+El workflow **Build APK** firma con la clave de release si encuentra estos
+cuatro secrets del repo (Settings → Secrets and variables → Actions):
+
+| Secret | Contenido |
+|---|---|
+| `ANDROID_KEYSTORE_BASE64` | El `.jks` completo, codificado en base64 |
+| `ANDROID_KEYSTORE_PASSWORD` | La `storePassword` del keystore |
+| `ANDROID_KEY_ALIAS` | El alias (`upload` si se siguió el paso 1) |
+| `ANDROID_KEY_PASSWORD` | La `keyPassword` de esa clave |
+
+Para obtener el valor de `ANDROID_KEYSTORE_BASE64`:
+
+```sh
+base64 -w0 ~/upload-keystore.jks     # Linux
+base64 -i ~/upload-keystore.jks      # macOS
+```
+
+Copiar la salida completa (una sola línea) y pegarla como valor del secret.
+
+Cada corrida deja en su **Summary** con qué clave quedó firmado el APK. Si los
+secrets están cargados pero el APK sale con firma de debug, el workflow falla
+en lugar de publicar un artefacto engañoso.
+
+### Por qué importa firmar desde el principio
+
+La firma es la identidad de la app para Android. Android solo permite
+actualizar una app instalada si el APK nuevo está firmado con **la misma**
+clave. Consecuencias prácticas:
+
+- Si hoy distribuís APK firmados con debug y mañana cambiás a release, **todos
+  los operadores tienen que desinstalar y reinstalar**, perdiendo sesión.
+- Si perdés el keystore, no podés volver a actualizar esa app nunca más: hay
+  que publicar una app nueva con otro `applicationId`.
+
+Por eso: **guardá `upload-keystore.jks` y sus contraseñas en un gestor de
+contraseñas o caja fuerte, con al menos una copia fuera de la máquina donde
+se generó.** No va al repositorio (`.gitignore` ya bloquea `*.jks`,
+`*.keystore` y `android/key.properties`).
+
 ### Red
 
 Release solo permite HTTPS (`network_security_config.xml`). El HTTP en claro
