@@ -19,8 +19,33 @@ final audioRoomServiceProvider = Provider<AudioRoomService>((ref) {
   return service;
 });
 
-/// Presencia de un canal conectado: cuanta gente hay en la sala y quien
-/// esta hablando ahora.
+/// Calidad del enlace de este dispositivo con la sala.
+///
+/// Enum propio en vez del de LiveKit para que el dominio y los tests no
+/// dependan del SDK.
+enum ChannelLinkQuality {
+  /// Todavia no hay medicion (recien conectado o sala mock).
+  unknown,
+
+  /// El enlace se perdio: lo que se hable ahora probablemente no llegue.
+  lost,
+
+  /// Enlace degradado: puede haber cortes y audio entrecortado.
+  poor,
+
+  /// Enlace utilizable.
+  good,
+
+  /// Enlace optimo.
+  excellent;
+
+  /// `true` si conviene avisarle al operador antes de que hable.
+  bool get needsWarning =>
+      this == ChannelLinkQuality.lost || this == ChannelLinkQuality.poor;
+}
+
+/// Presencia de un canal conectado: cuanta gente hay en la sala, quien
+/// esta hablando ahora y que tan bueno es el enlace.
 class ChannelPresence {
   const ChannelPresence({
     required this.channelId,
@@ -29,6 +54,7 @@ class ChannelPresence {
     required this.isConnected,
     required this.participantCount,
     required this.speakingNames,
+    this.linkQuality = ChannelLinkQuality.unknown,
   });
 
   final String channelId;
@@ -39,6 +65,9 @@ class ChannelPresence {
   /// Participantes en la sala, incluyendo este dispositivo.
   final int participantCount;
   final List<String> speakingNames;
+
+  /// Calidad del enlace de este dispositivo con la sala.
+  final ChannelLinkQuality linkQuality;
 
   /// `true` si al menos un participante esta hablando en este canal.
   bool get someoneSpeaking => speakingNames.isNotEmpty;
@@ -272,6 +301,7 @@ class _RoomSession {
 
   EventChannel get channel => target.channel;
   List<String> speakingNames = const [];
+  ChannelLinkQuality linkQuality = ChannelLinkQuality.unknown;
   int reconnectAttempts = 0;
 
   Future<void> close() async {
@@ -488,8 +518,16 @@ class LiveKitAudioRoomService implements AudioRoomService {
         _applyEmergencyDucking();
         _recomputeState();
       })
+      ..on<livekit.ParticipantConnectionQualityUpdatedEvent>((event) {
+        // Solo interesa el enlace de este dispositivo: es el que determina
+        // si lo que el operador diga va a llegar.
+        if (event.participant is! livekit.LocalParticipant) return;
+        roomSession.linkQuality = _mapLinkQuality(event.connectionQuality);
+        _recomputeState();
+      })
       ..on<livekit.RoomDisconnectedEvent>((_) {
         roomSession.speakingNames = const [];
+        roomSession.linkQuality = ChannelLinkQuality.lost;
         _recomputeState();
         final roomName = roomSession.target.roomName;
         if (!_isDisposed && !_intentionalDisconnects.contains(roomName)) {
@@ -566,6 +604,22 @@ class LiveKitAudioRoomService implements AudioRoomService {
     }
   }
 
+  /// Traduce la calidad reportada por LiveKit al enum del dominio.
+  static ChannelLinkQuality _mapLinkQuality(livekit.ConnectionQuality quality) {
+    switch (quality) {
+      case livekit.ConnectionQuality.excellent:
+        return ChannelLinkQuality.excellent;
+      case livekit.ConnectionQuality.good:
+        return ChannelLinkQuality.good;
+      case livekit.ConnectionQuality.poor:
+        return ChannelLinkQuality.poor;
+      case livekit.ConnectionQuality.lost:
+        return ChannelLinkQuality.lost;
+      case livekit.ConnectionQuality.unknown:
+        return ChannelLinkQuality.unknown;
+    }
+  }
+
   void _recomputeState() {
     if (_isDisposed) return;
     final presences = <String, ChannelPresence>{};
@@ -580,6 +634,10 @@ class LiveKitAudioRoomService implements AudioRoomService {
         isConnected: isConnected,
         participantCount: isConnected ? room.remoteParticipants.length + 1 : 0,
         speakingNames: roomSession.speakingNames,
+        // Una sala desconectada es un enlace perdido, sin importar cual haya
+        // sido la ultima medicion de calidad recibida.
+        linkQuality:
+            isConnected ? roomSession.linkQuality : ChannelLinkQuality.lost,
       );
     }
     _state = AudioRoomState(byChannelId: presences);

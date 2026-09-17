@@ -12,7 +12,9 @@
   "joinCreateEventButton": "Are you organizing? Create your event",
   "joinInviteCodeLabel": "Invite code",
   "joinOrScanQr": "or scan a QR code",
-  "pttQueuedForRetry": "No connection: the message is queued and will be sent on its own.",
+  "channelLinkLost": "No connection — what you say will not go out",
+  "channelLinkPoor": "Weak signal — audio may break up",
+  "pttQueuedForRetry":"No connection: the message is queued and will be sent on its own.",
   "pttOutboxPending": "{count, plural, =1{1 message pending delivery} other{{count} messages pending delivery}}",
   "@pttOutboxPending": {
     "placeholders": {

@@ -29,6 +29,44 @@ void main() {
     });
   });
 
+  group('ChannelLinkQuality', () {
+    test('needsWarning only for lost and poor links', () {
+      // Son los dos casos en que hablar puede no llegar a destino: la UI
+      // tiene que avisar antes de que el operador apriete el boton.
+      expect(ChannelLinkQuality.lost.needsWarning, isTrue);
+      expect(ChannelLinkQuality.poor.needsWarning, isTrue);
+      expect(ChannelLinkQuality.good.needsWarning, isFalse);
+      expect(ChannelLinkQuality.excellent.needsWarning, isFalse);
+      // Sin medicion no se alarma al operador sin motivo.
+      expect(ChannelLinkQuality.unknown.needsWarning, isFalse);
+    });
+
+    test('presence defaults to unknown quality', () {
+      const presence = ChannelPresence(
+        channelId: 'ch-1',
+        channelName: 'Seguridad',
+        isEmergency: false,
+        isConnected: true,
+        participantCount: 2,
+        speakingNames: [],
+      );
+      expect(presence.linkQuality, ChannelLinkQuality.unknown);
+    });
+
+    test('presence carries the reported quality', () {
+      const presence = ChannelPresence(
+        channelId: 'ch-1',
+        channelName: 'Seguridad',
+        isEmergency: false,
+        isConnected: true,
+        participantCount: 2,
+        speakingNames: [],
+        linkQuality: ChannelLinkQuality.poor,
+      );
+      expect(presence.linkQuality.needsWarning, isTrue);
+    });
+  });
+
   group('AudioRoomState', () {
     test('empty state has no channels', () {
       expect(AudioRoomState.empty.byChannelId, isEmpty);
