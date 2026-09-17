@@ -231,16 +231,18 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
                           },
                         ),
                       ],
-                      if (!compactLayout) ...[
-                        const SizedBox(height: 16),
-                        _AudioConnectionStatus(
-                          isPreparing: _isPreparingAudio,
-                          isReady: _audioReady,
-                          error: _audioError,
-                          canListen: canListen,
-                          canOperate: canOperate,
-                        ),
-                      ],
+                      // Siempre visible, tambien en telefono: saber si el
+                      // enlace esta bien ANTES de hablar es justamente lo
+                      // que evita hablarle a nadie.
+                      SizedBox(height: compactLayout ? 10 : 16),
+                      _AudioConnectionStatus(
+                        isPreparing: _isPreparingAudio,
+                        isReady: _audioReady,
+                        error: _audioError,
+                        canListen: canListen,
+                        canOperate: canOperate,
+                        channelId: channel.id,
+                      ),
                       _ChannelPresenceBar(channelId: channel.id),
                       SizedBox(height: compactLayout ? 12 : 28),
                       const PttOutboxBanner(),
@@ -401,13 +403,14 @@ class _BroadcastTargetSelector extends StatelessWidget {
   }
 }
 
-class _AudioConnectionStatus extends StatelessWidget {
+class _AudioConnectionStatus extends ConsumerWidget {
   const _AudioConnectionStatus({
     required this.isPreparing,
     required this.isReady,
     required this.error,
     required this.canListen,
     required this.canOperate,
+    required this.channelId,
   });
 
   final bool isPreparing;
@@ -415,9 +418,22 @@ class _AudioConnectionStatus extends StatelessWidget {
   final String? error;
   final bool canListen;
   final bool canOperate;
+  final String channelId;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final audioService = ref.watch(audioRoomServiceProvider);
+    return StreamBuilder<AudioRoomState>(
+      stream: audioService.stateChanges,
+      initialData: audioService.state,
+      builder: (context, snapshot) {
+        final quality = snapshot.data?.forChannel(channelId)?.linkQuality;
+        return _buildStatus(context, quality);
+      },
+    );
+  }
+
+  Widget _buildStatus(BuildContext context, ChannelLinkQuality? quality) {
     late final IconData icon;
     late final Color color;
     late final String label;
@@ -439,6 +455,16 @@ class _AudioConnectionStatus extends StatelessWidget {
       icon = Icons.error_outline;
       color = AppTheme.danger;
       label = error!;
+    } else if (isReady && quality == ChannelLinkQuality.lost) {
+      // Conectados en papel pero sin enlace util: hablar ahora es hablarle
+      // a nadie, y es justo lo que el operador necesita saber antes.
+      icon = Icons.signal_cellular_connected_no_internet_0_bar;
+      color = AppTheme.danger;
+      label = l10n.channelLinkLost;
+    } else if (isReady && quality == ChannelLinkQuality.poor) {
+      icon = Icons.network_check;
+      color = AppTheme.warning;
+      label = l10n.channelLinkPoor;
     } else if (isReady) {
       icon = Icons.hearing_outlined;
       color = AppTheme.success;

@@ -169,7 +169,7 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.scrollUntilVisible(find.text('SOS'), 250);
-    await tester.tap(find.text('SOS'));
+    await _tapVisible(tester, find.text('SOS'));
     await tester.pumpAndSettle();
 
     expect(
