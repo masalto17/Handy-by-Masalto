@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:event_radio_app/l10n/app_localizations.dart';
 import 'package:event_radio_app/src/core/theme/app_theme.dart';
+import 'package:event_radio_app/src/features/channel/presentation/audio_mode_banner.dart';
 import 'package:event_radio_app/src/features/channel/presentation/ptt_outbox_banner.dart';
 import 'package:event_radio_app/src/features/channel/presentation/push_to_talk_button.dart';
 import 'package:event_radio_app/src/shared/audio/audio_room_service.dart';
@@ -245,6 +246,7 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
                       ),
                       _ChannelPresenceBar(channelId: channel.id),
                       SizedBox(height: compactLayout ? 12 : 28),
+                      const AudioModeBanner(),
                       const PttOutboxBanner(),
                       PushToTalkButton(
                         session: session,
@@ -422,6 +424,11 @@ class _AudioConnectionStatus extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Sin audio real no tiene sentido reportar calidad de enlace: el
+    // AudioModeBanner ya explica que el PTT no transmite.
+    if (!ref.watch(audioModeProvider).transmits) {
+      return const SizedBox.shrink();
+    }
     final audioService = ref.watch(audioRoomServiceProvider);
     return StreamBuilder<AudioRoomState>(
       stream: audioService.stateChanges,

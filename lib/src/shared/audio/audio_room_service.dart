@@ -7,6 +7,32 @@ import 'package:livekit_client/livekit_client.dart' as livekit;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+/// Que tan real es el audio que puede producir esta instalacion.
+enum AudioMode {
+  /// LiveKit configurado: el PTT transmite de verdad.
+  live,
+
+  /// Build de demo sin LiveKit: el PTT se simula, y esta bien que asi sea.
+  simulated,
+
+  /// Build real SIN LiveKit configurado: el PTT **no transmite nada**.
+  ///
+  /// Es el caso peligroso: sin aviso, el operador ve el boton en estado
+  /// "transmitiendo", habla, y del otro lado no lo escucha nadie.
+  unavailable;
+
+  /// `true` si lo que se hable por PTT llega a otros participantes.
+  bool get transmits => this == AudioMode.live;
+}
+
+/// Modo de audio efectivo de esta instalacion.
+final audioModeProvider = Provider<AudioMode>((ref) {
+  if (EnvConfig.hasLiveKitConfig) return AudioMode.live;
+  return EnvConfig.allowDemoShortcuts
+      ? AudioMode.simulated
+      : AudioMode.unavailable;
+});
+
 final audioRoomServiceProvider = Provider<AudioRoomService>((ref) {
   final service = EnvConfig.hasLiveKitConfig
       ? LiveKitAudioRoomService(

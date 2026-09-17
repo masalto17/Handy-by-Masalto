@@ -48,6 +48,9 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.demo_mode }}" = "true" ]; then
             echo "Build DEMO (mock): usando .env.example"
             cp .env.example .env
+            echo "### Audio del APK" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "Build **demo**: el PTT se simula, no transmite." >> "$GITHUB_STEP_SUMMARY"
           else
             echo "Build REAL: escribiendo .env desde secrets"
             {
@@ -62,6 +65,19 @@ jobs:
                 echo "LIVEKIT_URL="
               fi
             } > .env
+            # Sin LIVEKIT_URL la app cae al servicio mock y el PTT no
+            # transmite. Dejarlo asentado evita entregar un APK "real" que
+            # en la practica no sirve como radio.
+            echo "### Audio del APK" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            if [ -n "${LIVEKIT_URL}" ]; then
+              echo "Audio en vivo **habilitado**: el PTT transmite." >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "⚠️ **Sin audio en vivo**: falta el secret \`LIVEKIT_URL\`, asi que" >> "$GITHUB_STEP_SUMMARY"
+              echo "este APK **no transmite** por PTT. El historial, la bitacora y el" >> "$GITHUB_STEP_SUMMARY"
+              echo "SOS funcionan igual." >> "$GITHUB_STEP_SUMMARY"
+              echo "::warning::APK real sin LIVEKIT_URL: el PTT no transmite."
+            fi
           fi
 
       - name: Configure release signing
