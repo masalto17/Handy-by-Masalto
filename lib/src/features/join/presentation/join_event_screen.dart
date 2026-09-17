@@ -7,8 +7,10 @@ import 'package:event_radio_app/src/features/join/presentation/create_event_dial
 import 'package:event_radio_app/src/features/join/presentation/how_it_works_sheet.dart';
 import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
 import 'package:event_radio_app/src/shared/domain/event_radio_repository.dart';
+import 'package:event_radio_app/src/shared/domain/invite_code_parser.dart';
 import 'package:event_radio_app/src/shared/presentation/app_scaffold.dart';
 import 'package:event_radio_app/src/shared/presentation/error_localizer.dart';
+import 'package:event_radio_app/src/shared/presentation/upper_case_text_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -66,8 +68,14 @@ class _JoinEventScreenState extends ConsumerState<JoinEventScreen> {
     }
   }
 
-  Future<void> _joinWithCode(String code) async {
+  Future<void> _joinWithCode(String rawCode) async {
     setState(() => _error = null);
+    // Tolera codigos copiados con espacios o guiones ("SATI-26", "sati 26").
+    final code = InviteCodeParser.normalizeManualEntry(rawCode);
+    if (code.isEmpty) {
+      setState(() => _error = AppLocalizations.of(context).scanQrEmptyCode);
+      return;
+    }
     try {
       final session =
           await ref.read(currentSessionProvider.notifier).joinByCode(code);
@@ -130,19 +138,20 @@ class _JoinEventScreenState extends ConsumerState<JoinEventScreen> {
                     const SizedBox(height: 18),
                     const AccountIdentityCard(),
                     const SizedBox(height: 16),
+                    // Camino principal: escanear. Es el que menos errores de
+                    // tipeo genera cuando el operador esta apurado o con poca
+                    // luz, asi que va primero y con mayor jerarquia visual.
+                    _ScanPrimaryPanel(
+                      onScan: isLoading ? null : () => context.push('/scan'),
+                    ),
+                    const SizedBox(height: 18),
+                    const _QrDivider(),
+                    const SizedBox(height: 14),
                     _InviteCodePanel(
                       controller: _codeController,
                       error: _error,
                       isLoading: isLoading,
                       onSubmitted: isLoading ? null : _join,
-                    ),
-                    const SizedBox(height: 18),
-                    const _QrDivider(),
-                    const SizedBox(height: 14),
-                    OutlinedButton.icon(
-                      onPressed: () => context.push('/scan'),
-                      icon: const Icon(Icons.qr_code_scanner),
-                      label: Text(AppLocalizations.of(context).scanQr),
                     ),
                     const SizedBox(height: 4),
                     TextButton.icon(
@@ -185,6 +194,51 @@ class _JoinEventScreenState extends ConsumerState<JoinEventScreen> {
   }
 }
 
+/// Camino principal de ingreso: escanear el QR del evento.
+///
+/// Se presenta como panel destacado (no como boton secundario) porque es la
+/// via con menor margen de error humano: no hay codigo que leer mal ni
+/// tipear en condiciones de ruido, apuro o poca luz.
+class _ScanPrimaryPanel extends StatelessWidget {
+  const _ScanPrimaryPanel({required this.onScan});
+
+  final VoidCallback? onScan;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return DecoratedBox(
+      decoration: AppTheme.panelDecoration(glow: true),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ElevatedButton.icon(
+              onPressed: onScan,
+              icon: const Icon(Icons.qr_code_scanner),
+              label: Text(l10n.joinScanPrimary),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              l10n.joinScanPrimaryHint,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: AppTheme.textTertiary,
+                fontSize: 12,
+                height: 1.3,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _QrDivider extends StatelessWidget {
   const _QrDivider();
 
@@ -196,7 +250,7 @@ class _QrDivider extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Text(
-            AppLocalizations.of(context).joinOrScanQr,
+            AppLocalizations.of(context).joinManualTitle,
             style: const TextStyle(color: AppTheme.textTertiary, fontSize: 12),
           ),
         ),
@@ -284,7 +338,7 @@ class _InviteCodePanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: AppTheme.panelDecoration(glow: true),
+      decoration: AppTheme.panelDecoration(),
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
@@ -301,6 +355,9 @@ class _InviteCodePanel extends StatelessWidget {
               controller: controller,
               textCapitalization: TextCapitalization.characters,
               textAlign: TextAlign.left,
+              // Mayusculas en vivo: lo que el operador ve coincide con lo que
+              // se envia, sin sorpresas al validar.
+              inputFormatters: const [UpperCaseTextFormatter()],
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
               decoration: InputDecoration(
                 hintText: 'SATI26',
@@ -314,7 +371,7 @@ class _InviteCodePanel extends StatelessWidget {
               onSubmitted: (_) => onSubmitted?.call(),
             ),
             const SizedBox(height: 14),
-            ElevatedButton.icon(
+            OutlinedButton.icon(
               onPressed: onSubmitted,
               icon: isLoading
                   ? const SizedBox.square(
