@@ -7,6 +7,7 @@ import 'package:event_radio_app/src/features/channel/domain/ptt_state.dart';
 import 'package:event_radio_app/src/shared/audio/audio_room_service.dart';
 import 'package:event_radio_app/src/shared/audio/live_speech_transcriber.dart';
 import 'package:event_radio_app/src/shared/audio/ptt_audio_recorder.dart';
+import 'package:event_radio_app/src/shared/audio/ptt_outbox.dart';
 import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
 import 'package:event_radio_app/src/shared/domain/event_models.dart';
 import 'package:event_radio_app/src/shared/presentation/error_localizer.dart';
@@ -130,20 +131,27 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
       elapsedSeconds: normalizedDuration,
     ));
 
+    // Cortar la sala, grabacion y transcripcion pase lo que pase: si algo de
+    // esto falla igual queremos conservar lo que se haya capturado.
     try {
       await ref.read(audioRoomServiceProvider).stopPushToTalk();
-      RecordedPttAudio? recordedAudio;
-      try {
-        recordedAudio = await _recorder.stop();
-      } catch (_) {
-        recordedAudio = null;
-      }
-      String? browserTranscript;
-      try {
-        browserTranscript = await _transcriber.stop();
-      } catch (_) {
-        browserTranscript = null;
-      }
+    } catch (_) {
+      // Cerrar la sala fallo, pero lo grabado sigue siendo recuperable.
+    }
+    RecordedPttAudio? recordedAudio;
+    try {
+      recordedAudio = await _recorder.stop();
+    } catch (_) {
+      recordedAudio = null;
+    }
+    String? browserTranscript;
+    try {
+      browserTranscript = await _transcriber.stop();
+    } catch (_) {
+      browserTranscript = null;
+    }
+
+    try {
       final sentMessages =
           await ref.read(eventRadioRepositoryProvider).sendPttMessage(
                 session: widget.session,
@@ -178,9 +186,19 @@ class _PushToTalkButtonState extends ConsumerState<PushToTalkButton> {
         ),
       );
     } catch (_) {
+      // El audio ya salio en vivo y la grabacion local es la unica copia:
+      // encolarla para reintentar en vez de descartarla.
+      ref.read(pttOutboxProvider.notifier).enqueue(
+            session: widget.session,
+            channels: widget.channels,
+            durationSeconds: normalizedDuration,
+            audioBytes: recordedAudio?.bytes,
+            audioMimeType: recordedAudio?.mimeType,
+            browserTranscriptionText: browserTranscript,
+          );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context).pttSaveError)),
+        SnackBar(content: Text(AppLocalizations.of(context).pttQueuedForRetry)),
       );
     } finally {
       _startedAt = null;
