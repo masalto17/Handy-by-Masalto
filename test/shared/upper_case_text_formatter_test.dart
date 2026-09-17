@@ -25,9 +25,9 @@ void main() {
   });
 
   test('leaves already uppercase input untouched', () {
-    final value = TextEditingValue(
+    const value = TextEditingValue(
       text: 'SATI26',
-      selection: const TextSelection.collapsed(offset: 6),
+      selection: TextSelection.collapsed(offset: 6),
     );
     final result = formatter.formatEditUpdate(
       const TextEditingValue(text: 'SATI2'),
