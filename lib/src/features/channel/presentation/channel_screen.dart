@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:event_radio_app/l10n/app_localizations.dart';
 import 'package:event_radio_app/src/core/theme/app_theme.dart';
 import 'package:event_radio_app/src/features/channel/presentation/audio_mode_banner.dart';
+import 'package:event_radio_app/src/features/channel/presentation/microphone_permission_card.dart';
 import 'package:event_radio_app/src/features/channel/presentation/ptt_outbox_banner.dart';
 import 'package:event_radio_app/src/features/channel/presentation/push_to_talk_button.dart';
 import 'package:event_radio_app/src/shared/audio/audio_room_service.dart';
+import 'package:event_radio_app/src/shared/audio/microphone_readiness.dart';
 import 'package:event_radio_app/src/shared/audio/ptt_outbox.dart';
 import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
 import 'package:event_radio_app/src/shared/data/session_realtime.dart';
@@ -101,6 +103,9 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
     if (!canOperate || !canListen || _preparedChannelId == channel.id) return;
 
     _preparedChannelId = channel.id;
+    // Consultar (no pedir) el permiso de microfono al entrar, para que un
+    // permiso faltante se resuelva ahora y no en medio de una emergencia.
+    unawaited(ref.read(microphoneReadinessProvider.notifier).refresh());
     setState(() {
       _isPreparingAudio = true;
       _audioReady = false;
@@ -247,6 +252,7 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
                       _ChannelPresenceBar(channelId: channel.id),
                       SizedBox(height: compactLayout ? 12 : 28),
                       const AudioModeBanner(),
+                      const MicrophonePermissionCard(),
                       const PttOutboxBanner(),
                       PushToTalkButton(
                         session: session,
