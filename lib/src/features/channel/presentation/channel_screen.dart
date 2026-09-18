@@ -6,6 +6,7 @@ import 'package:event_radio_app/src/features/channel/domain/sos_delivery.dart';
 import 'package:event_radio_app/src/features/channel/presentation/audio_mode_banner.dart';
 import 'package:event_radio_app/src/features/channel/presentation/microphone_permission_card.dart';
 import 'package:event_radio_app/src/features/channel/presentation/ptt_outbox_banner.dart';
+import 'package:event_radio_app/src/features/channel/presentation/sos_hold_button.dart';
 import 'package:event_radio_app/src/features/channel/presentation/push_to_talk_button.dart';
 import 'package:event_radio_app/src/shared/audio/audio_room_service.dart';
 import 'package:event_radio_app/src/shared/audio/microphone_readiness.dart';
@@ -243,7 +244,51 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
           // logra entregar un mensaje que habia quedado pendiente.
           ref.watch(pttOutboxSyncProvider);
 
-          return ListView(
+          return Column(
+            children: [
+              Expanded(
+                child: _channelBody(
+                  context: context,
+                  session: session,
+                  channel: channel,
+                  l10n: l10n,
+                  canOperate: canOperate,
+                  canListen: canListen,
+                  canBroadcast: canBroadcast,
+                  canTalk: canTalk,
+                  targetChannels: targetChannels,
+                  destinationLabel: destinationLabel,
+                  compactLayout: compactLayout,
+                ),
+              ),
+              // Anclado fuera del scroll: pedir auxilio no puede depender de
+              // encontrar el boton scrolleando.
+              SosHoldButton(
+                enabled: canSendSos,
+                isSending: _isSendingSos,
+                onActivate: () => _sendSos(session: session, channel: channel),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _channelBody({
+    required BuildContext context,
+    required EventSession session,
+    required EventChannel channel,
+    required AppLocalizations l10n,
+    required bool canOperate,
+    required bool canListen,
+    required bool canBroadcast,
+    required bool canTalk,
+    required List<EventChannel> targetChannels,
+    required String destinationLabel,
+    required bool compactLayout,
+  }) {
+    return ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             children: [
               Center(
@@ -287,6 +332,8 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
                         canTalk: canTalk,
                       ),
                       SizedBox(height: compactLayout ? 12 : 24),
+                      // El SOS ya no vive aca: quedo anclado al pie de la
+                      // pantalla para no depender del scroll.
                       Row(
                         children: [
                           Expanded(
@@ -295,43 +342,6 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
                                   context.push('/history/${channel.id}'),
                               icon: const Icon(Icons.history),
                               label: Text(l10n.history),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Semantics(
-                              button: true,
-                              enabled: canSendSos && !_isSendingSos,
-                              label: _isSendingSos
-                                  ? l10n.a11ySosButtonSending
-                                  : l10n.a11ySosEmergency,
-                              child: OutlinedButton.icon(
-                                onPressed: canSendSos && !_isSendingSos
-                                    ? () => _sendSos(
-                                          session: session,
-                                          channel: channel,
-                                        )
-                                    : null,
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: Colors.white,
-                                  backgroundColor: AppTheme.danger.withValues(
-                                    alpha: 0.92,
-                                  ),
-                                  side:
-                                      const BorderSide(color: AppTheme.danger),
-                                ),
-                                icon: _isSendingSos
-                                    ? const SizedBox.square(
-                                        dimension: 18,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                        ),
-                                      )
-                                    : const Icon(Icons.warning_amber_rounded),
-                                label: Text(
-                                  canSendSos ? l10n.sosLabel : l10n.sosBlocked,
-                                ),
-                              ),
                             ),
                           ),
                         ],
@@ -344,9 +354,6 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
               ),
             ],
           );
-        },
-      ),
-    );
   }
 }
 

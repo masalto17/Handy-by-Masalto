@@ -12,7 +12,8 @@
   "joinCreateEventButton": "Are you organizing? Create your event",
   "joinInviteCodeLabel": "Invite code",
   "joinOrScanQr": "or scan a QR code",
-  "sosDeliveredTo": "{count, plural, =1{SOS sent in {channel} — 1 operator connected} other{SOS sent in {channel} — {count} operators connected}}",
+  "sosHoldLabel": "SOS — hold",
+  "sosDeliveredTo":"{count, plural, =1{SOS sent in {channel} — 1 operator connected} other{SOS sent in {channel} — {count} operators connected}}",
   "@sosDeliveredTo": {
     "placeholders": {
       "channel": { "type": "String" },

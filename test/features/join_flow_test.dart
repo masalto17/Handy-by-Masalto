@@ -1,6 +1,7 @@
 import 'package:event_radio_app/src/app/event_radio_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:event_radio_app/src/features/channel/presentation/sos_hold_button.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -168,8 +169,9 @@ void main() {
     await tester.tap(find.text('Seguridad interna'));
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(find.text('SOS'), 250);
-    await _tapVisible(tester, find.text('SOS'));
+    // El SOS quedo anclado al pie (no hace falta scrollear) y se dispara
+    // manteniendolo presionado, no con un toque.
+    await _holdSos(tester);
     await tester.pumpAndSettle();
 
     expect(
@@ -301,6 +303,25 @@ void main() {
 
     expect(find.textContaining('Status: active'), findsOneWidget);
   });
+}
+
+/// Mantiene presionado el boton de emergencia hasta que se dispara.
+///
+/// El SOS exige sostener ~1.2s a proposito: esta siempre visible bajo el
+/// pulgar y un toque accidental no puede disparar una emergencia.
+Future<void> _holdSos(WidgetTester tester) async {
+  final sos = find.byType(SosHoldButton);
+  expect(sos, findsOneWidget, reason: 'el SOS debe estar visible sin scroll');
+
+  final gesture = await tester.startGesture(tester.getCenter(sos));
+  // Dos pumps: el primero deja correr el press timeout del GestureDetector
+  // (onTapDown, que arranca la cuenta), el segundo completa el sostenido.
+  // Con un solo pump grande la animacion arrancaba despues de consumir todo
+  // el tiempo y el SOS no llegaba a dispararse.
+  await tester.pump(const Duration(milliseconds: 150));
+  await tester.pump(const Duration(milliseconds: 1400));
+  await gesture.up();
+  await tester.pumpAndSettle();
 }
 
 Future<void> _tapVisible(WidgetTester tester, Finder finder) async {
