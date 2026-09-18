@@ -2,10 +2,18 @@
   "buildCommand": "bash scripts/vercel-build.sh",
   "installCommand": "echo \"sin dependencias npm: las instala scripts/vercel-build.sh\"",
   "outputDirectory": "build/web",
+  "_comment_git": [
+    "Los deploys los hace GitHub Actions (deploy-web.yml), que compila con",
+    "los secrets del repo. La integracion Git de Vercel queda apagada por",
+    "completo: no tiene esos valores y publicaba previews que arrancaban en",
+    "'Configuracion de Supabase ausente', con una URL que parecia valida.",
+    "Un preview roto confunde mas de lo que aporta.",
+    "Para recuperar previews: cargar SUPABASE_URL, SUPABASE_ANON_KEY y",
+    "LIVEKIT_URL en Vercel -> Settings -> Environment Variables (Preview) y",
+    "volver a poner deploymentEnabled en { \"main\": false }."
+  ],
   "git": {
-    "deploymentEnabled": {
-      "main": false
-    }
+    "deploymentEnabled": false
   },
   "rewrites": [
     {

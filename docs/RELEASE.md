@@ -123,6 +123,37 @@ Requiere un unico secret nuevo en el repo:
 - `VERCEL_TOKEN`: crear en https://vercel.com/account/tokens y cargarlo en
   Settings → Secrets and variables → Actions.
 
+### Una sola ruta de deploy (y por que)
+
+Vercel puede publicar de dos formas distintas, y **solo una esta activa**:
+
+| Ruta | Estado | De donde saca la config |
+|---|---|---|
+| GitHub Actions (`deploy-web.yml`) | **Activa** | Secrets del repo |
+| Integracion Git de Vercel (`scripts/vercel-build.sh`) | **Apagada** | Env vars del proyecto Vercel |
+
+La integracion Git esta apagada en `vercel.json` (`git.deploymentEnabled:
+false`) porque el proyecto Vercel no tiene cargadas `SUPABASE_URL` ni
+`SUPABASE_ANON_KEY`: publicaba previews que arrancaban en "Configuracion de
+Supabase ausente", en URLs que parecian validas. Un preview roto confunde
+mas de lo que aporta.
+
+Para recuperar los previews por PR: cargar `SUPABASE_URL`,
+`SUPABASE_ANON_KEY` y `LIVEKIT_URL` en Vercel → Settings → Environment
+Variables (entorno Preview) y volver `deploymentEnabled` a `{ "main": false }`.
+El build avisa en su log si falta alguna, asi que se nota enseguida.
+
+### El `.env` de la web es publico
+
+`flutter_dotenv` empaqueta el `.env` como asset, de modo que queda servido en
+`/assets/.env` y **cualquiera puede leerlo**. Eso esta bien para los valores
+que ya son publicos por diseno (la URL de Supabase y la clave
+`sb_publishable_`/anon, que se protegen con RLS, y la URL de LiveKit).
+
+**Nunca** poner ahi una `service_role` key, un secret de LiveKit ni ninguna
+credencial que no pueda ser publica: en web no hay forma de ocultarla. Esos
+valores van como secrets de las Edge Functions de Supabase.
+
 Usa los mismos secrets del backend real (`SUPABASE_URL`, `SUPABASE_ANON_KEY`,
 `LIVEKIT_URL`) que el Build APK. La URL publica queda en el resumen de la
 corrida (Actions → la corrida → "Summary").
