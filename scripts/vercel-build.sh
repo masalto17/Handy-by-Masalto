@@ -29,6 +29,50 @@ flutter --version
 # En un preview no hay dominio fijo: VERCEL_URL trae el host de este deploy.
 default_redirect="https://${VERCEL_URL:-localhost}/"
 
+# Sin SUPABASE_URL/SUPABASE_ANON_KEY el build igual compila, pero la app
+# arranca en la pantalla de error de configuracion en vez de la de ingreso.
+# Antes eso solo se descubria abriendo el preview y viendo el error: aca
+# queda asentado en el log de build, junto con como arreglarlo.
+# Con `set -e`, un `[ ... ] && arr+=(...)` cuyo test da falso devuelve 1 y
+# aborta el script: por eso van como `if` y no como cortocircuito.
+missing_vars=()
+if [ -z "${SUPABASE_URL:-}" ]; then
+  missing_vars+=("SUPABASE_URL")
+fi
+if [ -z "${SUPABASE_ANON_KEY:-}" ]; then
+  missing_vars+=("SUPABASE_ANON_KEY")
+fi
+
+if [ ${#missing_vars[@]} -gt 0 ]; then
+  echo ""
+  echo "############################################################"
+  echo "## ATENCION: faltan variables de entorno del proyecto     ##"
+  echo "############################################################"
+  echo "## Sin configurar: ${missing_vars[*]}"
+  echo "##"
+  echo "## Este deploy va a compilar y publicarse, pero la app va"
+  echo "## a mostrar 'Configuracion de Supabase ausente' en lugar"
+  echo "## de la pantalla de ingreso: no tiene backend al que"
+  echo "## conectarse."
+  echo "##"
+  echo "## Se cargan en Vercel -> Settings -> Environment"
+  echo "## Variables, para el entorno de este deploy (Preview y/o"
+  echo "## Production). Son los mismos valores que los secrets del"
+  echo "## repo en GitHub."
+  echo "############################################################"
+  echo ""
+else
+  echo "==> Backend configurado: SUPABASE_URL y SUPABASE_ANON_KEY presentes"
+fi
+
+if [ -z "${LIVEKIT_URL:-}" ]; then
+  # No impide operar (historial, bitacora y SOS siguen andando), pero el
+  # PTT no transmite: conviene que no sorprenda en el evento.
+  echo "==> AVISO: sin LIVEKIT_URL, el PTT de este deploy NO transmite audio."
+else
+  echo "==> Audio en vivo habilitado (LIVEKIT_URL presente)"
+fi
+
 echo "==> Generando .env desde las env vars del proyecto"
 {
   echo "SUPABASE_URL=${SUPABASE_URL:-}"
