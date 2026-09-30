@@ -12,6 +12,21 @@
   "joinCreateEventButton": "Are you organizing? Create your event",
   "joinInviteCodeLabel": "Invite code",
   "joinOrScanQr": "or scan a QR code",
+  "audioServerTitle": "Live audio server",
+  "audioServerUsingCloud": "Using the cloud server from this build.",
+  "audioServerUsingLocal": "Using a local server: {url}",
+  "@audioServerUsingLocal": {
+    "placeholders": {
+      "url": { "type": "String" }
+    }
+  },
+  "audioServerHelp": "At a venue with unreliable internet, point audio to a LiveKit server on the local network: PTT keeps working even if the link drops, and messages stay queued until it comes back.",
+  "audioServerFieldLabel": "Local server address (ws:// or wss://)",
+  "audioServerUseLocal": "Use local",
+  "audioServerUseCloud": "Back to cloud",
+  "audioServerErrorEmpty": "Enter the local server address.",
+  "audioServerErrorScheme": "It must start with ws:// or wss:// — LiveKit speaks WebSocket.",
+  "audioServerErrorMalformed": "That address is not valid. Example: ws://192.168.1.50:7880",
   "sosHoldLabel": "SOS — hold",
   "sosDeliveredTo":"{count, plural, =1{SOS sent in {channel} — 1 operator connected} other{SOS sent in {channel} — {count} operators connected}}",
   "@sosDeliveredTo": {

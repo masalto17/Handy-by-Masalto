@@ -1,4 +1,5 @@
 import 'package:event_radio_app/l10n/app_localizations.dart';
+import 'package:event_radio_app/src/features/admin/presentation/admin_audio_server_card.dart';
 import 'package:event_radio_app/src/features/admin/presentation/admin_channels_card.dart';
 import 'package:event_radio_app/src/features/admin/presentation/admin_event_card.dart';
 import 'package:event_radio_app/src/features/admin/presentation/admin_logs_card.dart';
@@ -45,6 +46,8 @@ class AdminEventScreen extends ConsumerWidget {
               AdminChannelsCard(session: session),
               const SizedBox(height: 12),
               AdminParticipantsCard(session: session),
+              const SizedBox(height: 12),
+              const AdminAudioServerCard(),
               const SizedBox(height: 12),
               AdminLogsCard(eventId: session.event.id),
             ],
