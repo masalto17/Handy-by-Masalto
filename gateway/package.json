@@ -1,0 +1,18 @@
+{
+  "name": "handy-radio-gateway",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Puente entre un canal de HANDY y un handy UHF real.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@livekit/rtc-node": "^1.1.0",
+    "@supabase/supabase-js": "^2.117.0"
+  }
+}
