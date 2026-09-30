@@ -116,6 +116,9 @@ proceso y conviene hacerlo con quien administra esos equipos.
 
 ## 4. Puesta en marcha
 
+Hace falta Node ≥22 (lo exige el cliente de Supabase); en Raspberry Pi OS,
+desde [NodeSource](https://github.com/nodesource/distributions).
+
 ```bash
 sudo apt install -y alsa-utils
 arecord -l    # anotar tarjeta y dispositivo de la placa USB

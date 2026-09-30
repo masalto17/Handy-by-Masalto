@@ -5,11 +5,11 @@
   "type": "module",
   "description": "Puente entre un canal de HANDY y un handy UHF real.",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "start": "node src/index.js",
-    "test": "node --test \"test/**/*.test.js\""
+    "test": "node --test"
   },
   "dependencies": {
     "@livekit/rtc-node": "^1.1.0",

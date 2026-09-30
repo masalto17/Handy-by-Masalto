@@ -32,7 +32,7 @@ cp .env.example .env   # y completar
 npm start
 ```
 
-Requiere Node ≥20 y las herramientas de ALSA (`arecord`, `aplay`), que en
+Requiere Node ≥22 (lo exige el cliente de Supabase) y las herramientas de ALSA (`arecord`, `aplay`), que en
 Debian/Raspberry Pi OS vienen en `alsa-utils`.
 
 Para que arranque solo con la maquina, hay un ejemplo de unidad systemd en
