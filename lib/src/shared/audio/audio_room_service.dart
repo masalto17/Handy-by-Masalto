@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:event_radio_app/src/core/config/env_config.dart';
 import 'package:event_radio_app/src/shared/audio/audio_server_controller.dart';
+import 'package:event_radio_app/src/shared/audio/radio_bridge_status.dart';
 import 'package:event_radio_app/src/shared/domain/event_models.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart' as livekit;
@@ -99,6 +100,7 @@ class ChannelPresence {
     required this.participantCount,
     required this.speakingNames,
     this.linkQuality = ChannelLinkQuality.unknown,
+    this.radioBridges = const [],
   });
 
   final String channelId;
@@ -113,8 +115,17 @@ class ChannelPresence {
   /// Calidad del enlace de este dispositivo con la sala.
   final ChannelLinkQuality linkQuality;
 
+  /// Puentes con handies UHF presentes en el canal.
+  ///
+  /// Normalmente es uno o ninguno: el aire es uno solo por frecuencia.
+  final List<RadioBridgeStatus> radioBridges;
+
   /// `true` si al menos un participante esta hablando en este canal.
   bool get someoneSpeaking => speakingNames.isNotEmpty;
+
+  /// `true` si algun puente de radio pide atencion del operador.
+  bool get radioBridgeNeedsAttention =>
+      radioBridges.any((bridge) => bridge.state.needsAttention);
 }
 
 /// Evento emitido cuando una reconexion a una sala LiveKit agota todos los
@@ -554,6 +565,10 @@ class LiveKitAudioRoomService implements AudioRoomService {
     roomSession.listener
       ..on<livekit.ParticipantConnectedEvent>((_) => _recomputeState())
       ..on<livekit.ParticipantDisconnectedEvent>((_) => _recomputeState())
+      // Como informa el puente de radio que paso a transmitir o que corto
+      // una transmision trabada.
+      ..on<livekit.ParticipantAttributesChanged>((_) => _recomputeState())
+      ..on<livekit.ParticipantMetadataUpdatedEvent>((_) => _recomputeState())
       ..on<livekit.ActiveSpeakersChangedEvent>((event) {
         roomSession.speakingNames = event.speakers
             .map((speaker) =>
@@ -664,6 +679,22 @@ class LiveKitAudioRoomService implements AudioRoomService {
     }
   }
 
+  /// Puentes de radio presentes en la sala.
+  static List<RadioBridgeStatus> _radioBridgesIn(livekit.Room room) {
+    final bridges = <RadioBridgeStatus>[];
+    for (final participant in room.remoteParticipants.values) {
+      final status = RadioBridgeStatus.fromParticipant(
+        name: participant.name.isNotEmpty
+            ? participant.name
+            : participant.identity,
+        metadata: participant.metadata,
+        attributes: participant.attributes,
+      );
+      if (status != null) bridges.add(status);
+    }
+    return bridges;
+  }
+
   void _recomputeState() {
     if (_isDisposed) return;
     final presences = <String, ChannelPresence>{};
@@ -682,6 +713,10 @@ class LiveKitAudioRoomService implements AudioRoomService {
         // sido la ultima medicion de calidad recibida.
         linkQuality:
             isConnected ? roomSession.linkQuality : ChannelLinkQuality.lost,
+        // Sin sala no hay estado del puente que mostrar: informar el ultimo
+        // conocido seria decir que el enlace de radio sigue arriba cuando ni
+        // siquiera se lo puede ver.
+        radioBridges: isConnected ? _radioBridgesIn(room) : const [],
       );
     }
     _state = AudioRoomState(byChannelId: presences);

@@ -114,7 +114,22 @@ no corresponde.
 Para el EP450 hace falta el software de programacion de Motorola; es otro
 proceso y conviene hacerlo con quien administra esos equipos.
 
-## 4. Puesta en marcha
+## 4. Backend: una migracion y un redeploy
+
+El puente necesita el rol `gateway`, que se agrega en la migracion
+`0012_gateway_participant_role.sql`, y el permiso de publicar atributos, que
+se otorga en la edge function `livekit-token`. Hay que aplicar las dos cosas
+antes de crear el participante del puente:
+
+```bash
+supabase db push
+supabase functions deploy livekit-token
+```
+
+Sin la migracion, el panel de admin rechaza el rol; sin el redeploy, el
+puente funciona pero la app no muestra su estado.
+
+## 5. Puesta en marcha
 
 Hace falta Node ≥22 (lo exige el cliente de Supabase); en Raspberry Pi OS,
 desde [NodeSource](https://github.com/nodesource/distributions).
@@ -132,7 +147,9 @@ npm start
 
 El log va diciendo el estado del canal: `idle`, `receiving` (un handy tiene
 el canal), `keying`/`keyed` (el puente esta transmitiendo), `lockout` (se
-corto una transmision por tiempo maximo).
+corto una transmision por tiempo maximo). Ese mismo estado aparece en la
+pantalla de canal de la app, asi que el operador no depende de mirar el log
+de la maquina del predio.
 
 ### Como servicio
 
@@ -159,7 +176,7 @@ WantedBy=multi-user.target
 el puente reentra al canal solo. Al salir, el puente apaga el transmisor antes
 que ninguna otra cosa.
 
-## 5. Prueba, en este orden
+## 6. Prueba, en este orden
 
 Cada paso agrega una sola variable. Si algo falla, se sabe que fue.
 
@@ -171,12 +188,13 @@ Cada paso agrega una sola variable. Si algo falla, se sabe que fue.
 3. **Al reves.** Hablar por el handy: tiene que entrar al canal de la app.
    Ajustar el squelch con la receta del [README del puente](../gateway/README.md).
 4. **Los dos a la vez.** Que alguien hable por el handy mientras otro aprieta
-   PTT en la app: el puente **no** tiene que pisar al handy.
+   PTT en la app: el puente **no** tiene que pisar al handy. En la pantalla
+   de canal se tiene que ver el estado cambiando.
 5. **Prueba de tiempo maximo.** Dejar un celular transmitiendo largo: el log
    tiene que llegar a `lockout` y el transmisor apagarse.
 6. **Recien ahi, al aire**, con lo legal resuelto.
 
-## 6. Lo que todavia no hace
+## 7. Lo que todavia no hace
 
 - **Un puente por canal.** Cada canal de HANDY que se quiera puentear
   necesita su propia instancia y su propio handy donante, porque el aire es
@@ -186,6 +204,6 @@ Cada paso agrega una sola variable. Si algo falla, se sabe que fue.
 - **El historial no guarda lo que vino del aire** como mensaje individual:
   entra a la sala en vivo, pero el puente no graba por separado cada
   transmision de radio.
-- **Sin telemetria en la app.** El operador ve el puente en la lista de
-  presencia, pero todavia no ve si el transmisor esta encendido ni cuantas
-  veces se corto por tiempo maximo.
+- **Sin historial del estado del puente.** El operador ve el estado actual
+  en la pantalla de canal, pero la bitacora del evento no registra todavia
+  cuando el enlace estuvo caido.

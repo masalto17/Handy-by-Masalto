@@ -4,11 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:event_radio_app/src/features/channel/presentation/sos_hold_button.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Campos de texto del dialogo abierto.
-///
-/// Sin acotar al dialogo, `find.byType(TextField)` tambien alcanza los campos
-/// de las tarjetas del panel que quedan montadas detras y los indices se
-/// corren cada vez que se agrega una tarjeta con formulario.
 /// Scrollable de la lista del panel admin.
 ///
 /// Cada TextField del panel aporta su propio Scrollable, asi que
@@ -21,6 +16,11 @@ final _adminList = find
     )
     .first;
 
+/// Campos de texto del dialogo abierto.
+///
+/// Sin acotar al dialogo, `find.byType(TextField)` tambien alcanza los campos
+/// de las tarjetas del panel que quedan montadas detras y los indices se
+/// corren cada vez que se agrega una tarjeta con formulario.
 Finder _dialogField(int index) {
   return find
       .descendant(

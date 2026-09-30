@@ -1,7 +1,6 @@
 {
   "@@locale": "en",
   "appName": "Handy",
-
   "joinTitle": "Join an event",
   "joinSubtitle": "Use the invite code the coordinator shared with you.",
   "joinButton": "Join",
@@ -17,7 +16,9 @@
   "audioServerUsingLocal": "Using a local server: {url}",
   "@audioServerUsingLocal": {
     "placeholders": {
-      "url": { "type": "String" }
+      "url": {
+        "type": "String"
+      }
     }
   },
   "audioServerHelp": "At a venue with unreliable internet, point audio to a LiveKit server on the local network: PTT keeps working even if the link drops, and messages stay queued until it comes back.",
@@ -28,48 +29,57 @@
   "audioServerErrorScheme": "It must start with ws:// or wss:// — LiveKit speaks WebSocket.",
   "audioServerErrorMalformed": "That address is not valid. Example: ws://192.168.1.50:7880",
   "sosHoldLabel": "SOS — hold",
-  "sosDeliveredTo":"{count, plural, =1{SOS sent in {channel} — 1 operator connected} other{SOS sent in {channel} — {count} operators connected}}",
+  "sosDeliveredTo": "{count, plural, =1{SOS sent in {channel} — 1 operator connected} other{SOS sent in {channel} — {count} operators connected}}",
   "@sosDeliveredTo": {
     "placeholders": {
-      "channel": { "type": "String" },
-      "count": { "type": "int" }
+      "channel": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
     }
   },
   "sosNobodyConnected": "SOS recorded in {channel}, but NOBODY is connected to this channel right now",
   "@sosNobodyConnected": {
     "placeholders": {
-      "channel": { "type": "String" }
+      "channel": {
+        "type": "String"
+      }
     }
   },
-  "micPermissionTitle":"Microphone not authorized",
+  "micPermissionTitle": "Microphone not authorized",
   "micPermissionDetail": "Grant it now so you do not have to deal with the system prompt when you need to talk.",
   "micPermissionBlockedDetail": "The permission was permanently denied. Enable the microphone from system settings so PTT can work.",
   "micPermissionGrant": "Allow microphone",
   "micPermissionOpenSettings": "Open settings",
-  "audioModeUnavailableTitle":"PTT is not transmitting",
+  "audioModeUnavailableTitle": "PTT is not transmitting",
   "audioModeUnavailableDetail": "This installation has no live audio configured: holding the button will not reach anyone. History, log and SOS do work.",
   "audioModeSimulatedTitle": "Demo mode: simulated audio",
   "audioModeSimulatedDetail": "PTT is simulated for this demo. Nothing is transmitted to other participants.",
-  "channelLinkLost":"No connection — what you say will not go out",
+  "channelLinkLost": "No connection — what you say will not go out",
   "channelLinkPoor": "Weak signal — audio may break up",
-  "pttQueuedForRetry":"No connection: the message is queued and will be sent on its own.",
+  "pttQueuedForRetry": "No connection: the message is queued and will be sent on its own.",
   "pttOutboxPending": "{count, plural, =1{1 message pending delivery} other{{count} messages pending delivery}}",
   "@pttOutboxPending": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "pttOutboxFailed": "{count, plural, =1{1 message could not be saved} other{{count} messages could not be saved}}",
   "@pttOutboxFailed": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "pttOutboxRetry": "Retry",
   "joinScanPrimary": "Scan event QR",
   "joinScanPrimaryHint": "Fastest way in. Point at the QR your coordinator shared.",
   "joinManualTitle": "Or type the code",
-
   "scanQr": "Scan QR",
   "scanQrTitle": "Point at the event QR",
   "scanQrHint": "Point the camera at your invite QR. If the camera does not open (due to permissions or browser), type the code below.",
@@ -81,7 +91,6 @@
   "scanQrEmptyCode": "The code is empty.",
   "scanQrReadError": "Could not read that QR.",
   "scanQrCameraError": "Could not open the camera. Use manual code entry for now.",
-
   "howItWorks": "How Handy works",
   "howItWorksTitle": "How Handy works",
   "howStep1Title": "1. Join with your QR",
@@ -91,20 +100,22 @@
   "howStep3Title": "3. SOS if you need help",
   "howStep3Detail": "The SOS button instantly alerts coordinators with your name and channel.",
   "understood": "Got it",
-
   "demoCodes": "Demo codes",
   "demoCodeActive": "SATI26: active event",
   "demoCodeSecurity": "MARCOS26: security participant",
   "demoCodeProduction": "ANA26: production participant",
   "demoCodeTechnical": "JULIA26: technical coordinator",
   "demoCodeClosed": "CERRADO: ended event",
-
   "pttLabel": "PUSH-TO-TALK",
   "pttHold": "HOLD TO TALK",
   "pttTransmitting": "ON AIR",
   "pttTransmittingStatus": "TRANSMITTING {seconds}s",
   "@pttTransmittingStatus": {
-    "placeholders": { "seconds": { "type": "int" } }
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
   },
   "pttConnecting": "CONNECTING...",
   "pttSaving": "SAVING",
@@ -115,11 +126,19 @@
   "pttSaveError": "Could not save the PTT.",
   "pttSavedNoAudio": "PTT logged in {destination}; could not save audio.",
   "@pttSavedNoAudio": {
-    "placeholders": { "destination": { "type": "String" } }
+    "placeholders": {
+      "destination": {
+        "type": "String"
+      }
+    }
   },
   "pttSavedAudioAndText": "Audio and text saved in {destination}.",
   "@pttSavedAudioAndText": {
-    "placeholders": { "destination": { "type": "String" } }
+    "placeholders": {
+      "destination": {
+        "type": "String"
+      }
+    }
   },
   "pttSavedAudioOnly": "Audio saved. Automatic transcription in progress.",
   "pttA11yTransmitting": "Transmitting. Release to finish.",
@@ -128,14 +147,21 @@
   "pttA11yBlocked": "Transmission blocked on this channel.",
   "pttDestinationLiveKit": "Destination: {destination}. Real LiveKit audio active; audio saved in history.",
   "@pttDestinationLiveKit": {
-    "placeholders": { "destination": { "type": "String" } }
+    "placeholders": {
+      "destination": {
+        "type": "String"
+      }
+    }
   },
   "pttDestinationSimulated": "Destination: {destination}. Simulated audio; LiveKit activates when credentials are configured.",
   "@pttDestinationSimulated": {
-    "placeholders": { "destination": { "type": "String" } }
+    "placeholders": {
+      "destination": {
+        "type": "String"
+      }
+    }
   },
   "pttNoPermission": "Your current permission does not allow transmitting in this channel.",
-
   "channelTitle": "CHANNEL",
   "channelNotAssigned": "Channel not assigned.",
   "channelDefaultDescription": "Operational event channel.",
@@ -144,7 +170,11 @@
   "channelCurrentChannel": "Current channel",
   "channelAllCount": "All ({count})",
   "@channelAllCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "channelAudioBlocked": "Audio blocked: event not operational",
   "channelNoListenPermission": "No listen permission in this channel",
@@ -157,43 +187,69 @@
   "channelHistoryError": "Could not load history.",
   "channelPresenceCount": "{count} in the channel",
   "@channelPresenceCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "channelSpeaking": "Speaking: {names}",
   "@channelSpeaking": {
-    "placeholders": { "names": { "type": "String" } }
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
   },
   "channelNobodySpeaking": "Nobody is speaking now",
   "channelReconnectError": "Connection lost with {name} after {attempts} attempts.",
   "@channelReconnectError": {
     "placeholders": {
-      "name": { "type": "String" },
-      "attempts": { "type": "int" }
+      "name": {
+        "type": "String"
+      },
+      "attempts": {
+        "type": "int"
+      }
     }
   },
   "channelReconnectSnack": "Connection lost: {name}. Try leaving and re-entering the channel.",
   "@channelReconnectSnack": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "channelReconnectRetry": "Retry",
-
   "sosLabel": "SOS",
   "sosBlocked": "SOS blocked",
   "sosActivated": "SOS activated in {channel}.",
   "@sosActivated": {
-    "placeholders": { "channel": { "type": "String" } }
+    "placeholders": {
+      "channel": {
+        "type": "String"
+      }
+    }
   },
   "sosError": "Could not activate SOS.",
   "sosReceived": "SOS received in {channel}",
   "@sosReceived": {
-    "placeholders": { "channel": { "type": "String" } }
+    "placeholders": {
+      "channel": {
+        "type": "String"
+      }
+    }
   },
-
   "history": "History",
   "historyNoPermission": "You do not have permission to view this history.",
   "historyNoMessages": "No messages in {channel}.",
   "@historyNoMessages": {
-    "placeholders": { "channel": { "type": "String" } }
+    "placeholders": {
+      "channel": {
+        "type": "String"
+      }
+    }
   },
   "historyLoadError": "Could not load history.",
   "historyPlaybackError": "Could not play this audio.",
@@ -209,23 +265,34 @@
   "historyProcessing": "Processing",
   "historyTranscriptionUpdated": "Transcriptions updated: {count}.",
   "@historyTranscriptionUpdated": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "historyNoPending": "There were no audios pending transcription.",
   "historyTranscribeError": "Could not transcribe: {error}",
   "@historyTranscribeError": {
-    "placeholders": { "error": { "type": "String" } }
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   },
   "historyStopAudio": "Stop audio",
   "historyPlayAudio": "Play audio",
-
   "eventActiveTitle": "ACTIVE EVENT",
   "eventLogButton": "Activity log",
   "eventAssignedChannels": "Assigned channels",
   "eventChannelsAndHistory": "Channels and history",
   "eventOperator": "Operator: {name}",
   "@eventOperator": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "eventOngoing": "ONGOING",
   "eventBlocked": "BLOCKED",
@@ -233,8 +300,12 @@
   "eventTimeRemaining": "{hours}h {minutes}m remaining",
   "@eventTimeRemaining": {
     "placeholders": {
-      "hours": { "type": "int" },
-      "minutes": { "type": "int" }
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "eventNoLongerActive": "The event is no longer operational.",
@@ -244,17 +315,19 @@
   "eventPttBlocked": "PTT blocked",
   "eventOperational": "Operational",
   "eventListenOnly": "Listen only",
-
   "eventClosedTitle": "Event ended",
   "eventClosedTransmissionBlocked": "The event no longer allows operating channels or using PTT.",
   "eventClosedSchedule": "Scheduled end: {date}",
   "@eventClosedSchedule": {
-    "placeholders": { "date": { "type": "String" } }
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   },
   "eventClosedHistoryAvailable": "History and activity log remain available according to permissions.",
   "eventClosedViewHistory": "View channels and history",
   "eventClosedLeave": "Leave the event",
-
   "adminTitle": "Admin",
   "adminOnlyAdmins": "Only admins and coordinators can view the activity log.",
   "adminInviteQrTooltip": "Invite QR",
@@ -270,7 +343,6 @@
   "adminReactivate8h": "Reactivate 8h",
   "adminReadyTest": "READY FOR TEST",
   "adminReview": "REVIEW",
-
   "accountOptional": "Optional account",
   "accountMvpInfo": "For the MVP you can enter with just a code. Later, the account will help recover invitations and permissions.",
   "accountContinueGmail": "Continue with Gmail",
@@ -287,7 +359,6 @@
   "accountPreparing": "Preparing account...",
   "accountGuestMode": "Guest mode",
   "accountNoEmail": "no email",
-
   "invitationsTitle": "Invitations",
   "invitationsEventTitle": "Event invitations",
   "invitationsCopyAll": "Copy all invitations",
@@ -303,7 +374,6 @@
   "invitationsInstructions1": "1. Open Handy.",
   "invitationsInstructions2": "2. Enter the assigned code.",
   "invitationsInstructions3": "3. Enter the corresponding channel.",
-
   "createEventTitle": "Create new event",
   "createEventDescription": "You are the organizer: you create the event and become the coordinator. Then invite your team by code or QR.",
   "createEventYourName": "Your name",
@@ -315,7 +385,9 @@
   "createEventDurationPreset": "{hours} h",
   "@createEventDurationPreset": {
     "placeholders": {
-      "hours": { "type": "int" }
+      "hours": {
+        "type": "int"
+      }
     }
   },
   "createEventDurationOther": "Other",
@@ -327,13 +399,10 @@
   "createEventErrorDuration": "Duration must be between 1 and 24 hours.",
   "createEventError": "Could not create the event. Try again.",
   "createEventDefaultDescription": "Event created from Handy.",
-
   "bootstrapErrorTitle": "HANDY cannot start",
   "bootstrapErrorHint": "Check your internet connection and environment configuration. If the problem persists, contact the event administrator.",
   "bootstrapErrorRetry": "Retry",
-
   "leaveEventTooltip": "Leave / switch user",
-
   "adminPilotReadiness": "Startup checklist",
   "adminPilotReadinessHint": "Quick check to validate if the event is ready for a multi-person test.",
   "adminPilotActionBanner": "The event is not operational right now. Activating it avoids entry errors during the test.",
@@ -348,7 +417,11 @@
   "adminEventCreated": "Event created. You are now operating the new event.",
   "adminEventCreatedWithFailures": "Event created. Could not create some channels: {failures}.",
   "@adminEventCreatedWithFailures": {
-    "placeholders": { "failures": { "type": "String" } }
+    "placeholders": {
+      "failures": {
+        "type": "String"
+      }
+    }
   },
   "adminEventUpdated": "Event updated.",
   "adminEventClosed": "Event closed. PTT blocked.",
@@ -379,17 +452,29 @@
   "adminDeleteChannel": "Delete channel",
   "adminDeleteChannelContent": "This will remove \"{name}\" from assignments and message history.",
   "@adminDeleteChannelContent": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "adminChannelDeleted": "Channel deleted: {name}.",
   "@adminChannelDeleted": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "adminChannelSummary": "{code} · priority {priority}",
   "@adminChannelSummary": {
     "placeholders": {
-      "code": { "type": "String" },
-      "priority": { "type": "int" }
+      "code": {
+        "type": "String"
+      },
+      "priority": {
+        "type": "int"
+      }
     }
   },
   "adminParticipantsCard": "Participants",
@@ -398,22 +483,40 @@
   "adminEditParticipant": "Edit participant",
   "adminViewInviteOf": "View invite of {name}",
   "@adminViewInviteOf": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "adminEditChannelsOf": "Edit channels of {name}",
   "@adminEditChannelsOf": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "adminDeleteParticipantOf": "Delete participant {name}",
   "@adminDeleteParticipantOf": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "adminParticipantSummary": "{role} · {code} · {count} channels",
   "@adminParticipantSummary": {
     "placeholders": {
-      "role": { "type": "String" },
-      "code": { "type": "String" },
-      "count": { "type": "int" }
+      "role": {
+        "type": "String"
+      },
+      "code": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
     }
   },
   "adminParticipantPhone": "Phone",
@@ -429,22 +532,38 @@
   "adminDeleteParticipantContent": "This will remove {name} from this event. Code {code} will no longer work.",
   "@adminDeleteParticipantContent": {
     "placeholders": {
-      "name": { "type": "String" },
-      "code": { "type": "String" }
+      "name": {
+        "type": "String"
+      },
+      "code": {
+        "type": "String"
+      }
     }
   },
   "adminParticipantDeleted": "Participant deleted: {name}.",
   "@adminParticipantDeleted": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "adminInvitationOf": "Invitation of {name}",
   "@adminInvitationOf": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "adminInvitationsCopied": "Invitations copied.",
   "adminChannelsOf": "Channels of {name}",
   "@adminChannelsOf": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "adminPermListenAndTalk": "Listen and can talk",
   "adminPermListenOnly": "Listen only",
@@ -453,21 +572,27 @@
   "adminLogsEmpty": "No records yet.",
   "adminLogsError": "Could not load the activity log.",
   "adminTemplate": "Template",
-
   "a11yPriorityCritical": "CRITICAL",
   "a11yPriorityOperational": "OPERATIONAL",
   "a11yWaveformDecoration": "Audio waveform",
   "a11yTemplateSelected": "{name} template, selected",
   "@a11yTemplateSelected": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "a11yTemplateUnselected": "{name} template",
   "@a11yTemplateUnselected": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "a11ySosEmergency": "Emergency SOS. Sends immediate alert to coordinators.",
   "a11ySosButtonSending": "Sending SOS alert...",
-
   "errorEmptyCode": "The code is empty.",
   "errorCodeNotFound": "Code not found. Check it or ask the coordinator for a new one.",
   "errorSessionExpired": "The session no longer exists in this event.",
@@ -480,12 +605,10 @@
   "errorInsufficientPermission": "Your current permission does not allow this action.",
   "errorTranscriptionFailed": "Could not transcribe the audios.",
   "errorCodeGenerationFailed": "Could not generate a unique code.",
-
   "errorGoogleSignInFailed": "Could not start Google sign-in.",
   "errorInvalidEmail": "Enter a valid email address.",
   "errorDemoUnavailable": "Demo access is not available in this version.",
   "adminOperationError": "The operation could not be completed.",
-
   "leaveEventConfirmTitle": "Leave event?",
   "leaveEventConfirmBody": "You will return to the join screen. If you are a guest, you will need the invite code again.",
   "leaveEventConfirmButton": "Leave",
@@ -494,16 +617,34 @@
   "deleteChannelConfirmBody": "The channel \"{name}\" and its history will be removed.",
   "@deleteChannelConfirmBody": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "deleteParticipantConfirmTitle": "Remove participant?",
   "deleteParticipantConfirmBody": "\"{name}\" will lose access to the event.",
   "@deleteParticipantConfirmBody": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
-
-  "retry": "Retry"
+  "retry": "Retry",
+  "radioBridgeIdle": "Radio link ready",
+  "radioBridgeReceiving": "A handheld is transmitting",
+  "radioBridgeTransmitting": "On air",
+  "radioBridgeLockout": "Transmission cut off: time limit reached",
+  "radioBridgeUnknown": "No link status yet",
+  "radioBridgeTimeouts": "{count} transmissions cut off so far",
+  "@radioBridgeTimeouts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "radioBridgeHintLockout": "Check that nobody is holding PTT down and that no open mic is on the channel.",
+  "radioBridgeHintUnknown": "The bridge is in the channel but has not reported yet. It may be starting up."
 }

@@ -21,7 +21,13 @@ puso el admin — que es como el operador se entera de que el enlace con los
 handies esta arriba.
 
 En el panel de admin: crear un participante llamado, por ejemplo,
-`Radio UHF`, con permiso de transmitir, y copiar su codigo.
+`Radio UHF`, **con rol `gateway`** y permiso de transmitir, y copiar su
+codigo.
+
+El rol importa: viaja firmado en el token de LiveKit, asi que es lo que
+permite que la app lo muestre como puente sin que un participante comun
+pueda hacerse pasar por uno. Y es el unico rol al que se le da permiso de
+publicar atributos en la sala, que es como informa su estado.
 
 ## Instalacion
 
@@ -61,6 +67,21 @@ arbitra el canal (`src/radio-arbiter.js`):
 
 Al perder la sala, o al recibir SIGINT/SIGTERM, lo primero que hace es
 apagar el transmisor.
+
+## Lo que ve el operador
+
+El puente publica su estado en la sala (`src/status-publisher.js`), y la
+pantalla de canal lo muestra: si el enlace de radio esta listo, si un handy
+esta transmitiendo, si el puente esta saliendo al aire, y si se corto una
+transmision por tiempo maximo — con la cuenta de cortes, que se sigue
+informando una vez normalizado.
+
+Viaja por atributos de LiveKit y no por el backend a proposito: el estado
+llega exactamente cuando llega el audio, incluso con el servidor local del
+predio y sin internet.
+
+Si el puente se cae, desaparece de la sala y la tarjeta desaparece con el:
+no queda un estado viejo diciendo que el enlace sigue arriba.
 
 ## Ajustar el squelch
 

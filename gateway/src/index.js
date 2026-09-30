@@ -17,6 +17,7 @@ import { FRAME_MS, FRAME_SAMPLES, SAMPLE_RATE, loadConfig } from './config.js';
 import { PttKeyer } from './ptt-keyer.js';
 import { RadioArbiter } from './radio-arbiter.js';
 import { startCapture, startPlayback } from './radio-io.js';
+import { StatusPublisher } from './status-publisher.js';
 import { joinChannel } from './session.js';
 
 const SILENCE = new Int16Array(FRAME_SAMPLES);
@@ -121,6 +122,11 @@ async function main() {
   );
   log('Puente arriba. El audio del aire ya entra al canal.');
 
+  const statusPublisher = new StatusPublisher({
+    publish: (attributes) => room.localParticipant.setAttributes(attributes),
+    onError: logError,
+  });
+
   // --- Ciclo de arbitraje ----------------------------------------------
   let lastState = null;
   const ticker = setInterval(() => {
@@ -141,6 +147,10 @@ async function main() {
     keyer
       .setKeyed(decision.keyed)
       .catch((error) => logError('No se pudo accionar el PTT.', error));
+
+    statusPublisher
+      .update({ state: decision.state, timeouts: arbiter.timeouts })
+      .catch((error) => logError('No se pudo informar el estado.', error));
 
     playback.write(
       decision.sendAudioToRadio && roomFrame ? roomFrame : SILENCE,
