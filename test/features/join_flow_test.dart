@@ -4,6 +4,32 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:event_radio_app/src/features/channel/presentation/sos_hold_button.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+/// Campos de texto del dialogo abierto.
+///
+/// Sin acotar al dialogo, `find.byType(TextField)` tambien alcanza los campos
+/// de las tarjetas del panel que quedan montadas detras y los indices se
+/// corren cada vez que se agrega una tarjeta con formulario.
+/// Scrollable de la lista del panel admin.
+///
+/// Cada TextField del panel aporta su propio Scrollable, asi que
+/// `scrollUntilVisible` no puede resolverlo por tipo: el primero en orden de
+/// profundidad es el de la lista, el que hay que desplazar.
+final _adminList = find
+    .descendant(
+      of: find.byType(ListView),
+      matching: find.byType(Scrollable),
+    )
+    .first;
+
+Finder _dialogField(int index) {
+  return find
+      .descendant(
+        of: find.byType(AlertDialog),
+        matching: find.byType(TextField),
+      )
+      .at(index);
+}
+
 void main() {
   testWidgets('join flow opens active event and channel screen',
       (tester) async {
@@ -214,7 +240,7 @@ void main() {
 
     await tester.tap(find.byTooltip('Edit event'));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField).at(0), 'Operativo admin');
+    await tester.enterText(_dialogField(0), 'Operativo admin');
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
@@ -227,10 +253,10 @@ void main() {
 
     await tester.tap(createChannelButton);
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField).at(0), 'Prensa');
-    await tester.enterText(find.byType(TextField).at(1), 'Prensa VIP');
-    await tester.enterText(find.byType(TextField).at(2), 'Equipo de prensa');
-    await tester.enterText(find.byType(TextField).at(3), '35');
+    await tester.enterText(_dialogField(0), 'Prensa');
+    await tester.enterText(_dialogField(1), 'Prensa VIP');
+    await tester.enterText(_dialogField(2), 'Equipo de prensa');
+    await tester.enterText(_dialogField(3), '35');
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
@@ -238,13 +264,17 @@ void main() {
     expect(find.textContaining('prensa-vip'), findsOneWidget);
 
     final inviteParticipantButton = find.byIcon(Icons.person_add_alt_1);
-    await tester.scrollUntilVisible(inviteParticipantButton, 500);
+    await tester.scrollUntilVisible(
+      inviteParticipantButton,
+      500,
+      scrollable: _adminList,
+    );
     await tester.tap(inviteParticipantButton);
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField).at(0), 'Sofia');
-    await tester.enterText(find.byType(TextField).at(1), '+54 9 264 555-0199');
+    await tester.enterText(_dialogField(0), 'Sofia');
+    await tester.enterText(_dialogField(1), '+54 9 264 555-0199');
     final generatedInviteCode =
-        tester.widget<TextField>(find.byType(TextField).at(2)).controller!.text;
+        tester.widget<TextField>(_dialogField(2)).controller!.text;
     expect(generatedInviteCode, matches(RegExp(r'^[A-HJ-NP-Z2-9]{12}$')));
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
@@ -291,7 +321,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Sofia'), findsNothing);
 
-    await tester.scrollUntilVisible(find.text('Close now'), -500);
+    await tester.scrollUntilVisible(
+      find.text('Close now'),
+      -500,
+      scrollable: _adminList,
+    );
     await tester.tap(find.text('Close now'));
     await tester.pumpAndSettle();
 

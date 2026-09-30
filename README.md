@@ -9,6 +9,8 @@ Documentos clave:
 
 - [`docs/AUDITORIA_Y_PLAN.md`](docs/AUDITORIA_Y_PLAN.md): auditoria general.
 - [`docs/PLAN_PREMIUM.md`](docs/PLAN_PREMIUM.md): plan de producto premium.
+- [`docs/SERVIDOR_LOCAL.md`](docs/SERVIDOR_LOCAL.md): servidor LiveKit en la red
+  del predio, para que el PTT siga funcionando sin internet.
 - [`docs/RELEASE.md`](docs/RELEASE.md): builds firmados para Android/iOS,
   identidad de la app (`app.eventradio.mobile`), deep link de auth y modo demo
   (`--dart-define=DEMO=true`; en release los atajos demo quedan fuera).

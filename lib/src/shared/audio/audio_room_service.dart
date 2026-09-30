@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:event_radio_app/src/core/config/env_config.dart';
+import 'package:event_radio_app/src/shared/audio/audio_server_controller.dart';
 import 'package:event_radio_app/src/shared/domain/event_models.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:livekit_client/livekit_client.dart' as livekit;
@@ -25,18 +26,35 @@ enum AudioMode {
   bool get transmits => this == AudioMode.live;
 }
 
+/// URL del servidor de audio que rige ahora mismo.
+///
+/// Un servidor local configurado por el operador gana sobre el del build:
+/// se configura justamente cuando el enlace a la nube no es confiable en
+/// ese predio.
+final audioServerUrlProvider = Provider<String>((ref) {
+  final setting = ref.watch(audioServerProvider);
+  // El `.env` solo cuenta como nube si LIVEKIT_AUDIO_ENABLED esta activo.
+  final cloudUrl = EnvConfig.hasLiveKitConfig ? EnvConfig.liveKitUrl : '';
+  return setting.effectiveUrl(cloudUrl);
+});
+
 /// Modo de audio efectivo de esta instalacion.
 final audioModeProvider = Provider<AudioMode>((ref) {
-  if (EnvConfig.hasLiveKitConfig) return AudioMode.live;
+  // Con servidor local alcanza para transmitir de verdad, aunque el build
+  // haya salido sin LIVEKIT_URL: es el caso de un predio sin internet.
+  if (ref.watch(audioServerUrlProvider).isNotEmpty) return AudioMode.live;
   return EnvConfig.allowDemoShortcuts
       ? AudioMode.simulated
       : AudioMode.unavailable;
 });
 
 final audioRoomServiceProvider = Provider<AudioRoomService>((ref) {
-  final service = EnvConfig.hasLiveKitConfig
+  // Se observa la URL: cambiar de servidor reconstruye el servicio y corta
+  // las salas viejas, en vez de dejarlas apuntando al endpoint anterior.
+  final serverUrl = ref.watch(audioServerUrlProvider);
+  final service = serverUrl.isNotEmpty
       ? LiveKitAudioRoomService(
-          serverUrl: EnvConfig.liveKitUrl,
+          serverUrl: serverUrl,
           tokenProvider: SupabaseLiveKitTokenProvider().call,
         )
       : MockAudioRoomService();

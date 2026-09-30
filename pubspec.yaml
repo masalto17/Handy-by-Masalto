@@ -26,6 +26,7 @@ dependencies:
   supabase_flutter: ^2.8.0
   # Mantiene la pantalla encendida dentro de un canal: en un evento el
   # telefono queda en mano y no debe bloquearse en medio de una escucha.
+  shared_preferences: ^2.3.0
   wakelock_plus: ^1.2.8
   web: ^1.1.1
 
