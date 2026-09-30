@@ -51,7 +51,15 @@ enum ParticipantRole {
   participant('participant'),
 
   /// Observador: solo escucha, sin acceso al microfono.
-  viewer('viewer');
+  viewer('viewer'),
+
+  /// Puente con handies UHF: no es una persona, es el equipo que une el
+  /// canal con la red de radio (ver `gateway/README.md`).
+  ///
+  /// Tiene rol propio para que la app pueda distinguirlo de un celular: el
+  /// rol viaja firmado en el token de LiveKit, asi que un participante comun
+  /// no puede mostrarse como puente.
+  gateway('gateway');
 
   const ParticipantRole(this.value);
 

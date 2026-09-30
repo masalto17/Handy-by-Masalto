@@ -98,6 +98,7 @@ async function signLiveKitToken({
   context: TokenContext;
 }): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
+  const isGateway = context.participant_role === 'gateway';
   const header = { alg: 'HS256', typ: 'JWT' };
   const payload = {
     iss: apiKey,
@@ -116,6 +117,11 @@ async function signLiveKitToken({
       canSubscribe: true,
       canPublish: context.can_publish_audio,
       canPublishData: false,
+      // Solo el puente de radio puede publicar atributos: es como informa a
+      // la app si esta transmitiendo al aire. Darselo a todos permitiria que
+      // un participante comun se muestre como puente y el operador confie en
+      // un estado inventado.
+      ...(isGateway ? { canUpdateOwnMetadata: true } : {}),
       ...(context.can_publish_audio
         ? { canPublishSources: ['microphone'] }
         : {}),

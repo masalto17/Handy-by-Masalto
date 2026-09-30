@@ -11,6 +11,7 @@ import 'package:event_radio_app/src/features/channel/presentation/push_to_talk_b
 import 'package:event_radio_app/src/shared/audio/audio_room_service.dart';
 import 'package:event_radio_app/src/shared/audio/microphone_readiness.dart';
 import 'package:event_radio_app/src/shared/audio/ptt_outbox.dart';
+import 'package:event_radio_app/src/shared/audio/radio_bridge_status.dart';
 import 'package:event_radio_app/src/shared/data/event_radio_providers.dart';
 import 'package:event_radio_app/src/shared/data/session_realtime.dart';
 import 'package:event_radio_app/src/shared/domain/app_exceptions.dart';
@@ -321,6 +322,7 @@ class _ChannelScreenState extends ConsumerState<ChannelScreen> {
                         channelId: channel.id,
                       ),
                       _ChannelPresenceBar(channelId: channel.id),
+                      _RadioBridgeBar(channelId: channel.id),
                       SizedBox(height: compactLayout ? 12 : 28),
                       const AudioModeBanner(),
                       const MicrophonePermissionCard(),
@@ -727,5 +729,150 @@ class _ChannelPresenceBar extends ConsumerWidget {
         );
       },
     );
+  }
+}
+
+
+/// Estado del puente con handies UHF, cuando hay uno en el canal.
+///
+/// El operador necesita dos cosas de un vistazo: si el enlace con los equipos
+/// de radio esta arriba, y si algo se corto. Sin esto, un puente caido se
+/// parece demasiado a un canal tranquilo.
+class _RadioBridgeBar extends ConsumerWidget {
+  const _RadioBridgeBar({required this.channelId});
+
+  final String channelId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final audioService = ref.watch(audioRoomServiceProvider);
+    return StreamBuilder<AudioRoomState>(
+      stream: audioService.stateChanges,
+      initialData: audioService.state,
+      builder: (context, snapshot) {
+        final presence = snapshot.data?.forChannel(channelId);
+        final bridges = presence?.radioBridges ?? const <RadioBridgeStatus>[];
+        // La mayoria de los eventos no tiene puente: sin uno presente, la
+        // tarjeta no aparece en vez de mostrar un estado vacio.
+        if (bridges.isEmpty) return const SizedBox.shrink();
+
+        final l10n = AppLocalizations.of(context);
+        return Column(
+          children: [
+            for (final bridge in bridges)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: _radioBridgeTile(context, bridge, l10n),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _radioBridgeTile(
+    BuildContext context,
+    RadioBridgeStatus bridge,
+    AppLocalizations l10n,
+  ) {
+    final color = _colorFor(bridge.state);
+    final label = _labelFor(bridge.state, l10n);
+    final hint = _hintFor(bridge, l10n);
+
+    return Semantics(
+      label: [bridge.name, label, if (hint != null) hint].join('. '),
+      child: ExcludeSemantics(
+        child: DecoratedBox(
+          decoration: AppTheme.panelDecoration(),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(_iconFor(bridge.state), size: 20, color: color),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        bridge.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        label,
+                        style: TextStyle(
+                          color: color,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      if (hint != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          hint,
+                          style: const TextStyle(
+                            color: AppTheme.textTertiary,
+                            fontSize: 11,
+                            height: 1.3,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  static IconData _iconFor(RadioBridgeState state) {
+    return switch (state) {
+      RadioBridgeState.receiving => Icons.record_voice_over,
+      RadioBridgeState.transmitting => Icons.podcasts,
+      RadioBridgeState.lockout => Icons.report_problem_outlined,
+      RadioBridgeState.idle => Icons.settings_input_antenna,
+      RadioBridgeState.unknown => Icons.help_outline,
+    };
+  }
+
+  static Color _colorFor(RadioBridgeState state) {
+    return switch (state) {
+      RadioBridgeState.receiving ||
+      RadioBridgeState.transmitting =>
+        AppTheme.success,
+      RadioBridgeState.lockout => AppTheme.warning,
+      RadioBridgeState.idle || RadioBridgeState.unknown =>
+        AppTheme.textSecondary,
+    };
+  }
+
+  static String _labelFor(RadioBridgeState state, AppLocalizations l10n) {
+    return switch (state) {
+      RadioBridgeState.idle => l10n.radioBridgeIdle,
+      RadioBridgeState.receiving => l10n.radioBridgeReceiving,
+      RadioBridgeState.transmitting => l10n.radioBridgeTransmitting,
+      RadioBridgeState.lockout => l10n.radioBridgeLockout,
+      RadioBridgeState.unknown => l10n.radioBridgeUnknown,
+    };
+  }
+
+  static String? _hintFor(RadioBridgeStatus bridge, AppLocalizations l10n) {
+    if (bridge.state == RadioBridgeState.lockout) {
+      return l10n.radioBridgeHintLockout;
+    }
+    if (bridge.state == RadioBridgeState.unknown) {
+      return l10n.radioBridgeHintUnknown;
+    }
+    // Los cortes previos se siguen informando una vez normalizado: que el
+    // enlace este bien ahora no borra que algo estuvo trabando el canal.
+    if (bridge.timeouts > 0) return l10n.radioBridgeTimeouts(bridge.timeouts);
+    return null;
   }
 }

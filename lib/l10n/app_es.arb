@@ -1,7 +1,6 @@
 {
   "@@locale": "es",
   "appName": "Handy",
-
   "joinTitle": "Ingresar a un evento",
   "joinSubtitle": "Usa el codigo de invitacion que te compartio el coordinador.",
   "joinButton": "Ingresar",
@@ -23,27 +22,26 @@
   "audioServerErrorScheme": "Tiene que empezar con ws:// o wss:// — LiveKit habla WebSocket.",
   "audioServerErrorMalformed": "Esa direccion no es valida. Ejemplo: ws://192.168.1.50:7880",
   "sosHoldLabel": "SOS — mantene presionado",
-  "sosDeliveredTo":"{count, plural, =1{SOS enviado en {channel}: 1 operador conectado} other{SOS enviado en {channel}: {count} operadores conectados}}",
+  "sosDeliveredTo": "{count, plural, =1{SOS enviado en {channel}: 1 operador conectado} other{SOS enviado en {channel}: {count} operadores conectados}}",
   "sosNobodyConnected": "SOS registrado en {channel}, pero NO hay nadie conectado a este canal ahora",
-  "micPermissionTitle":"Microfono sin autorizar",
+  "micPermissionTitle": "Microfono sin autorizar",
   "micPermissionDetail": "Concedelo ahora, para no tener que resolver el cartel del sistema justo cuando necesites hablar.",
   "micPermissionBlockedDetail": "El permiso quedo denegado de forma permanente. Habilita el microfono desde los ajustes del sistema para que el PTT funcione.",
   "micPermissionGrant": "Permitir microfono",
   "micPermissionOpenSettings": "Abrir ajustes",
-  "audioModeUnavailableTitle":"El PTT no esta transmitiendo",
+  "audioModeUnavailableTitle": "El PTT no esta transmitiendo",
   "audioModeUnavailableDetail": "Esta instalacion no tiene audio en vivo configurado: apretar el boton no llega a nadie. El historial, la bitacora y el SOS si funcionan.",
   "audioModeSimulatedTitle": "Modo demo: audio simulado",
   "audioModeSimulatedDetail": "El PTT esta simulado para esta demo. No se transmite nada a otros participantes.",
-  "channelLinkLost":"Sin conexion: lo que digas no va a salir",
+  "channelLinkLost": "Sin conexion: lo que digas no va a salir",
   "channelLinkPoor": "Señal debil: el audio puede cortarse",
-  "pttQueuedForRetry":"Sin conexion: el mensaje quedo en cola y se envia solo.",
+  "pttQueuedForRetry": "Sin conexion: el mensaje quedo en cola y se envia solo.",
   "pttOutboxPending": "{count, plural, =1{1 mensaje pendiente de envio} other{{count} mensajes pendientes de envio}}",
   "pttOutboxFailed": "{count, plural, =1{1 mensaje no se pudo guardar} other{{count} mensajes no se pudieron guardar}}",
   "pttOutboxRetry": "Reintentar",
   "joinScanPrimary": "Escanear QR del evento",
   "joinScanPrimaryHint": "La forma mas rapida de entrar. Apunta al QR que te paso tu coordinador.",
   "joinManualTitle": "O escribi el codigo",
-
   "scanQr": "Escanear QR",
   "scanQrTitle": "Apunta al QR del evento",
   "scanQrHint": "Apunta la camara al QR de tu invitacion. Si no se abre la camara (por permisos o navegador), escribi el codigo mas abajo.",
@@ -55,7 +53,6 @@
   "scanQrEmptyCode": "El codigo esta vacio.",
   "scanQrReadError": "No pudimos leer ese QR.",
   "scanQrCameraError": "No pudimos abrir la camara. Usa el codigo manual por ahora.",
-
   "howItWorks": "Como funciona Handy",
   "howItWorksTitle": "Como funciona Handy",
   "howStep1Title": "1. Entra con tu QR",
@@ -65,14 +62,12 @@
   "howStep3Title": "3. SOS si necesitas ayuda",
   "howStep3Detail": "El boton SOS avisa al instante a los coordinadores con tu nombre y tu canal.",
   "understood": "Entendido",
-
   "demoCodes": "Codigos demo",
   "demoCodeActive": "SATI26: evento activo",
   "demoCodeSecurity": "MARCOS26: participante seguridad",
   "demoCodeProduction": "ANA26: participante produccion",
   "demoCodeTechnical": "JULIA26: coordinadora tecnica",
   "demoCodeClosed": "CERRADO: evento finalizado",
-
   "pttLabel": "PUSH-TO-TALK",
   "pttHold": "MANTENER PARA HABLAR",
   "pttTransmitting": "AL AIRE",
@@ -94,7 +89,6 @@
   "pttDestinationLiveKit": "Destino: {destination}. Audio real LiveKit activo; se guarda audio en historial.",
   "pttDestinationSimulated": "Destino: {destination}. Audio simulado; LiveKit se activa al configurar credenciales.",
   "pttNoPermission": "Tu permiso actual no permite transmitir en este canal.",
-
   "channelTitle": "CANAL",
   "channelNotAssigned": "Canal no asignado.",
   "channelDefaultDescription": "Canal operativo del evento.",
@@ -117,13 +111,11 @@
   "channelReconnectError": "Conexion perdida con {name} despues de {attempts} intentos.",
   "channelReconnectSnack": "Conexion perdida: {name}. Intentar salir y volver a entrar al canal.",
   "channelReconnectRetry": "Reintentar",
-
   "sosLabel": "SOS",
   "sosBlocked": "SOS bloqueado",
   "sosActivated": "SOS activado en {channel}.",
   "sosError": "No pudimos activar SOS.",
   "sosReceived": "SOS recibido en {channel}",
-
   "history": "Historial",
   "historyNoPermission": "No tenes permiso para ver este historial.",
   "historyNoMessages": "Sin mensajes en {channel}.",
@@ -144,7 +136,6 @@
   "historyTranscribeError": "No pudimos transcribir: {error}",
   "historyStopAudio": "Detener audio",
   "historyPlayAudio": "Reproducir audio",
-
   "eventActiveTitle": "EVENTO ACTIVO",
   "eventLogButton": "Bitacora",
   "eventAssignedChannels": "Canales asignados",
@@ -161,14 +152,12 @@
   "eventPttBlocked": "PTT bloqueado",
   "eventOperational": "Operativo",
   "eventListenOnly": "Solo escucha",
-
   "eventClosedTitle": "Evento finalizado",
   "eventClosedTransmissionBlocked": "El evento ya no permite operar canales ni usar PTT.",
   "eventClosedSchedule": "Cierre programado: {date}",
   "eventClosedHistoryAvailable": "El historial y la bitacora siguen disponibles segun permisos.",
   "eventClosedViewHistory": "Ver canales e historial",
   "eventClosedLeave": "Salir del evento",
-
   "adminTitle": "Admin",
   "adminOnlyAdmins": "Solo admins y coordinadores pueden ver la bitacora.",
   "adminInviteQrTooltip": "Invitacion QR",
@@ -184,7 +173,6 @@
   "adminReactivate8h": "Reactivar 8h",
   "adminReadyTest": "LISTO ENSAYO",
   "adminReview": "REVISAR",
-
   "accountOptional": "Cuenta opcional",
   "accountMvpInfo": "Para el MVP podes entrar solo con codigo. Luego la cuenta servira para recuperar invitaciones y permisos.",
   "accountContinueGmail": "Continuar con Gmail",
@@ -201,7 +189,6 @@
   "accountPreparing": "Preparando cuenta...",
   "accountGuestMode": "Modo invitado",
   "accountNoEmail": "sin email",
-
   "invitationsTitle": "Invitaciones",
   "invitationsEventTitle": "Invitaciones del evento",
   "invitationsCopyAll": "Copiar todas las invitaciones",
@@ -217,7 +204,6 @@
   "invitationsInstructions1": "1. Abrir Handy.",
   "invitationsInstructions2": "2. Ingresar el codigo asignado.",
   "invitationsInstructions3": "3. Entrar al canal correspondiente.",
-
   "createEventTitle": "Crear evento nuevo",
   "createEventDescription": "Sos el organizador: creas el evento y quedas como coordinador. Despues invitas a tu equipo por codigo o QR.",
   "createEventYourName": "Tu nombre",
@@ -236,13 +222,10 @@
   "createEventErrorDuration": "La duracion debe estar entre 1 y 24 horas.",
   "createEventError": "No pudimos crear el evento. Intenta de nuevo.",
   "createEventDefaultDescription": "Evento creado desde Handy.",
-
   "bootstrapErrorTitle": "HANDY no puede iniciar",
   "bootstrapErrorHint": "Verifica tu conexion a internet y la configuracion del entorno. Si el problema persiste, contacta al administrador del evento.",
   "bootstrapErrorRetry": "Reintentar",
-
   "leaveEventTooltip": "Salir / cambiar usuario",
-
   "adminPilotReadiness": "Puesta en marcha",
   "adminPilotReadinessHint": "Control rapido para validar si el evento esta listo para probar con varias personas.",
   "adminPilotActionBanner": "El evento no esta operativo ahora. Activarlo evita errores de ingreso durante la prueba.",
@@ -316,7 +299,6 @@
   "adminLogsEmpty": "Sin registros todavia.",
   "adminLogsError": "No pudimos cargar la bitacora.",
   "adminTemplate": "Plantilla",
-
   "a11yPriorityCritical": "CRITICO",
   "a11yPriorityOperational": "OPERATIVO",
   "a11yWaveformDecoration": "Forma de onda de audio",
@@ -324,7 +306,6 @@
   "a11yTemplateUnselected": "Plantilla {name}",
   "a11ySosEmergency": "SOS de emergencia. Envia alerta inmediata a coordinadores.",
   "a11ySosButtonSending": "Enviando alerta SOS...",
-
   "errorEmptyCode": "El codigo esta vacio.",
   "errorCodeNotFound": "Codigo no encontrado. Revisalo o pedile uno nuevo al coordinador.",
   "errorSessionExpired": "La sesion ya no existe en el evento.",
@@ -337,12 +318,10 @@
   "errorInsufficientPermission": "Tu permiso actual no permite esta accion.",
   "errorTranscriptionFailed": "No pudimos transcribir los audios.",
   "errorCodeGenerationFailed": "No pudimos generar un codigo unico.",
-
   "errorGoogleSignInFailed": "No pudimos iniciar sesion con Google.",
   "errorInvalidEmail": "Ingresa un email valido.",
   "errorDemoUnavailable": "El acceso demo no esta disponible en esta version.",
   "adminOperationError": "No se pudo completar la operacion.",
-
   "leaveEventConfirmTitle": "Salir del evento?",
   "leaveEventConfirmBody": "Volveras a la pantalla de ingreso. Si eres invitado, necesitaras el codigo de invitacion nuevamente.",
   "leaveEventConfirmButton": "Salir",
@@ -351,6 +330,13 @@
   "deleteChannelConfirmBody": "El canal \"{name}\" y su historial seran eliminados.",
   "deleteParticipantConfirmTitle": "Eliminar participante?",
   "deleteParticipantConfirmBody": "\"{name}\" perdera acceso al evento.",
-
-  "retry": "Reintentar"
+  "retry": "Reintentar",
+  "radioBridgeIdle": "Enlace de radio listo",
+  "radioBridgeReceiving": "Un handy esta transmitiendo",
+  "radioBridgeTransmitting": "Saliendo al aire",
+  "radioBridgeLockout": "Transmision cortada por tiempo maximo",
+  "radioBridgeUnknown": "Todavia sin estado del enlace",
+  "radioBridgeTimeouts": "{count} transmisiones cortadas hasta ahora",
+  "radioBridgeHintLockout": "Revisar que nadie haya quedado con el PTT apretado y que no haya un microfono abierto en el canal.",
+  "radioBridgeHintUnknown": "El puente esta en el canal pero todavia no informo. Puede estar arrancando."
 }
